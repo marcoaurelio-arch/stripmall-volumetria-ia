@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,71 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Project queries
+export async function createProject(project: InsertProject) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(projects).values(project);
+  return result;
+}
+
+export async function getProjectsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(projects).where(eq(projects.userId, userId)).orderBy(projects.createdAt);
+}
+
+export async function getProjectById(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(projects).where(eq(projects.id, projectId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateProject(projectId: number, data: Partial<InsertProject>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(projects).set(data).where(eq(projects.id, projectId));
+}
+
+export async function deleteProject(projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete analyses first
+  await db.delete(analyses).where(eq(analyses.projectId, projectId));
+  // Then delete project
+  await db.delete(projects).where(eq(projects.id, projectId));
+}
+
+// Analysis queries
+export async function createAnalysis(analysis: InsertAnalysis) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(analyses).values(analysis);
+  return result;
+}
+
+export async function getAnalysesByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(analyses).where(eq(analyses.projectId, projectId)).orderBy(analyses.createdAt);
+}
+
+export async function getLatestAnalysis(projectId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(analyses)
+    .where(eq(analyses.projectId, projectId))
+    .orderBy(analyses.createdAt)
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
