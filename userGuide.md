@@ -30,7 +30,7 @@ Esta aplicação utiliza tecnologias de ponta para entregar análises precisas e
 
 ### Criando um Novo Projeto
 
-Acesse a página inicial e clique em "Novo Projeto" no cabeçalho. Preencha o formulário com os dados do terreno: insira o nome do projeto. Na seção "Localização do Terreno", busque o endereço ou clique em "Desenhar" para ativar o modo de desenho de polígono. Clique nos cantos do terreno no mapa para traçar o perímetro exato - a área será calculada automaticamente em metros quadrados. Clique em "Concluir" para finalizar o polígono. Opcionalmente, adicione descrição, dimensões e parâmetros urbanísticos. Clique em "Criar Projeto" para salvar.
+Acesse a página inicial e clique em "Novo Projeto" no cabeçalho. Preencha o formulário com os dados do terreno: insira o nome do projeto. Na seção "Localização do Terreno", busque o endereço ou clique em "Desenhar" para ativar o modo de desenho de polígono. Clique nos cantos do terreno no mapa para traçar o perímetro exato - a área será calculada automaticamente em metros quadrados. Clique em "Concluir" para finalizar o polígono. Você pode salvar diferentes configurações de polígono como cenários clicando em "Salvar Cenário Atual". Opcionalmente, adicione descrição, dimensões e parâmetros urbanísticos. Clique em "Criar Projeto" para salvar.
 
 ### Analisando um Terreno
 
@@ -38,7 +38,7 @@ Na lista de projetos, clique em "Ver Detalhes" no projeto desejado. Na página d
 
 ### Visualizando Resultados
 
-Após a análise, navegue pelas abas "Dados do Terreno" para revisar informações inseridas e visualizar a localização no mapa interativo, "Análise Volumétrica" para ver resultados dos cálculos e dimensões da volumetria, e "Relatório" para ler sugestões e recomendações detalhadas da IA. Todos os valores são exibidos em métricas claras e organizadas.
+Após a análise, navegue pelas abas "Dados do Terreno" para revisar informações inseridas e visualizar a localização no mapa interativo, "Análise Volumétrica" para ver resultados dos cálculos e dimensões da volumetria, e "Relatório" para ler sugestões e recomendações detalhadas da IA. Na seção "Cenários de Polígonos", você pode salvar, carregar e comparar diferentes configurações de terreno para o mesmo projeto. Todos os valores são exibidos em métricas claras e organizadas.
 
 ---
 

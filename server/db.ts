@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis } from "../drizzle/schema";
+import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -156,4 +156,53 @@ export async function getLatestAnalysis(projectId: number) {
     .limit(1);
   
   return result.length > 0 ? result[0] : undefined;
+}
+
+// Funções para gerenciar cenários de polígonos
+export async function createScenario(scenario: Omit<InsertScenario, "id" | "createdAt" | "updatedAt">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(scenarios).values(scenario);
+  return result;
+}
+
+export async function getScenariosByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(scenarios).where(eq(scenarios.projectId, projectId)).orderBy(desc(scenarios.createdAt));
+}
+
+export async function getScenarioById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(scenarios).where(eq(scenarios.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateScenario(id: number, data: Partial<Omit<InsertScenario, "id" | "projectId" | "createdAt">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(scenarios).set(data).where(eq(scenarios.id, id));
+}
+
+export async function deleteScenario(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(scenarios).where(eq(scenarios.id, id));
+}
+
+export async function setActiveScenario(projectId: number, scenarioId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Desativar todos os cenários do projeto
+  await db.update(scenarios).set({ isActive: 0 }).where(eq(scenarios.projectId, projectId));
+  
+  // Ativar o cenário selecionado
+  await db.update(scenarios).set({ isActive: 1 }).where(eq(scenarios.id, scenarioId));
 }

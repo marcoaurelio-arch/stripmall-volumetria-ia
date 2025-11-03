@@ -8,6 +8,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, MapPin } from "lucide-react";
 import LocationPickerWithDrawing from "@/components/LocationPickerWithDrawing";
+import ScenarioManager from "@/components/ScenarioManager";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -32,6 +33,9 @@ export default function NewProject() {
     longitude: "",
     polygonCoordinates: "",
   });
+
+  const [tempPolygon, setTempPolygon] = useState("");
+  const [tempArea, setTempArea] = useState(0);
 
   const createMutation = trpc.project.create.useMutation({
     onSuccess: () => {
@@ -235,10 +239,13 @@ export default function NewProject() {
                     setFormData({ ...formData, latitude: lat, longitude: lng });
                   }}
                   onAreaCalculated={(area, coordinates) => {
+                    const polygonStr = JSON.stringify(coordinates);
+                    setTempPolygon(polygonStr);
+                    setTempArea(area);
                     setFormData({ 
                       ...formData, 
                       area: area.toString(),
-                      polygonCoordinates: JSON.stringify(coordinates)
+                      polygonCoordinates: polygonStr
                     });
                   }}
                   initialLat={formData.latitude}
@@ -247,6 +254,22 @@ export default function NewProject() {
                 />
               </CardContent>
             </Card>
+
+            {/* Gerenciador de Cenários */}
+            <ScenarioManager
+              projectId={0}
+              currentPolygon={tempPolygon}
+              currentArea={tempArea}
+              onScenarioLoad={(polygon, area) => {
+                setTempPolygon(polygon);
+                setTempArea(area);
+                setFormData({
+                  ...formData,
+                  area: area.toString(),
+                  polygonCoordinates: polygon
+                });
+              }}
+            />
 
             {/* Parâmetros Urbanísticos */}
             <Card>

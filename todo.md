@@ -73,3 +73,13 @@
 - [x] Adicionar botões para limpar e refazer polígono
 - [x] Exibir área calculada em tempo real durante o desenho
 - [x] Salvar coordenadas do polígono no banco de dados
+
+### Sistema de Múltiplos Cenários de Polígonos
+- [x] Criar tabela de cenários no banco de dados
+- [x] Implementar procedures tRPC para CRUD de cenários
+- [x] Criar componente para listar cenários salvos
+- [x] Adicionar botão para salvar cenário atual com nome
+- [x] Implementar carregamento de cenário selecionado
+- [x] Adicionar exclusão de cenários
+- [x] Exibir comparação de áreas entre cenários
+- [x] Marcar cenário ativo/principal

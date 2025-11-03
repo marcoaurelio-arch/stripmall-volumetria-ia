@@ -60,7 +60,27 @@ export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;
 
 /**
- * Análises volumétricas geradas por IA
+ * Tabela de cenários de polígonos para permitir múltiplas configurações de terreno por projeto
+ */
+export const scenarios = mysqlTable("scenarios", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  polygonCoordinates: text("polygonCoordinates").notNull(), // JSON com array de coordenadas
+  area: int("area").notNull(), // área em m²
+  isActive: int("isActive").default(0).notNull(), // 0 = inativo, 1 = ativo
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Scenario = typeof scenarios.$inferSelect;
+export type InsertScenario = typeof scenarios.$inferInsert;
+
+// TODO: Add your tables here
+
+/**
+ * Tabela de análises volumétricas geradas por IA
  */
 export const analyses = mysqlTable("analyses", {
   id: int("id").autoincrement().primaryKey(),

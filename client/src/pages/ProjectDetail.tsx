@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import LocationViewer from "@/components/LocationViewer";
+import ScenarioManager from "@/components/ScenarioManager";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -247,6 +248,17 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Gerenciador de Cenários */}
+            <ScenarioManager
+              projectId={project.id}
+              currentPolygon={project.polygonCoordinates || ""}
+              currentArea={project.area}
+              onScenarioLoad={() => {
+                // Recarregar projeto após carregar cenário
+                utils.project.get.invalidate({ id: projectId });
+              }}
+            />
           </TabsContent>
 
           {/* Análise Volumétrica */}
