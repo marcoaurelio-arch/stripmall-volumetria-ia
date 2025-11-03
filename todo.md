@@ -64,3 +64,12 @@
 - [x] Integrar componente de mapa no formulário de novo projeto
 - [x] Implementar busca de endereço via Geocoding API
 - [x] Exibir localização do terreno na página de detalhes do projeto
+
+### Ferramenta de Desenho de Polígonos
+- [x] Adicionar biblioteca de desenho do Google Maps (@googlemaps/drawing)
+- [x] Criar modo de desenho de polígonos no LocationPicker
+- [x] Implementar cálculo automático de área usando geometry library
+- [x] Atualizar campo de área total automaticamente ao desenhar
+- [x] Adicionar botões para limpar e refazer polígono
+- [x] Exibir área calculada em tempo real durante o desenho
+- [x] Salvar coordenadas do polígono no banco de dados

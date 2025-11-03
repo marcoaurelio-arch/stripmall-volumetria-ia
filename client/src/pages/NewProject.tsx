@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, MapPin } from "lucide-react";
-import LocationPicker from "@/components/LocationPicker";
+import LocationPickerWithDrawing from "@/components/LocationPickerWithDrawing";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -30,6 +30,7 @@ export default function NewProject() {
     recuoFundos: "",
     latitude: "",
     longitude: "",
+    polygonCoordinates: "",
   });
 
   const createMutation = trpc.project.create.useMutation({
@@ -66,6 +67,7 @@ export default function NewProject() {
       recuoFundos: formData.recuoFundos ? parseInt(formData.recuoFundos) : undefined,
       latitude: formData.latitude || undefined,
       longitude: formData.longitude || undefined,
+      polygonCoordinates: formData.polygonCoordinates || undefined,
     });
   };
 
@@ -228,12 +230,20 @@ export default function NewProject() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <LocationPicker
+                <LocationPickerWithDrawing
                   onLocationSelect={(lat, lng) => {
                     setFormData({ ...formData, latitude: lat, longitude: lng });
                   }}
+                  onAreaCalculated={(area, coordinates) => {
+                    setFormData({ 
+                      ...formData, 
+                      area: area.toString(),
+                      polygonCoordinates: JSON.stringify(coordinates)
+                    });
+                  }}
                   initialLat={formData.latitude}
                   initialLng={formData.longitude}
+                  initialPolygon={formData.polygonCoordinates}
                 />
               </CardContent>
             </Card>

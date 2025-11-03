@@ -50,6 +50,7 @@ export const projects = mysqlTable("projects", {
   // Coordenadas geográficas
   latitude: varchar("latitude", { length: 20 }),
   longitude: varchar("longitude", { length: 20 }),
+  polygonCoordinates: text("polygonCoordinates"), // JSON com array de coordenadas do polígono
   status: mysqlEnum("status", ["draft", "analyzing", "completed"]).default("draft").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

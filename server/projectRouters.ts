@@ -45,6 +45,7 @@ export const projectRouter = router({
         recuoFundos: z.number().optional(),
         latitude: z.string().optional(),
         longitude: z.string().optional(),
+        polygonCoordinates: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {

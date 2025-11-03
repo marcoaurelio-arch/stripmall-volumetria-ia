@@ -30,7 +30,7 @@ Esta aplicação utiliza tecnologias de ponta para entregar análises precisas e
 
 ### Criando um Novo Projeto
 
-Acesse a página inicial e clique em "Novo Projeto" no cabeçalho. Preencha o formulário com os dados do terreno: insira o nome do projeto e a área total em metros quadrados (campos obrigatórios). Opcionalmente, adicione descrição, endereço, dimensões (largura e comprimento) e parâmetros urbanísticos como taxa de ocupação, coeficiente de aproveitamento e recuos. Na seção "Localização do Terreno", busque o endereço ou clique diretamente no mapa para marcar a localização exata. Clique em "Criar Projeto" para salvar.
+Acesse a página inicial e clique em "Novo Projeto" no cabeçalho. Preencha o formulário com os dados do terreno: insira o nome do projeto. Na seção "Localização do Terreno", busque o endereço ou clique em "Desenhar" para ativar o modo de desenho de polígono. Clique nos cantos do terreno no mapa para traçar o perímetro exato - a área será calculada automaticamente em metros quadrados. Clique em "Concluir" para finalizar o polígono. Opcionalmente, adicione descrição, dimensões e parâmetros urbanísticos. Clique em "Criar Projeto" para salvar.
 
 ### Analisando um Terreno
 
