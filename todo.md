@@ -56,3 +56,11 @@
 - [ ] Implementar análise de sombreamento
 - [ ] Implementar comparação de múltiplos cenários
 - [ ] Adicionar templates pré-configurados de strip malls
+
+### Integração com Google Maps
+- [x] Adicionar campos de latitude e longitude no schema do banco de dados
+- [x] Instalar biblioteca @vis.gl/react-google-maps
+- [x] Criar componente de mapa interativo para seleção de localização
+- [x] Integrar componente de mapa no formulário de novo projeto
+- [x] Implementar busca de endereço via Geocoding API
+- [x] Exibir localização do terreno na página de detalhes do projeto

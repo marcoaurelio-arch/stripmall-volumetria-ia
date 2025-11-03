@@ -47,10 +47,9 @@ export const projects = mysqlTable("projects", {
   recuoLateral: int("recuoLateral"), // em metros
   recuoFundos: int("recuoFundos"), // em metros
   
-  // Arquivos anexados
-  terrainImageUrl: text("terrainImageUrl"),
-  terrainImageKey: text("terrainImageKey"),
-  
+  // Coordenadas geográficas
+  latitude: varchar("latitude", { length: 20 }),
+  longitude: varchar("longitude", { length: 20 }),
   status: mysqlEnum("status", ["draft", "analyzing", "completed"]).default("draft").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

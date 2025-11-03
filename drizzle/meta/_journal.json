@@ -15,6 +15,13 @@
       "when": 1761959843057,
       "tag": "0001_crazy_lake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762182848175,
+      "tag": "0002_superb_umar",
+      "breakpoints": true
     }
   ]
 }

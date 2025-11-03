@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MapPin } from "lucide-react";
+import LocationPicker from "@/components/LocationPicker";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -27,6 +28,8 @@ export default function NewProject() {
     recuoFrontal: "",
     recuoLateral: "",
     recuoFundos: "",
+    latitude: "",
+    longitude: "",
   });
 
   const createMutation = trpc.project.create.useMutation({
@@ -61,6 +64,8 @@ export default function NewProject() {
       recuoFrontal: formData.recuoFrontal ? parseInt(formData.recuoFrontal) : undefined,
       recuoLateral: formData.recuoLateral ? parseInt(formData.recuoLateral) : undefined,
       recuoFundos: formData.recuoFundos ? parseInt(formData.recuoFundos) : undefined,
+      latitude: formData.latitude || undefined,
+      longitude: formData.longitude || undefined,
     });
   };
 
@@ -208,6 +213,28 @@ export default function NewProject() {
                     />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Localização do Terreno */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <CardTitle>Localização do Terreno</CardTitle>
+                </div>
+                <CardDescription>
+                  Selecione a localização do terreno no mapa ou busque por endereço
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LocationPicker
+                  onLocationSelect={(lat, lng) => {
+                    setFormData({ ...formData, latitude: lat, longitude: lng });
+                  }}
+                  initialLat={formData.latitude}
+                  initialLng={formData.longitude}
+                />
               </CardContent>
             </Card>
 

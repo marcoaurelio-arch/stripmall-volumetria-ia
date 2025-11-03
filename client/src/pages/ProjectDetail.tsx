@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
+import LocationViewer from "@/components/LocationViewer";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -230,6 +231,22 @@ export default function ProjectDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Localização do Terreno */}
+            {project.latitude && project.longitude && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Localização do Terreno</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <LocationViewer
+                    latitude={project.latitude}
+                    longitude={project.longitude}
+                    address={project.address || undefined}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Análise Volumétrica */}

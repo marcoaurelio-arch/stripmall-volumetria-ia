@@ -43,6 +43,8 @@ export const projectRouter = router({
         recuoFrontal: z.number().optional(),
         recuoLateral: z.number().optional(),
         recuoFundos: z.number().optional(),
+        latitude: z.string().optional(),
+        longitude: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -71,6 +73,8 @@ export const projectRouter = router({
         recuoFrontal: z.number().optional(),
         recuoLateral: z.number().optional(),
         recuoFundos: z.number().optional(),
+        latitude: z.string().optional(),
+        longitude: z.string().optional(),
         status: z.enum(["draft", "analyzing", "completed"]).optional(),
       })
     )
