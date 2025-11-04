@@ -78,7 +78,18 @@ export const scenarios = mysqlTable("scenarios", {
 export type Scenario = typeof scenarios.$inferSelect;
 export type InsertScenario = typeof scenarios.$inferInsert;
 
-// TODO: Add your tables here
+// Tabela de imagens geradas
+export const generatedImages = mysqlTable("generatedImages", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  type: mysqlEnum("type", ["conceptual", "floorplan"]).notNull(), // Tipo: estudo conceitual ou planta baixa
+  imageUrl: text("imageUrl").notNull(), // URL da imagem no S3
+  prompt: text("prompt"), // Prompt usado para gerar a imagem
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GeneratedImage = typeof generatedImages.$inferSelect;
+export type InsertGeneratedImage = typeof generatedImages.$inferInsert;
 
 /**
  * Tabela de análises volumétricas geradas por IA

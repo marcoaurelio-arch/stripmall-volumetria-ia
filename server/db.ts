@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario } from "../drizzle/schema";
+import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario, generatedImages, InsertGeneratedImage } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -205,4 +205,26 @@ export async function setActiveScenario(projectId: number, scenarioId: number) {
   
   // Ativar o cenário selecionado
   await db.update(scenarios).set({ isActive: 1 }).where(eq(scenarios.id, scenarioId));
+}
+
+// Funções para imagens geradas
+export async function createGeneratedImage(image: InsertGeneratedImage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(generatedImages).values(image);
+}
+
+export async function getGeneratedImagesByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(generatedImages).where(eq(generatedImages.projectId, projectId)).orderBy(desc(generatedImages.createdAt));
+}
+
+export async function deleteGeneratedImage(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(generatedImages).where(eq(generatedImages.id, id));
 }

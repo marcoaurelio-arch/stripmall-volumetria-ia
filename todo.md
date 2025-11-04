@@ -125,3 +125,15 @@
 - [x] Exibir custo total do portfólio
 - [x] Adicionar painel na página de listagem de projetos
 - [x] Incluir filtros por status (draft, analyzing, completed)
+
+### Geração de Estudos Conceituais com IA
+- [x] Criar schema para armazenar imagens geradas
+- [x] Implementar procedure tRPC para gerar estudo conceitual 3D
+- [x] Implementar procedure tRPC para gerar planta baixa
+- [x] Integrar com API de geração de imagens (generateImage)
+- [x] Criar prompts otimizados para renderização de strip malls
+- [x] Criar prompts otimizados para plantas baixas arquitetônicas
+- [x] Adicionar botão de gerar estudo conceitual na página de detalhes
+- [x] Criar galeria de imagens geradas no projeto
+- [x] Implementar download de imagens geradas
+- [x] Adicionar loading states durante geração

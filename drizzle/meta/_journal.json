@@ -43,6 +43,13 @@
       "when": 1762277152982,
       "tag": "0005_sturdy_amazoness",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1762278796360,
+      "tag": "0006_icy_mister_sinister",
+      "breakpoints": true
     }
   ]
 }

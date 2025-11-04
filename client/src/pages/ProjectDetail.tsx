@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import LocationViewer from "@/components/LocationViewer";
 import ScenarioManager from "@/components/ScenarioManager";
+import ImageGallery from "@/components/ImageGallery";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -160,6 +161,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="relatorio" disabled={!latestAnalysis}>
               <FileText className="h-4 w-4 mr-2" />
               Relatório
+            </TabsTrigger>
+            <TabsTrigger value="imagens">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Estudos Visuais
             </TabsTrigger>
           </TabsList>
 
@@ -386,6 +391,11 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Estudos Visuais */}
+          <TabsContent value="imagens" className="space-y-6">
+            <ImageGallery projectId={projectId} />
           </TabsContent>
         </Tabs>
       </main>
