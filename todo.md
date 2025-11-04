@@ -116,3 +116,12 @@
 - [ ] Exibir custo nos cenários salvos
 - [x] Adicionar formatação de moeda brasileira (R$)
 - [ ] Incluir custo no relatório de análise com IA
+
+### Painel de Resumo Financeiro
+- [x] Criar componente de card de resumo financeiro
+- [x] Calcular custo total de todos os projetos
+- [x] Exibir número total de projetos
+- [x] Exibir área total consolidada
+- [x] Exibir custo total do portfólio
+- [x] Adicionar painel na página de listagem de projetos
+- [x] Incluir filtros por status (draft, analyzing, completed)

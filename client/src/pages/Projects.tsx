@@ -81,6 +81,58 @@ export default function Projects() {
           <p className="text-muted-foreground">Gerencie seus estudos de volumetria e análises de terrenos</p>
         </div>
 
+        {/* Painel de Resumo Financeiro */}
+        {projects && projects.length > 0 && (
+          <div className="grid gap-4 md:grid-cols-3 mb-8">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total de Projetos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{projects.length}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {projects.filter(p => p.status === 'completed').length} concluídos
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Área Total Consolidada</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">
+                  {projects.reduce((sum, p) => sum + (p.area || 0), 0).toLocaleString()} m²
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Média de {Math.round(projects.reduce((sum, p) => sum + (p.area || 0), 0) / projects.length).toLocaleString()} m² por projeto
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Custo Total do Portfólio</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                    projects.reduce((sum, p) => {
+                      if (p.pricePerSqm && p.area) {
+                        return sum + (p.area * p.pricePerSqm / 100);
+                      }
+                      return sum;
+                    }, 0)
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {projects.filter(p => p.pricePerSqm).length} de {projects.length} projetos com preço definido
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
