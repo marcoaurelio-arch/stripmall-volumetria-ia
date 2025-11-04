@@ -83,3 +83,10 @@
 - [x] Adicionar exclusão de cenários
 - [x] Exibir comparação de áreas entre cenários
 - [x] Marcar cenário ativo/principal
+
+### Exportação de Cenários para CSV
+- [x] Criar função para gerar CSV com dados dos cenários
+- [x] Adicionar botão de exportação no ScenarioManager
+- [x] Incluir coordenadas detalhadas de cada polígono
+- [x] Exportar metadados (nome, descrição, área, data)
+- [x] Testar download do arquivo CSV

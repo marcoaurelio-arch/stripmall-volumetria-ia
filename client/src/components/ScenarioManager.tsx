@@ -7,7 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Save, Trash2, Check, Layers } from "lucide-react";
+import { Save, Trash2, Check, Layers, Download } from "lucide-react";
 
 interface ScenarioManagerProps {
   projectId: number;
@@ -101,6 +101,61 @@ export default function ScenarioManager({
     }
   };
 
+  const handleExportCSV = () => {
+    if (scenarios.length === 0) {
+      toast.error("Nenhum cenário para exportar");
+      return;
+    }
+
+    // Cabeçalho do CSV
+    const headers = [
+      "ID",
+      "Nome",
+      "Descrição",
+      "\u00c1rea (m\u00b2)",
+      "Ativo",
+      "Data de Criação",
+      "Número de Pontos",
+      "Coordenadas (JSON)"
+    ];
+
+    // Linhas de dados
+    const rows = scenarios.map(scenario => {
+      const coordinates = JSON.parse(scenario.polygonCoordinates || "[]");
+      return [
+        scenario.id,
+        `"${scenario.name}"`,
+        `"${scenario.description || ""}"`,
+        scenario.area,
+        scenario.isActive === 1 ? "Sim" : "N\u00e3o",
+        new Date(scenario.createdAt).toLocaleString("pt-BR"),
+        coordinates.length,
+        `"${scenario.polygonCoordinates}"`
+      ];
+    });
+
+    // Montar CSV
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    // Criar blob e fazer download
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `cenarios-projeto-${projectId}-${Date.now()}.csv`);
+    link.style.visibility = "hidden";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success(`${scenarios.length} cenário(s) exportado(s) com sucesso!`);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -115,14 +170,25 @@ export default function ScenarioManager({
                 Salve e compare diferentes configurações de terreno
               </CardDescription>
             </div>
-            <Button 
-              onClick={() => setShowSaveDialog(true)}
-              disabled={!currentPolygon || !currentArea}
-              size="sm"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Salvar Cenário Atual
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleExportCSV}
+                variant="outline"
+                size="sm"
+                disabled={scenarios.length === 0}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Exportar CSV
+              </Button>
+              <Button 
+                onClick={() => setShowSaveDialog(true)}
+                disabled={!currentPolygon || !currentArea}
+                size="sm"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Salvar Cenário Atual
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
