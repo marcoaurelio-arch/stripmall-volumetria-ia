@@ -90,3 +90,11 @@
 - [x] Incluir coordenadas detalhadas de cada polígono
 - [x] Exportar metadados (nome, descrição, área, data)
 - [x] Testar download do arquivo CSV
+
+### Importação de Cenários via CSV
+- [x] Criar função para ler e parsear arquivo CSV
+- [x] Adicionar botão de importação no ScenarioManager
+- [x] Validar formato do CSV importado
+- [x] Criar cenários automaticamente a partir do CSV
+- [x] Exibir feedback de sucesso/erro na importação
+- [x] Testar importação com arquivo exportado

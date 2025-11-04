@@ -7,7 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Save, Trash2, Check, Layers, Download } from "lucide-react";
+import { Save, Trash2, Check, Layers, Download, Upload } from "lucide-react";
 
 interface ScenarioManagerProps {
   projectId: number;
@@ -25,6 +25,7 @@ export default function ScenarioManager({
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [scenarioName, setScenarioName] = useState("");
   const [scenarioDescription, setScenarioDescription] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -156,6 +157,98 @@ export default function ScenarioManager({
     toast.success(`${scenarios.length} cenário(s) exportado(s) com sucesso!`);
   };
 
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast.error("Por favor, selecione um arquivo CSV");
+      return;
+    }
+
+    setIsImporting(true);
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          toast.error("Arquivo CSV vazio ou inválido");
+          setIsImporting(false);
+          return;
+        }
+
+        // Pular cabeçalho
+        const dataLines = lines.slice(1);
+        let importedCount = 0;
+        let errorCount = 0;
+
+        for (const line of dataLines) {
+          try {
+            // Parse CSV line (considerando campos entre aspas)
+            const regex = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/;
+            const fields = line.split(regex).map(field => 
+              field.trim().replace(/^"|"$/g, '')
+            );
+
+            if (fields.length < 8) {
+              errorCount++;
+              continue;
+            }
+
+            const [id, name, description, area, isActive, createdAt, numPoints, coordinates] = fields;
+
+            // Validar dados
+            if (!name || !coordinates || !area) {
+              errorCount++;
+              continue;
+            }
+
+            // Criar cenário
+            await createMutation.mutateAsync({
+              projectId,
+              name: name,
+              description: description || undefined,
+              polygonCoordinates: coordinates,
+              area: parseFloat(area),
+            });
+
+            importedCount++;
+          } catch (error) {
+            console.error('Erro ao importar linha:', error);
+            errorCount++;
+          }
+        }
+
+        if (importedCount > 0) {
+          toast.success(`${importedCount} cenário(s) importado(s) com sucesso!`);
+          utils.scenario.list.invalidate({ projectId });
+        }
+        
+        if (errorCount > 0) {
+          toast.warning(`${errorCount} linha(s) não puderam ser importadas`);
+        }
+
+      } catch (error) {
+        console.error('Erro ao processar CSV:', error);
+        toast.error("Erro ao processar arquivo CSV");
+      } finally {
+        setIsImporting(false);
+        // Limpar input
+        event.target.value = '';
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error("Erro ao ler arquivo");
+      setIsImporting(false);
+    };
+
+    reader.readAsText(file, 'UTF-8');
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -180,6 +273,22 @@ export default function ScenarioManager({
                 <Download className="h-4 w-4 mr-2" />
                 Exportar CSV
               </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                disabled={isImporting}
+                onClick={() => document.getElementById('csv-import-input')?.click()}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {isImporting ? "Importando..." : "Importar CSV"}
+              </Button>
+              <input
+                id="csv-import-input"
+                type="file"
+                accept=".csv"
+                onChange={handleImportCSV}
+                style={{ display: 'none' }}
+              />
               <Button 
                 onClick={() => setShowSaveDialog(true)}
                 disabled={!currentPolygon || !currentArea}
