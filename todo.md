@@ -137,3 +137,12 @@
 - [x] Criar galeria de imagens geradas no projeto
 - [x] Implementar download de imagens geradas
 - [x] Adicionar loading states durante geração
+
+### Carrossel de Estudos Conceituais na Página Inicial
+- [x] Criar procedure tRPC para buscar imagens conceituais recentes (públicas)
+- [x] Implementar componente de carrossel com autoplay
+- [x] Adicionar transições suaves entre imagens
+- [x] Exibir informações do projeto em cada slide
+- [x] Adicionar navegação manual (setas e indicadores)
+- [x] Integrar carrossel na página inicial (Home)
+- [x] Adicionar link para o projeto ao clicar na imagem

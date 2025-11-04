@@ -228,3 +228,25 @@ export async function deleteGeneratedImage(id: number) {
   
   await db.delete(generatedImages).where(eq(generatedImages.id, id));
 }
+
+export async function getRecentConceptualImages(limit: number = 10) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const images = await db
+    .select({
+      id: generatedImages.id,
+      projectId: generatedImages.projectId,
+      imageUrl: generatedImages.imageUrl,
+      createdAt: generatedImages.createdAt,
+      projectName: projects.name,
+      projectAddress: projects.address,
+    })
+    .from(generatedImages)
+    .innerJoin(projects, eq(generatedImages.projectId, projects.id))
+    .where(eq(generatedImages.type, "conceptual"))
+    .orderBy(desc(generatedImages.createdAt))
+    .limit(limit);
+
+  return images;
+}

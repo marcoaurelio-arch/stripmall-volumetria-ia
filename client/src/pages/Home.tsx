@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { Building2, Calculator, FileText, Layers, MapPin, Ruler } from "lucide-react";
 import { Link } from "wouter";
+import ConceptualCarousel from "@/components/ConceptualCarousel";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -61,6 +62,12 @@ export default function Home() {
             )}
           </div>
         </div>
+      </section>
+
+      {/* Carrossel de Estudos Conceituais */}
+      <section className="container py-16">
+        <h2 className="text-center text-3xl font-bold mb-8">Projetos Recentes</h2>
+        <ConceptualCarousel />
       </section>
 
       {/* Features Section */}

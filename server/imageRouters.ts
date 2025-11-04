@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { generateImage } from "./_core/imageGeneration";
 
@@ -117,5 +117,12 @@ Total area: ${project.area}m². Modern commercial architecture layout.`;
       // TODO: Verificar se a imagem pertence ao usuário antes de deletar
       await db.deleteGeneratedImage(input.id);
       return { success: true };
+    }),
+
+  // Buscar imagens conceituais recentes para carrossel (público)
+  getRecentConceptual: publicProcedure
+    .input(z.object({ limit: z.number().optional().default(10) }))
+    .query(async ({ input }) => {
+      return db.getRecentConceptualImages(input.limit);
     }),
 });
