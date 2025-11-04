@@ -188,6 +188,24 @@ export default function ProjectDetail() {
                     </div>
                   )}
                 </div>
+                {project.pricePerSqm && (
+                  <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Preço por m²</p>
+                        <p className="text-2xl font-bold text-primary">
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(project.pricePerSqm / 100)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Custo Total Estimado do Terreno</p>
+                        <p className="text-2xl font-bold text-primary">
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((project.area * project.pricePerSqm) / 100)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

@@ -107,3 +107,12 @@
 - [x] Criar novo cenário com polígono consolidado
 - [x] Exibir preview do polígono mesclado antes de salvar
 - [x] Testar mesclagem com 2+ polígonos
+
+### Cálculo de Custo Estimado da Terra
+- [x] Adicionar campo de preço por m² no schema de projetos
+- [x] Criar input para preço por m² no formulário de projeto
+- [x] Implementar cálculo automático de custo total (área × preço/m²)
+- [x] Exibir custo estimado na página de detalhes do projeto
+- [ ] Exibir custo nos cenários salvos
+- [x] Adicionar formatação de moeda brasileira (R$)
+- [ ] Incluir custo no relatório de análise com IA

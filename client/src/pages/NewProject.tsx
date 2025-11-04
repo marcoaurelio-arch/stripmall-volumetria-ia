@@ -32,6 +32,7 @@ export default function NewProject() {
     latitude: "",
     longitude: "",
     polygonCoordinates: "",
+    pricePerSqm: "",
   });
 
   const [tempPolygon, setTempPolygon] = useState("");
@@ -72,6 +73,7 @@ export default function NewProject() {
       latitude: formData.latitude || undefined,
       longitude: formData.longitude || undefined,
       polygonCoordinates: formData.polygonCoordinates || undefined,
+      pricePerSqm: formData.pricePerSqm ? Math.round(parseFloat(formData.pricePerSqm) * 100) : undefined, // Converter para centavos
     });
   };
 
@@ -193,6 +195,20 @@ export default function NewProject() {
                       placeholder="Ex: 5000"
                       required
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pricePerSqm">Preço por m² (R$)</Label>
+                    <Input
+                      id="pricePerSqm"
+                      name="pricePerSqm"
+                      type="number"
+                      step="0.01"
+                      value={formData.pricePerSqm}
+                      onChange={handleChange}
+                      placeholder="Ex: 1500.00"
+                    />
+                    <p className="text-xs text-muted-foreground">Valor de mercado do terreno por metro quadrado</p>
                   </div>
 
                   <div className="space-y-2">

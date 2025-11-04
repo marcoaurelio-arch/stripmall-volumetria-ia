@@ -46,6 +46,7 @@ export const projectRouter = router({
         latitude: z.string().optional(),
         longitude: z.string().optional(),
         polygonCoordinates: z.string().optional(),
+        pricePerSqm: z.number().optional(), // Preço por m² em centavos
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -76,6 +77,7 @@ export const projectRouter = router({
         recuoFundos: z.number().optional(),
         latitude: z.string().optional(),
         longitude: z.string().optional(),
+        pricePerSqm: z.number().optional(), // Preço por m² em centavos
         status: z.enum(["draft", "analyzing", "completed"]).optional(),
       })
     )

@@ -36,6 +36,13 @@
       "when": 1762196955328,
       "tag": "0004_low_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1762277152982,
+      "tag": "0005_sturdy_amazoness",
+      "breakpoints": true
     }
   ]
 }
