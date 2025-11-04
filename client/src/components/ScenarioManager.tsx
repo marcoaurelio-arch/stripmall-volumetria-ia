@@ -7,7 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Save, Trash2, Check, Layers, Download, Upload } from "lucide-react";
+import { Save, Trash2, Check, Layers, Download, Upload, Combine } from "lucide-react";
 
 interface ScenarioManagerProps {
   projectId: number;
@@ -26,6 +26,9 @@ export default function ScenarioManager({
   const [scenarioName, setScenarioName] = useState("");
   const [scenarioDescription, setScenarioDescription] = useState("");
   const [isImporting, setIsImporting] = useState(false);
+  const [selectedScenarios, setSelectedScenarios] = useState<number[]>([]);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [mergedName, setMergedName] = useState("");
 
   const utils = trpc.useUtils();
 
@@ -249,6 +252,133 @@ export default function ScenarioManager({
     reader.readAsText(file, 'UTF-8');
   };
 
+  // Função para calcular convex hull (envoltória convexa)
+  const calculateConvexHull = (points: Array<{lat: number, lng: number}>) => {
+    if (points.length < 3) return points;
+
+    // Ordenar pontos por x, depois por y
+    const sorted = [...points].sort((a, b) => {
+      if (a.lng === b.lng) return a.lat - b.lat;
+      return a.lng - b.lng;
+    });
+
+    // Construir hull inferior
+    const lower: Array<{lat: number, lng: number}> = [];
+    for (const point of sorted) {
+      while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
+        lower.pop();
+      }
+      lower.push(point);
+    }
+
+    // Construir hull superior
+    const upper: Array<{lat: number, lng: number}> = [];
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      const point = sorted[i];
+      while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
+        upper.pop();
+      }
+      upper.push(point);
+    }
+
+    // Remover último ponto de cada metade (duplicado)
+    lower.pop();
+    upper.pop();
+
+    return lower.concat(upper);
+  };
+
+  // Produto vetorial para determinar direção
+  const cross = (o: {lat: number, lng: number}, a: {lat: number, lng: number}, b: {lat: number, lng: number}) => {
+    return (a.lng - o.lng) * (b.lat - o.lat) - (a.lat - o.lat) * (b.lng - o.lng);
+  };
+
+  // Calcular área do polígono usando fórmula de Shoelace
+  const calculatePolygonArea = (points: Array<{lat: number, lng: number}>) => {
+    if (points.length < 3) return 0;
+
+    let area = 0;
+    for (let i = 0; i < points.length; i++) {
+      const j = (i + 1) % points.length;
+      area += points[i].lng * points[j].lat;
+      area -= points[j].lng * points[i].lat;
+    }
+    area = Math.abs(area) / 2;
+
+    // Converter de graus quadrados para metros quadrados (aproximado)
+    // 1 grau de latitude ≈ 111 km
+    // 1 grau de longitude varia com latitude, usando aproximação
+    const avgLat = points.reduce((sum, p) => sum + p.lat, 0) / points.length;
+    const latToMeters = 111000;
+    const lngToMeters = 111000 * Math.cos(avgLat * Math.PI / 180);
+    
+    return area * latToMeters * lngToMeters;
+  };
+
+  const handleMergeScenarios = () => {
+    if (selectedScenarios.length < 2) {
+      toast.error("Selecione pelo menos 2 cenários para mesclar");
+      return;
+    }
+
+    setShowMergeDialog(true);
+  };
+
+  const confirmMerge = async () => {
+    if (!mergedName.trim()) {
+      toast.error("Por favor, insira um nome para o cenário mesclado");
+      return;
+    }
+
+    try {
+      // Coletar todos os pontos dos cenários selecionados
+      const allPoints: Array<{lat: number, lng: number}> = [];
+      
+      for (const scenarioId of selectedScenarios) {
+        const scenario = scenarios.find(s => s.id === scenarioId);
+        if (scenario && scenario.polygonCoordinates) {
+          const coords = JSON.parse(scenario.polygonCoordinates);
+          allPoints.push(...coords);
+        }
+      }
+
+      if (allPoints.length === 0) {
+        toast.error("Nenhum ponto encontrado nos cenários selecionados");
+        return;
+      }
+
+      // Calcular convex hull
+      const mergedPolygon = calculateConvexHull(allPoints);
+      const mergedArea = calculatePolygonArea(mergedPolygon);
+
+      // Criar novo cenário com polígono mesclado
+      await createMutation.mutateAsync({
+        projectId,
+        name: mergedName,
+        description: `Mesclagem de ${selectedScenarios.length} cenários`,
+        polygonCoordinates: JSON.stringify(mergedPolygon),
+        area: mergedArea,
+      });
+
+      toast.success("Cenários mesclados com sucesso!");
+      setShowMergeDialog(false);
+      setMergedName("");
+      setSelectedScenarios([]);
+      utils.scenario.list.invalidate({ projectId });
+    } catch (error) {
+      console.error('Erro ao mesclar cenários:', error);
+      toast.error("Erro ao mesclar cenários");
+    }
+  };
+
+  const toggleScenarioSelection = (scenarioId: number) => {
+    setSelectedScenarios(prev => 
+      prev.includes(scenarioId) 
+        ? prev.filter(id => id !== scenarioId)
+        : [...prev, scenarioId]
+    );
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -264,6 +394,15 @@ export default function ScenarioManager({
               </CardDescription>
             </div>
             <div className="flex gap-2">
+              <Button 
+                onClick={handleMergeScenarios}
+                variant="outline"
+                size="sm"
+                disabled={selectedScenarios.length < 2}
+              >
+                <Combine className="h-4 w-4 mr-2" />
+                Mesclar ({selectedScenarios.length})
+              </Button>
               <Button 
                 onClick={handleExportCSV}
                 variant="outline"
@@ -318,10 +457,17 @@ export default function ScenarioManager({
               {scenarios.map((scenario) => (
                 <Card 
                   key={scenario.id} 
-                  className={`${scenario.isActive ? 'border-primary bg-primary/5' : ''}`}
+                  className={`${scenario.isActive ? 'border-primary bg-primary/5' : ''} ${selectedScenarios.includes(scenario.id) ? 'ring-2 ring-primary' : ''}`}
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedScenarios.includes(scenario.id)}
+                        onChange={() => toggleScenarioSelection(scenario.id)}
+                        className="mt-1 h-4 w-4 rounded border-gray-300"
+                      />
+                      <div className="flex-1 flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold">{scenario.name}</h4>
@@ -362,6 +508,7 @@ export default function ScenarioManager({
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
+                      </div>
                       </div>
                     </div>
                   </CardContent>
@@ -417,6 +564,43 @@ export default function ScenarioManager({
             </Button>
             <Button onClick={handleSaveScenario} disabled={createMutation.isPending}>
               {createMutation.isPending ? "Salvando..." : "Salvar Cenário"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para mesclar cenários */}
+      <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mesclar Cenários</DialogTitle>
+            <DialogDescription>
+              Os {selectedScenarios.length} cenários selecionados serão mesclados em um único polígono consolidado
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="merged-name">Nome do Cenário Mesclado *</Label>
+              <Input
+                id="merged-name"
+                value={mergedName}
+                onChange={(e) => setMergedName(e.target.value)}
+                placeholder="Ex: Terrenos Combinados"
+                className="mt-1.5"
+              />
+            </div>
+            <div className="bg-muted p-3 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                <strong>{selectedScenarios.length}</strong> cenários serão mesclados usando convex hull (envoltória convexa)
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMergeDialog(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={confirmMerge} disabled={createMutation.isPending}>
+              {createMutation.isPending ? "Mesclando..." : "Mesclar Cenários"}
             </Button>
           </DialogFooter>
         </DialogContent>

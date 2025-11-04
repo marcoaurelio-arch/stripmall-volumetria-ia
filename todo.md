@@ -98,3 +98,12 @@
 - [x] Criar cenários automaticamente a partir do CSV
 - [x] Exibir feedback de sucesso/erro na importação
 - [x] Testar importação com arquivo exportado
+
+### Mesclagem de Múltiplos Polígonos
+- [x] Adicionar seleção múltipla de cenários no ScenarioManager
+- [x] Criar função para calcular união de polígonos (convex hull)
+- [x] Implementar botão "Mesclar Selecionados"
+- [x] Calcular área total do polígono mesclado
+- [x] Criar novo cenário com polígono consolidado
+- [x] Exibir preview do polígono mesclado antes de salvar
+- [x] Testar mesclagem com 2+ polígonos
