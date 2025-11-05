@@ -2,9 +2,104 @@ import { trpc } from "@/lib/trpc";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Share2, Facebook, Twitter, Linkedin, MessageCircle, Link as LinkIcon, Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Link } from "wouter";
+import { toast } from "sonner";
+
+interface ShareButtonsProps {
+  projectId: number;
+  projectName: string;
+  imageUrl: string;
+}
+
+function ShareButtons({ projectId, projectName, imageUrl }: ShareButtonsProps) {
+  const [copied, setCopied] = useState(false);
+  const projectUrl = `${window.location.origin}/projetos/${projectId}`;
+  const shareText = `Confira este estudo conceitual de ${projectName}`;
+
+  const handleShare = (platform: string) => {
+    let url = "";
+    switch (platform) {
+      case "facebook":
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(projectUrl)}`;
+        break;
+      case "twitter":
+        url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(projectUrl)}`;
+        break;
+      case "linkedin":
+        url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(projectUrl)}`;
+        break;
+      case "whatsapp":
+        url = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${projectUrl}`)}`;
+        break;
+    }
+    if (url) {
+      window.open(url, "_blank", "width=600,height=400");
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(projectUrl);
+      setCopied(true);
+      toast.success("Link copiado!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error("Erro ao copiar link");
+    }
+  };
+
+  return (
+    <div className="flex gap-2" onClick={(e) => e.preventDefault()}>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="bg-white/90 hover:bg-white"
+        onClick={() => handleShare("facebook")}
+        title="Compartilhar no Facebook"
+      >
+        <Facebook className="h-4 w-4" />
+      </Button>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="bg-white/90 hover:bg-white"
+        onClick={() => handleShare("twitter")}
+        title="Compartilhar no Twitter"
+      >
+        <Twitter className="h-4 w-4" />
+      </Button>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="bg-white/90 hover:bg-white"
+        onClick={() => handleShare("linkedin")}
+        title="Compartilhar no LinkedIn"
+      >
+        <Linkedin className="h-4 w-4" />
+      </Button>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="bg-white/90 hover:bg-white"
+        onClick={() => handleShare("whatsapp")}
+        title="Compartilhar no WhatsApp"
+      >
+        <MessageCircle className="h-4 w-4" />
+      </Button>
+      <Button
+        size="icon"
+        variant="secondary"
+        className="bg-white/90 hover:bg-white"
+        onClick={handleCopyLink}
+        title="Copiar link"
+      >
+        {copied ? <Check className="h-4 w-4" /> : <LinkIcon className="h-4 w-4" />}
+      </Button>
+    </div>
+  );
+}
 
 export default function ConceptualCarousel() {
   const { data: images, isLoading } = trpc.image.getRecentConceptual.useQuery({ limit: 10 });
@@ -56,16 +151,21 @@ export default function ConceptualCarousel() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                    <h3 className="text-3xl font-bold mb-2">{image.projectName}</h3>
-                    {image.projectAddress && (
-                      <div className="flex items-center gap-2 text-white/90">
-                        <MapPin className="h-4 w-4" />
-                        <span>{image.projectAddress}</span>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-3xl font-bold mb-2">{image.projectName}</h3>
+                        {image.projectAddress && (
+                          <div className="flex items-center gap-2 text-white/90">
+                            <MapPin className="h-4 w-4" />
+                            <span>{image.projectAddress}</span>
+                          </div>
+                        )}
+                        <p className="text-sm text-white/70 mt-2">
+                          Gerado em {new Date(image.createdAt).toLocaleDateString("pt-BR")}
+                        </p>
                       </div>
-                    )}
-                    <p className="text-sm text-white/70 mt-2">
-                      Gerado em {new Date(image.createdAt).toLocaleDateString("pt-BR")}
-                    </p>
+                      <ShareButtons projectId={image.projectId} projectName={image.projectName || "Projeto"} imageUrl={image.imageUrl} />
+                    </div>
                   </div>
                 </div>
               </Link>

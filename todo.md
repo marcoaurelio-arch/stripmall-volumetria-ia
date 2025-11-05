@@ -146,3 +146,11 @@
 - [x] Adicionar navegação manual (setas e indicadores)
 - [x] Integrar carrossel na página inicial (Home)
 - [x] Adicionar link para o projeto ao clicar na imagem
+
+### Compartilhamento Social de Estudos Conceituais
+- [x] Adicionar botões de compartilhamento no carrossel (Facebook, Twitter, LinkedIn, WhatsApp)
+- [x] Implementar função de compartilhamento com URL do projeto
+- [ ] Adicionar meta tags Open Graph para preview rico nas redes sociais
+- [x] Implementar botão de copiar link
+- [x] Adicionar animação de feedback ao compartilhar
+- [x] Testar compartilhamento em diferentes redes sociais
