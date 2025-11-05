@@ -4,6 +4,7 @@ import { protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
+import { parseKMZ } from "./kmzParser";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -267,5 +268,35 @@ Responda APENAS com um JSON válido no seguinte formato:
       }
       
       return db.getLatestAnalysis(input.projectId);
+    }),
+
+  // Processar arquivo KMZ e extrair dados do terreno
+  parseKMZ: protectedProcedure
+    .input(z.object({ base64Data: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        // Converter base64 para Buffer
+        const buffer = Buffer.from(input.base64Data, "base64");
+        
+        // Processar KMZ
+        const data = await parseKMZ(buffer);
+        
+        return {
+          success: true,
+          data: {
+            area: data.area,
+            latitude: data.centerLat.toString(),
+            longitude: data.centerLng.toString(),
+            polygonCoordinates: JSON.stringify(data.coordinates),
+            name: data.name,
+            description: data.description,
+          },
+        };
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error instanceof Error ? error.message : "Erro ao processar arquivo KMZ",
+        });
+      }
     }),
 });

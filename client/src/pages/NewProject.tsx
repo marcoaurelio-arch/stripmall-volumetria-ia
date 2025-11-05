@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, MapPin, Upload } from "lucide-react";
 import LocationPickerWithDrawing from "@/components/LocationPickerWithDrawing";
 import ScenarioManager from "@/components/ScenarioManager";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
 
@@ -37,6 +37,47 @@ export default function NewProject() {
 
   const [tempPolygon, setTempPolygon] = useState("");
   const [tempArea, setTempArea] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const parseKMZMutation = trpc.project.parseKMZ.useMutation({
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        setFormData({
+          ...formData,
+          area: result.data.area.toString(),
+          latitude: result.data.latitude,
+          longitude: result.data.longitude,
+          polygonCoordinates: result.data.polygonCoordinates,
+          name: result.data.name || formData.name,
+          description: result.data.description || formData.description,
+        });
+        setTempPolygon(result.data.polygonCoordinates);
+        setTempArea(result.data.area);
+        toast.success("Arquivo KMZ importado com sucesso!");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao processar arquivo KMZ");
+    },
+  });
+
+  const handleKMZUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith(".kmz") && !file.name.endsWith(".kml")) {
+      toast.error("Por favor, selecione um arquivo KMZ ou KML");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      const base64Data = base64.split(",")[1]; // Remover prefixo data:...
+      parseKMZMutation.mutate({ base64Data });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const createMutation = trpc.project.create.useMutation({
     onSuccess: () => {
@@ -249,7 +290,28 @@ export default function NewProject() {
                   Selecione a localização do terreno no mapa ou busque por endereço
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={parseKMZMutation.isPending}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {parseKMZMutation.isPending ? "Processando..." : "Importar KMZ do Google Earth"}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".kmz,.kml"
+                    onChange={handleKMZUpload}
+                    className="hidden"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Ou desenhe o polígono diretamente no mapa abaixo
+                  </p>
+                </div>
                 <LocationPickerWithDrawing
                   onLocationSelect={(lat, lng) => {
                     setFormData({ ...formData, latitude: lat, longitude: lng });

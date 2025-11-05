@@ -154,3 +154,14 @@
 - [x] Implementar botão de copiar link
 - [x] Adicionar animação de feedback ao compartilhar
 - [x] Testar compartilhamento em diferentes redes sociais
+
+### Importação de Arquivos KMZ do Google Earth
+- [x] Pesquisar e instalar biblioteca para parsear arquivos KMZ/KML
+- [x] Implementar função backend para extrair coordenadas de KMZ
+- [x] Criar procedure tRPC para upload e processamento de KMZ
+- [x] Adicionar botão de upload de KMZ no formulário de novo projeto
+- [x] Implementar parsing de polígonos e pontos do KML
+- [x] Converter coordenadas para formato compatível com Google Maps
+- [x] Preencher automaticamente campos de área e coordenadas
+- [x] Adicionar validação de arquivo KMZ
+- [x] Testar com arquivos KMZ reais do Google Earth
