@@ -33,6 +33,7 @@ export const projects = mysqlTable("projects", {
   userId: int("userId").notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
+  briefing: text("briefing"), // Briefing detalhado do projeto com requisitos, conceito, público-alvo, etc.
   
   // Dados do terreno
   address: text("address"),

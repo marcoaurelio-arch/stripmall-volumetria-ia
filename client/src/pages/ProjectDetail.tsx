@@ -104,6 +104,12 @@ export default function ProjectDetail() {
             <div>
               <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
               <p className="text-muted-foreground">{project.description || "Sem descrição"}</p>
+              {project.briefing && (
+                <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <p className="text-xs font-semibold text-blue-400 mb-1">BRIEFING DO PROJETO</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{project.briefing}</p>
+                </div>
+              )}
             </div>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${

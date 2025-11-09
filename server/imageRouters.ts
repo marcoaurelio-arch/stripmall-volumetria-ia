@@ -18,12 +18,35 @@ export const imageRouter = router({
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
       
-      // Criar prompt para estudo conceitual
-      const prompt = `Professional architectural rendering of a modern strip mall commercial center. 
-${analysis ? `The building has ${analysis.numeroLojas} retail units` : 'Multiple retail units'} with contemporary facade design, 
-large glass storefronts, modern signage areas, covered walkways, and landscaped parking lot with ${analysis?.vagasEstacionamento || 'multiple'} parking spaces. 
-Aerial perspective view showing the entire complex layout. Clean architectural visualization style, 
-realistic lighting, professional real estate presentation quality. Modern Brazilian commercial architecture.`;
+      // Criar prompt fotorrealista para estudo conceitual
+      const briefingContext = project.briefing 
+        ? `\nProject briefing and requirements: ${project.briefing}` 
+        : '';
+      
+      const prompt = `Photorealistic architectural rendering of a modern strip mall commercial center in Brazil. 
+Hyper-realistic 3D visualization with the following specifications:
+
+BUILDING DETAILS:
+- ${analysis ? `${analysis.numeroLojas} retail units` : '8-12 retail units'} arranged in linear configuration
+- Contemporary facade with large glass storefronts and aluminum frames
+- Modern signage areas with LED lighting
+- Covered walkways with steel and glass canopies
+- Total built area: ${analysis?.areaMaximaConstruida || project.area}m²
+
+SITE LAYOUT:
+- Landscaped parking lot with ${analysis?.vagasEstacionamento || 'multiple'} marked parking spaces
+- Concrete paving with marked circulation paths
+- Green areas with native Brazilian trees and plants
+- Modern street lighting fixtures
+
+VISUAL STYLE:
+- Aerial 3/4 perspective view showing entire complex
+- Golden hour lighting (late afternoon sun)
+- Clear blue sky with subtle clouds
+- Photorealistic materials: glass, concrete, steel, vegetation
+- Professional real estate marketing quality
+- 8K resolution, ray-traced lighting, depth of field
+- Camera: 24mm lens, f/2.8 aperture${briefingContext}`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });
@@ -63,14 +86,37 @@ realistic lighting, professional real estate presentation quality. Modern Brazil
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
       
-      // Criar prompt para planta baixa
-      const prompt = `Professional architectural floor plan drawing of a strip mall commercial center. 
-Top-down view showing ${analysis?.numeroLojas || '8-12'} retail units arranged in a linear configuration, 
-parking lot layout with ${analysis?.vagasEstacionamento || 'multiple'} marked parking spaces, 
-circulation paths, loading zones, and landscaping areas. 
-Clean technical drawing style with measurements, room labels, and architectural symbols. 
-Black and white line drawing, professional architectural blueprint quality. 
-Total area: ${project.area}m². Modern commercial architecture layout.`;
+      // Criar prompt técnico para planta baixa
+      const briefingContext = project.briefing 
+        ? `\nProject requirements: ${project.briefing}` 
+        : '';
+      
+      const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center. 
+Technical drawing with the following specifications:
+
+LAYOUT DETAILS:
+- ${analysis?.numeroLojas || '8-12'} retail units in linear configuration
+- Each unit: glass storefront, sales area, storage, restroom
+- Total site area: ${project.area}m²
+- Built area: ${analysis?.areaMaximaConstruida || project.area * 0.6}m²
+- Parking: ${analysis?.vagasEstacionamento || 'multiple'} spaces with marked dimensions
+
+TECHNICAL ELEMENTS:
+- Dimension lines and measurements in meters
+- North arrow indicator
+- Scale notation (1:200 or 1:500)
+- Room labels in Portuguese (Loja, Depósito, Banheiro, Circulação)
+- Architectural symbols: doors (swing direction), windows, columns
+- Parking space dimensions and circulation aisles
+- Loading zone and service access
+- Landscaping areas with tree symbols
+
+DRAWING STYLE:
+- Clean black line drawing on white background
+- Professional architectural blueprint quality
+- Technical precision with accurate proportions
+- ABNT (Brazilian standards) compliant notation
+- Top-down orthographic view${briefingContext}`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });

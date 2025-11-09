@@ -20,6 +20,7 @@ export default function NewProject() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    briefing: "",
     address: "",
     area: "",
     width: "",
@@ -100,6 +101,7 @@ export default function NewProject() {
     createMutation.mutate({
       name: formData.name,
       description: formData.description || undefined,
+      briefing: formData.briefing || undefined,
       address: formData.address || undefined,
       area: parseInt(formData.area),
       width: formData.width ? parseInt(formData.width) : undefined,
@@ -202,6 +204,21 @@ export default function NewProject() {
                     placeholder="Descreva o projeto..."
                     rows={3}
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="briefing">Briefing do Projeto</Label>
+                  <Textarea
+                    id="briefing"
+                    name="briefing"
+                    value={formData.briefing}
+                    onChange={handleChange}
+                    placeholder="Descreva detalhes específicos: conceito arquitetônico, público-alvo, requisitos do cliente, estilo desejado, materiais preferidos, referências visuais, etc."
+                    rows={5}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Este briefing será usado pela IA para gerar estudos conceituais mais precisos e alinhados com suas necessidades
+                  </p>
                 </div>
 
                 <div className="space-y-2">

@@ -165,3 +165,17 @@
 - [x] Preencher automaticamente campos de área e coordenadas
 - [x] Adicionar validação de arquivo KMZ
 - [x] Testar com arquivos KMZ reais do Google Earth
+
+### Campo de Briefing do Projeto
+- [x] Adicionar campo briefing no schema de projetos
+- [x] Adicionar textarea de briefing no formulário de novo projeto
+- [x] Exibir briefing na página de detalhes do projeto
+- [x] Integrar briefing nos prompts de geração de imagens
+- [x] Integrar briefing na análise volumétrica com IA
+
+### Melhoria de Prompts para Imagens Realistas
+- [x] Criar prompts fotorrealistas para estudos conceituais 3D
+- [x] Criar prompts técnicos para plantas baixas arquitetônicas
+- [x] Adicionar detalhes de materiais, iluminação e contexto urbano
+- [x] Incluir especificações de câmera e renderização
+- [x] Testar geração com diferentes estilos arquitetônicos

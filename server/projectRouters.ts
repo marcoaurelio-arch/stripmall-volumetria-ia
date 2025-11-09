@@ -35,6 +35,7 @@ export const projectRouter = router({
       z.object({
         name: z.string().min(1, "Nome é obrigatório"),
         description: z.string().optional(),
+        briefing: z.string().optional(),
         address: z.string().optional(),
         area: z.number().min(1, "Área deve ser maior que 0"),
         width: z.number().optional(),
@@ -67,6 +68,7 @@ export const projectRouter = router({
         id: z.number(),
         name: z.string().optional(),
         description: z.string().optional(),
+        briefing: z.string().optional(),
         address: z.string().optional(),
         area: z.number().optional(),
         width: z.number().optional(),
@@ -137,6 +139,10 @@ export const projectRouter = router({
         };
         
         // Chamar IA para análise
+        const briefingSection = project.briefing 
+          ? `\n\nBRIEFING DO PROJETO:\n${project.briefing}\n\nConsidere este briefing ao fazer suas recomendações de layout, estilo arquitetônico e distribuição de espaços.`
+          : '';
+        
         const prompt = `Você é um especialista em planejamento urbano e projetos de strip malls (centros comerciais de varejo).
 
 Analise o seguinte terreno e forneça um estudo de massa e volumetria detalhado para um projeto de strip mall:
@@ -151,7 +157,7 @@ ${terrainData.taxaOcupacao ? `- Taxa de Ocupação: ${terrainData.taxaOcupacao}%
 ${terrainData.coeficienteAproveitamento ? `- Coeficiente de Aproveitamento: ${terrainData.coeficienteAproveitamento / 100}` : "- Coeficiente de Aproveitamento: Não especificado (use 2.0 como padrão)"}
 ${terrainData.recuoFrontal ? `- Recuo Frontal: ${terrainData.recuoFrontal} m` : "- Recuo Frontal: 5m (padrão)"}
 ${terrainData.recuoLateral ? `- Recuo Lateral: ${terrainData.recuoLateral} m` : "- Recuo Lateral: 3m (padrão)"}
-${terrainData.recuoFundos ? `- Recuo de Fundos: ${terrainData.recuoFundos} m` : "- Recuo de Fundos: 3m (padrão)"}
+${terrainData.recuoFundos ? `- Recuo de Fundos: ${terrainData.recuoFundos} m` : "- Recuo de Fundos: 3m (padrão)"}${briefingSection}
 
 Forneça uma análise completa incluindo:
 1. Área máxima construída permitida
