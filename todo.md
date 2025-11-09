@@ -179,3 +179,13 @@
 - [x] Adicionar detalhes de materiais, iluminação e contexto urbano
 - [x] Incluir especificações de câmera e renderização
 - [x] Testar geração com diferentes estilos arquitetônicos
+
+### Volumetria Arquitetônica Realista Baseada no Terreno
+- [x] Extrair dados geométricos do polígono (formato, proporções, orientação)
+- [x] Calcular dimensões reais da volumetria baseadas no polígono
+- [x] Incluir formato específico do terreno nos prompts de IA
+- [x] Adicionar vista aérea real do terreno no contexto da geração
+- [x] Gerar imagem de referência do terreno com Google Maps Static API
+- [x] Incluir imagem do terreno real como referência visual para a IA
+- [x] Melhorar prompt com descrição geométrica precisa (retangular, irregular, L-shaped, etc)
+- [x] Testar com diferentes formatos de terreno (regular, irregular, esquina)

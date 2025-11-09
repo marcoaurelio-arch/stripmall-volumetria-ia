@@ -3,6 +3,8 @@ import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { generateImage } from "./_core/imageGeneration";
+import { analyzePolygonGeometry } from "./geometryAnalyzer";
+import { generateStaticMapUrl, calculateAppropriateZoom } from "./mapsImageGenerator";
 
 export const imageRouter = router({
   // Gerar estudo conceitual 3D
@@ -17,6 +19,23 @@ export const imageRouter = router({
 
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
+      
+      // Analisar geometria do terreno e gerar imagem de referência
+      let geometryInfo = "";
+      let siteImageUrl = "";
+      
+      if (project.polygonCoordinates && project.latitude && project.longitude) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Orientation: ${geometry.orientation}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m\n- The building MUST fit within this ${geometry.shape} lot shape, respecting the exact site boundaries`;
+        
+        // Gerar URL da imagem de satélite do terreno
+        const zoom = calculateAppropriateZoom(project.area);
+        siteImageUrl = generateStaticMapUrl(
+          { lat: parseFloat(project.latitude), lng: parseFloat(project.longitude) },
+          project.polygonCoordinates,
+          zoom
+        );
+      }
       
       // Criar prompt fotorrealista para estudo conceitual
       const briefingContext = project.briefing 
@@ -46,10 +65,19 @@ VISUAL STYLE:
 - Photorealistic materials: glass, concrete, steel, vegetation
 - Professional real estate marketing quality
 - 8K resolution, ray-traced lighting, depth of field
-- Camera: 24mm lens, f/2.8 aperture${briefingContext}`;
+- Camera: 24mm lens, f/2.8 aperture${geometryInfo}${briefingContext}`;
 
       try {
-        const { url: imageUrl } = await generateImage({ prompt });
+        // Incluir imagem de referência do terreno se disponível
+        const generateParams: any = { prompt };
+        if (siteImageUrl) {
+          generateParams.originalImages = [{
+            url: siteImageUrl,
+            mimeType: "image/jpeg"
+          }];
+        }
+        
+        const { url: imageUrl } = await generateImage(generateParams);
         
         if (!imageUrl) {
           throw new Error("Failed to generate image URL");
@@ -86,6 +114,13 @@ VISUAL STYLE:
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
       
+      // Analisar geometria do terreno se houver polígono
+      let geometryInfo = "";
+      if (project.polygonCoordinates) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n- Lot shape: ${geometry.description}\n- Site dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m\n- Building footprint MUST match the ${geometry.shape} lot boundaries`;
+      }
+      
       // Criar prompt técnico para planta baixa
       const briefingContext = project.briefing 
         ? `\nProject requirements: ${project.briefing}` 
@@ -99,7 +134,7 @@ LAYOUT DETAILS:
 - Each unit: glass storefront, sales area, storage, restroom
 - Total site area: ${project.area}m²
 - Built area: ${analysis?.areaMaximaConstruida || project.area * 0.6}m²
-- Parking: ${analysis?.vagasEstacionamento || 'multiple'} spaces with marked dimensions
+- Parking: ${analysis?.vagasEstacionamento || 'multiple'} spaces with marked dimensions${geometryInfo}
 
 TECHNICAL ELEMENTS:
 - Dimension lines and measurements in meters
