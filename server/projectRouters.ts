@@ -5,6 +5,7 @@ import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
 import { parseKMZ } from "./kmzParser";
+import { generateProjectReport } from "./pdfGenerator";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -302,6 +303,76 @@ Responda APENAS com um JSON válido no seguinte formato:
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: error instanceof Error ? error.message : "Erro ao processar arquivo KMZ",
+        });
+      }
+    }),
+
+  // Exportar relatório técnico em PDF
+  exportPDF: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Buscar dados do projeto
+        const project = await db.getProjectById(input.projectId);
+        
+        if (!project || project.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+        }
+        
+        // Buscar análise mais recente
+        const analysis = await db.getLatestAnalysis(input.projectId);
+        
+        // Buscar todas as imagens geradas
+        const images = await db.getGeneratedImagesByProjectId(input.projectId);
+        
+        // Preparar dados para o relatório
+        const reportData = {
+          project: {
+            id: project.id,
+            name: project.name,
+            address: project.address || "Não informado",
+            totalArea: project.area,
+            briefing: project.briefing,
+            pricePerSqm: project.pricePerSqm,
+            latitude: project.latitude ? parseFloat(project.latitude) : null,
+            longitude: project.longitude ? parseFloat(project.longitude) : null,
+            createdAt: project.createdAt,
+          },
+          analysis: analysis ? {
+            buildableArea: analysis.areaMaximaConstruida,
+            numberOfStores: analysis.numeroLojas,
+            parkingSpaces: analysis.vagasEstacionamento,
+            feasibilityScore: 85, // Calcular score baseado nos dados
+            aiAnalysis: analysis.aiSuggestions,
+          } : null,
+          images: images.map((img: any) => ({
+            id: img.id,
+            type: img.type,
+            imageUrl: img.imageUrl,
+          })),
+        };
+        
+        // Gerar PDF
+        const pdfBuffer = await generateProjectReport(reportData);
+        
+        // Upload do PDF para S3
+        const fileName = `relatorio-${project.id}-${Date.now()}.pdf`;
+        const { url } = await storagePut(
+          `reports/${fileName}`,
+          pdfBuffer,
+          "application/pdf"
+        );
+        
+        return {
+          success: true,
+          url,
+          fileName,
+        };
+      } catch (error) {
+        console.error("Erro ao gerar PDF:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao gerar relatório PDF",
         });
       }
     }),

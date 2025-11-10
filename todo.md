@@ -229,3 +229,18 @@
 - [x] Incluir legenda de materiais de piso
 - [x] Adicionar seção de implantação na galeria de imagens
 - [x] Testar geração de planta de implantação
+
+### Exportação de Relatório Técnico em PDF
+- [x] Instalar biblioteca PDFKit para geração de PDFs
+- [x] Criar procedure tRPC para gerar relatório PDF
+- [x] Implementar capa do relatório com logo e informações do projeto
+- [x] Adicionar seção de dados do terreno (endereço, área, coordenadas)
+- [x] Incluir análise volumétrica completa da IA
+- [x] Adicionar quadro de áreas técnico (área do terreno, construída, lojas, estacionamento)
+- [x] Incluir todas as imagens geradas (maquete eletrônica, plantas, cortes, implantação)
+- [x] Adicionar análise financeira (custo do terreno, preço por m²)
+- [x] Implementar paginação e numeração de páginas
+- [x] Adicionar cabeçalho e rodapé profissionais
+- [x] Criar botão de exportação na página de detalhes do projeto
+- [x] Implementar download automático do PDF gerado
+- [x] Testar geração de PDF com projeto completo

@@ -8,7 +8,7 @@ import LocationViewer from "@/components/LocationViewer";
 import ScenarioManager from "@/components/ScenarioManager";
 import ImageGallery from "@/components/ImageGallery";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -40,10 +40,25 @@ export default function ProjectDetail() {
     },
   });
 
+  const exportPDFMutation = trpc.project.exportPDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("Relatório PDF gerado com sucesso!");
+      // Download do PDF
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar relatório PDF");
+    },
+  });
+
   const handleAnalyze = () => {
     if (confirm("Deseja iniciar uma nova análise deste terreno?")) {
       analyzeMutation.mutate({ projectId });
     }
+  };
+
+  const handleExportPDF = () => {
+    exportPDFMutation.mutate({ projectId });
   };
 
   if (authLoading || projectLoading) {
@@ -135,23 +150,43 @@ export default function ProjectDetail() {
             </div>
           )}
 
-          <Button
-            onClick={handleAnalyze}
-            disabled={analyzeMutation.isPending || project.status === "analyzing"}
-            size="lg"
-          >
-            {analyzeMutation.isPending || project.status === "analyzing" ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Analisando...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 mr-2" />
-                {latestAnalysis ? "Nova Análise com IA" : "Analisar com IA"}
-              </>
-            )}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleAnalyze}
+              disabled={analyzeMutation.isPending || project.status === "analyzing"}
+              size="lg"
+            >
+              {analyzeMutation.isPending || project.status === "analyzing" ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Analisando...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  {latestAnalysis ? "Nova Análise com IA" : "Analisar com IA"}
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={handleExportPDF}
+              disabled={exportPDFMutation.isPending}
+              variant="outline"
+              size="lg"
+            >
+              {exportPDFMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar Relatório PDF
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="dados" className="space-y-6">
