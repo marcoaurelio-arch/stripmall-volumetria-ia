@@ -6,6 +6,7 @@ import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
 import { parseKMZ } from "./kmzParser";
 import { generateProjectReport } from "./pdfGenerator";
+import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS } from "./financialCalculator";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -375,5 +376,65 @@ Responda APENAS com um JSON válido no seguinte formato:
           message: "Erro ao gerar relatório PDF",
         });
       }
+    }),
+
+  // Calcular análise de viabilidade financeira
+  calculateFinancialAnalysis: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        // Parâmetros opcionais (usa defaults se não fornecidos)
+        landCost: z.number().optional(),
+        constructionCostPerSqm: z.number().optional(),
+        averageRentPerSqm: z.number().optional(),
+        vacancyRate: z.number().optional(),
+        annualRentIncrease: z.number().optional(),
+        operationalCostRate: z.number().optional(),
+        propertyTaxRate: z.number().optional(),
+        maintenanceRate: z.number().optional(),
+        discountRate: z.number().optional(),
+        projectionYears: z.number().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      // Buscar última análise
+      const analysis = await db.getLatestAnalysis(input.projectId);
+      
+      if (!analysis) {
+        throw new TRPCError({ 
+          code: "NOT_FOUND", 
+          message: "Nenhuma análise disponível. Execute uma análise volumétrica primeiro." 
+        });
+      }
+
+      // Usar parâmetros fornecidos ou defaults
+      const financialInputs = {
+        landCost: input.landCost || (project.area * 1000), // R$ 1.000/m² default
+        constructionCostPerSqm: input.constructionCostPerSqm || DEFAULT_FINANCIAL_PARAMS.constructionCostPerSqm,
+        buildableArea: analysis.areaMaximaConstruida || 0,
+        numberOfStores: analysis.numeroLojas || 0,
+        parkingSpaces: analysis.vagasEstacionamento || 0,
+        averageRentPerSqm: input.averageRentPerSqm || DEFAULT_FINANCIAL_PARAMS.averageRentPerSqm,
+        vacancyRate: input.vacancyRate || DEFAULT_FINANCIAL_PARAMS.vacancyRate,
+        annualRentIncrease: input.annualRentIncrease || DEFAULT_FINANCIAL_PARAMS.annualRentIncrease,
+        operationalCostRate: input.operationalCostRate || DEFAULT_FINANCIAL_PARAMS.operationalCostRate,
+        propertyTaxRate: input.propertyTaxRate || DEFAULT_FINANCIAL_PARAMS.propertyTaxRate,
+        maintenanceRate: input.maintenanceRate || DEFAULT_FINANCIAL_PARAMS.maintenanceRate,
+        discountRate: input.discountRate || DEFAULT_FINANCIAL_PARAMS.discountRate,
+        projectionYears: input.projectionYears || DEFAULT_FINANCIAL_PARAMS.projectionYears,
+      };
+
+      const financialAnalysis = calculateFinancialAnalysis(financialInputs);
+      
+      return {
+        ...financialAnalysis,
+        inputs: financialInputs,
+      };
     }),
 });

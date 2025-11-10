@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { Readable } from "stream";
 import { calculateAreaBreakdown, formatArea, formatPercentage, formatCoefficient } from "./areaCalculator";
+import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS, formatCurrency, formatPercent, formatYears } from "./financialCalculator";
 
 interface ProjectData {
   id: number;
@@ -411,46 +412,229 @@ export async function generateProjectReport(data: ReportData): Promise<Buffer> {
         addPageNumber();
       }
 
-      // ==================== ANÁLISE FINANCEIRA ====================
-      if (data.project.pricePerSqm) {
+      // ==================== ANÁLISE DE VIABILIDADE FINANCEIRA ====================
+      if (data.analysis) {
+        // Calcular análise financeira
+        const landCost = data.project.pricePerSqm 
+          ? (data.project.totalArea * (data.project.pricePerSqm / 100))
+          : data.project.totalArea * 1000; // R$ 1.000/m² default
+        
+        const financialInputs = {
+          landCost,
+          constructionCostPerSqm: DEFAULT_FINANCIAL_PARAMS.constructionCostPerSqm,
+          buildableArea: data.analysis.buildableArea || 0,
+          numberOfStores: data.analysis.numberOfStores || 0,
+          parkingSpaces: data.analysis.parkingSpaces || 0,
+          averageRentPerSqm: DEFAULT_FINANCIAL_PARAMS.averageRentPerSqm,
+          vacancyRate: DEFAULT_FINANCIAL_PARAMS.vacancyRate,
+          annualRentIncrease: DEFAULT_FINANCIAL_PARAMS.annualRentIncrease,
+          operationalCostRate: DEFAULT_FINANCIAL_PARAMS.operationalCostRate,
+          propertyTaxRate: DEFAULT_FINANCIAL_PARAMS.propertyTaxRate,
+          maintenanceRate: DEFAULT_FINANCIAL_PARAMS.maintenanceRate,
+          discountRate: DEFAULT_FINANCIAL_PARAMS.discountRate,
+          projectionYears: DEFAULT_FINANCIAL_PARAMS.projectionYears,
+        };
+        
+        const financial = calculateFinancialAnalysis(financialInputs);
+        
         doc.addPage();
-        addHeader("Análise Financeira");
+        addHeader("Análise de Viabilidade Financeira");
 
         doc
           .fontSize(20)
           .fillColor("#1e40af")
           .font("Helvetica-Bold")
-          .text("3. ANÁLISE FINANCEIRA", 50, 80);
+          .text("3. ANÁLISE DE VIABILIDADE FINANCEIRA", 50, 80);
 
         yPos = 130;
 
-        const pricePerSqm = data.project.pricePerSqm / 100; // Convert from cents
-        const totalCost = (data.project.totalArea * pricePerSqm);
+        // Seção 1: Investimento Inicial
+        doc
+          .fontSize(12)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("1. INVESTIMENTO INICIAL", 50, yPos);
 
-        const financialInfo = [
-          ["Preço por m²", `R$ ${pricePerSqm.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`],
-          ["Área Total", `${data.project.totalArea.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`],
-          ["Custo Total Estimado", `R$ ${totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`],
+        yPos += 20;
+
+        const investmentInfo = [
+          ["Custo do Terreno", formatCurrency(financial.landCost)],
+          ["Custo de Construção", formatCurrency(financial.constructionCost)],
+          ["Investimento Total", formatCurrency(financial.totalInvestment)],
         ];
 
-        if (data.analysis && data.analysis.buildableArea) {
-          const costPerSqmBuilt = totalCost / data.analysis.buildableArea;
-          financialInfo.push([
-            "Custo por m² Construído",
-            `R$ ${costPerSqmBuilt.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-          ]);
-        }
-
-        financialInfo.forEach(([label, value]) => {
+        investmentInfo.forEach(([label, value]) => {
           doc
-            .fontSize(10)
+            .fontSize(9)
             .fillColor("#666666")
             .font("Helvetica")
-            .text(label + ":", 50, yPos, { continued: true })
+            .text(label, 70, yPos, { continued: true, width: 250 })
             .fillColor("#333333")
             .font("Helvetica-Bold")
-            .text(" " + value);
-          yPos += 20;
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 15;
+
+        // Seção 2: Receitas Projetadas
+        doc
+          .fontSize(12)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("2. RECEITAS PROJETADAS (ANO 1)", 50, yPos);
+
+        yPos += 20;
+
+        const revenueInfo = [
+          ["Receita Bruta Anual", formatCurrency(financial.annualGrossRevenue)],
+          ["Receita Líquida Anual", formatCurrency(financial.annualNetRevenue)],
+          ["Aluguel Médio", `${formatCurrency(financialInputs.averageRentPerSqm)}/m²/mês`],
+          ["Taxa de Vacância", formatPercent(financialInputs.vacancyRate)],
+        ];
+
+        revenueInfo.forEach(([label, value]) => {
+          doc
+            .fontSize(9)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos, { continued: true, width: 250 })
+            .fillColor("#333333")
+            .font("Helvetica-Bold")
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 15;
+
+        // Seção 3: Indicadores de Viabilidade
+        doc
+          .fontSize(12)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("3. INDICADORES DE VIABILIDADE", 50, yPos);
+
+        yPos += 20;
+
+        const viabilityInfo = [
+          ["VPL (Valor Presente Líquido)", formatCurrency(financial.npv)],
+          ["TIR (Taxa Interna de Retorno)", formatPercent(financial.irr)],
+          ["Payback", formatYears(financial.paybackYears)],
+          ["Rentabilidade Anual", formatPercent(financial.annualYield / 100)],
+          ["Cap Rate", formatPercent(financial.capRate / 100)],
+        ];
+
+        viabilityInfo.forEach(([label, value]) => {
+          doc
+            .fontSize(9)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos, { continued: true, width: 250 })
+            .fillColor("#1e40af")
+            .font("Helvetica-Bold")
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 15;
+
+        // Seção 4: Análise de Sensibilidade
+        doc
+          .fontSize(12)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("4. ANÁLISE DE SENSIBILIDADE", 50, yPos);
+
+        yPos += 20;
+
+        doc
+          .fontSize(8)
+          .fillColor("#666666")
+          .font("Helvetica")
+          .text("Cenário", 70, yPos)
+          .text("VPL", 200, yPos)
+          .text("TIR", 310, yPos)
+          .text("Payback", 420, yPos);
+
+        yPos += 15;
+
+        const scenarios = [
+          ["Otimista (+20%)", financial.scenarios.optimistic],
+          ["Base", financial.scenarios.base],
+          ["Pessimista (-20%)", financial.scenarios.pessimistic],
+        ];
+
+        (scenarios as [string, any][]).forEach(([label, scenario]) => {
+          doc
+            .fontSize(8)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos)
+            .text(formatCurrency(scenario.npv), 200, yPos)
+            .text(formatPercent(scenario.irr), 310, yPos)
+            .text(formatYears(scenario.paybackYears), 420, yPos);
+          yPos += 15;
+        });
+
+        yPos += 10;
+
+        // Nota sobre parâmetros
+        doc
+          .fontSize(8)
+          .fillColor("#666666")
+          .font("Helvetica-Oblique")
+          .text(
+            `Parâmetros: Aluguel ${formatCurrency(financialInputs.averageRentPerSqm)}/m²/mês, ` +
+            `Vacância ${formatPercent(financialInputs.vacancyRate)}, ` +
+            `Reajuste ${formatPercent(financialInputs.annualRentIncrease)}/ano, ` +
+            `Taxa de Desconto ${formatPercent(financialInputs.discountRate)}/ano, ` +
+            `Projeção ${financialInputs.projectionYears} anos.`,
+            50,
+            yPos,
+            { width: doc.page.width - 100, align: "justify" }
+          );
+
+        addPageNumber();
+        
+        // Página adicional: Fluxo de Caixa Projetado
+        doc.addPage();
+        addHeader("Fluxo de Caixa Projetado");
+
+        doc
+          .fontSize(14)
+          .fillColor("#1e40af")
+          .font("Helvetica-Bold")
+          .text("FLUXO DE CAIXA PROJETADO (10 ANOS)", 50, 80);
+
+        yPos = 130;
+
+        // Cabeçalho da tabela
+        doc
+          .fontSize(7)
+          .fillColor("#666666")
+          .font("Helvetica-Bold")
+          .text("Ano", 50, yPos)
+          .text("Receita Bruta", 100, yPos)
+          .text("Custos Oper.", 200, yPos)
+          .text("IPTU", 290, yPos)
+          .text("Manutenção", 350, yPos)
+          .text("Receita Líq.", 430, yPos);
+
+        yPos += 15;
+
+        // Linhas da tabela
+        financial.cashFlow.forEach((year) => {
+          doc
+            .fontSize(7)
+            .fillColor("#333333")
+            .font("Helvetica")
+            .text(year.year.toString(), 50, yPos)
+            .text(formatCurrency(year.grossRevenue).replace("R$", "").trim(), 100, yPos)
+            .text(formatCurrency(year.operationalCosts).replace("R$", "").trim(), 200, yPos)
+            .text(formatCurrency(year.propertyTax).replace("R$", "").trim(), 290, yPos)
+            .text(formatCurrency(year.maintenance).replace("R$", "").trim(), 350, yPos)
+            .text(formatCurrency(year.netRevenue).replace("R$", "").trim(), 430, yPos);
+          yPos += 12;
         });
 
         addPageNumber();

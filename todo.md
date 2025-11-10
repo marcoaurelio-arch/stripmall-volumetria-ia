@@ -258,3 +258,20 @@
 - [x] Criar componente visual do quadro de áreas na interface web
 - [x] Adicionar quadro de áreas na página de detalhes do projeto
 - [x] Testar cálculos com diferentes configurações de projeto
+
+### Análise de Viabilidade Financeira
+- [x] Criar módulo de cálculos financeiros (financialCalculator.ts)
+- [x] Implementar cálculo de VPL (Valor Presente Líquido)
+- [x] Implementar cálculo de TIR (Taxa Interna de Retorno)
+- [x] Calcular período de payback (retorno do investimento)
+- [x] Projetar receitas de locação (R$/m²/mês por tipo de loja)
+- [x] Calcular custos operacionais (manutenção, condomínio, impostos)
+- [x] Calcular custo total do investimento (terreno + construção)
+- [x] Projetar fluxo de caixa para 10 anos
+- [x] Calcular taxa de vacância estimada
+- [x] Implementar análise de sensibilidade (cenários otimista/pessimista)
+- [x] Adicionar seção de análise financeira ao PDF
+- [x] Criar gráficos de fluxo de caixa e evolução patrimonial
+- [x] Criar componente React de análise financeira
+- [x] Adicionar aba de viabilidade financeira na interface
+- [x] Testar cálculos com diferentes parâmetros

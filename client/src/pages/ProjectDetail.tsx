@@ -8,6 +8,7 @@ import LocationViewer from "@/components/LocationViewer";
 import ScenarioManager from "@/components/ScenarioManager";
 import ImageGallery from "@/components/ImageGallery";
 import AreaBreakdownTable from "@/components/AreaBreakdownTable";
+import FinancialAnalysis from "@/components/FinancialAnalysis";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -60,6 +61,38 @@ export default function ProjectDetail() {
 
   const handleExportPDF = () => {
     exportPDFMutation.mutate({ projectId });
+  };
+
+  // Componente para carregar análise financeira
+  const FinancialAnalysisTab = ({ projectId }: { projectId: number }) => {
+    const { data: financialData, isLoading } = trpc.project.calculateFinancialAnalysis.useQuery(
+      { projectId },
+      { enabled: !isNaN(projectId) }
+    );
+
+    if (isLoading) {
+      return (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Loader2 className="h-16 w-16 mx-auto text-muted-foreground mb-4 animate-spin" />
+            <p className="text-muted-foreground">Calculando viabilidade financeira...</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (!financialData) {
+      return (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Calculator className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">Erro ao calcular viabilidade financeira</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return <FinancialAnalysis {...financialData} />;
   };
 
   if (authLoading || projectLoading) {
@@ -203,6 +236,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="relatorio" disabled={!latestAnalysis}>
               <FileText className="h-4 w-4 mr-2" />
               Relatório
+            </TabsTrigger>
+            <TabsTrigger value="financeiro" disabled={!latestAnalysis}>
+              <Calculator className="h-4 w-4 mr-2" />
+              Viabilidade Financeira
             </TabsTrigger>
             <TabsTrigger value="imagens">
               <Sparkles className="h-4 w-4 mr-2" />
@@ -457,6 +494,11 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Viabilidade Financeira */}
+          <TabsContent value="financeiro" className="space-y-6">
+            <FinancialAnalysisTab projectId={projectId} />
           </TabsContent>
 
           {/* Estudos Visuais */}
