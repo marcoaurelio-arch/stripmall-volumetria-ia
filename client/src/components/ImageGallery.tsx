@@ -37,6 +37,36 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
     },
   });
 
+  const generateElectronicModelMutation = trpc.image.generateElectronicModel.useMutation({
+    onSuccess: () => {
+      toast.success("Maquete eletrônica gerada com sucesso!");
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar maquete eletrônica");
+    },
+  });
+
+  const generateFacadeViewMutation = trpc.image.generateFacadeView.useMutation({
+    onSuccess: () => {
+      toast.success("Vista de fachada gerada com sucesso!");
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar vista de fachada");
+    },
+  });
+
+  const generateAllFacadeViewsMutation = trpc.image.generateAllFacadeViews.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${data.count} vistas de fachada geradas com sucesso!`);
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar vistas de fachada");
+    },
+  });
+
   const deleteMutation = trpc.image.delete.useMutation({
     onSuccess: () => {
       toast.success("Imagem excluída");
@@ -263,6 +293,245 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
                   </>
                 )}
               </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Maquetes Eletrônicas */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Maquetes Eletrônicas
+              </CardTitle>
+              <CardDescription>
+                Estudos volumétricos com volumes coloridos por função
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => generateElectronicModelMutation.mutate({ projectId })}
+              disabled={generateElectronicModelMutation.isPending}
+              variant="outline"
+            >
+              {generateElectronicModelMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Gerar Maquete Eletrônica
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-48 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : (images?.filter((img) => img.type === "electronic_model").length ?? 0) > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {images?.filter((img) => img.type === "electronic_model").map((image) => (
+                <div key={image.id} className="group relative overflow-hidden rounded-lg border">
+                  <img
+                    src={image.imageUrl}
+                    alt="Maquete eletrônica"
+                    className="h-48 w-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                    onClick={() => setSelectedImage(image.imageUrl)}
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(image.imageUrl, `maquete-eletronica-${image.id}.png`);
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Deseja excluir esta imagem?")) {
+                          deleteMutation.mutate({ id: image.id });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Nenhuma maquete eletrônica gerada ainda
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => generateElectronicModelMutation.mutate({ projectId })}
+                disabled={generateElectronicModelMutation.isPending}
+              >
+                {generateElectronicModelMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Gerar Primeira Maquete
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Vistas de Fachada */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Vistas de Fachada
+              </CardTitle>
+              <CardDescription>
+                Elevações e vistas externas do projeto
+              </CardDescription>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={() => generateAllFacadeViewsMutation.mutate({ projectId })}
+                disabled={generateAllFacadeViewsMutation.isPending || generateFacadeViewMutation.isPending}
+                variant="default"
+                size="sm"
+              >
+                {generateAllFacadeViewsMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando 4 vistas...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Gerar Todas as Vistas
+                  </>
+                )}
+              </Button>
+              <div className="w-px bg-border" />
+              <Button
+                onClick={() => generateFacadeViewMutation.mutate({ projectId, viewAngle: "front" })}
+                disabled={generateFacadeViewMutation.isPending || generateAllFacadeViewsMutation.isPending}
+                variant="outline"
+                size="sm"
+              >
+                {generateFacadeViewMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                )}
+                Frontal
+              </Button>
+              <Button
+                onClick={() => generateFacadeViewMutation.mutate({ projectId, viewAngle: "back" })}
+                disabled={generateFacadeViewMutation.isPending}
+                variant="outline"
+                size="sm"
+              >
+                Fundos
+              </Button>
+              <Button
+                onClick={() => generateFacadeViewMutation.mutate({ projectId, viewAngle: "left" })}
+                disabled={generateFacadeViewMutation.isPending}
+                variant="outline"
+                size="sm"
+              >
+                Lateral Esq.
+              </Button>
+              <Button
+                onClick={() => generateFacadeViewMutation.mutate({ projectId, viewAngle: "right" })}
+                disabled={generateFacadeViewMutation.isPending}
+                variant="outline"
+                size="sm"
+              >
+                Lateral Dir.
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-48 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : (images?.filter((img) => img.type === "facade_view").length ?? 0) > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {images?.filter((img) => img.type === "facade_view").map((image) => (
+                <div key={image.id} className="group relative overflow-hidden rounded-lg border">
+                  <img
+                    src={image.imageUrl}
+                    alt="Vista de fachada"
+                    className="h-48 w-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                    onClick={() => setSelectedImage(image.imageUrl)}
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(image.imageUrl, `fachada-${image.id}.png`);
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Deseja excluir esta imagem?")) {
+                          deleteMutation.mutate({ id: image.id });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+              <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Nenhuma vista de fachada gerada ainda
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Use os botões acima para gerar vistas de diferentes ângulos
+              </p>
             </div>
           )}
         </CardContent>

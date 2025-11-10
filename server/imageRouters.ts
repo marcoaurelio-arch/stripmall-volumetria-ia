@@ -206,4 +206,214 @@ DRAWING STYLE:
     .query(async ({ input }) => {
       return db.getRecentConceptualImages(input.limit);
     }),
+
+  // Gerar maquete eletrônica (estilo volumes coloridos)
+  generateElectronicModel: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const analysis = await db.getLatestAnalysis(input.projectId);
+      
+      let geometryInfo = "";
+      if (project.polygonCoordinates && project.latitude && project.longitude) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Orientation: ${geometry.orientation}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+      }
+
+      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+
+      const prompt = `Create an ELECTRONIC ARCHITECTURAL MODEL (maquete eletrônica) of a strip mall development in clean, simplified 3D style.
+
+STYLE REQUIREMENTS:
+- Simple geometric volumes with flat, vibrant colors
+- NO photorealistic materials or textures
+- Clean matte finish on all surfaces
+- Color-code by function: Pharmacy (yellow/gold), Retail stores (blue/cyan), Supermarket (red/pink), Administrative (magenta), Loading dock (orange)
+- Add text labels on each volume identifying the use
+- White or light gray background
+- Soft ambient shadows for depth
+- Isometric or aerial 3/4 view
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Width: ${project.width}m, Length: ${project.length}m${geometryInfo}${briefingSection}
+
+CONTEXT:
+- Show simplified parking lot with marked spaces (gray asphalt, white lines)
+- Include simple trees/vegetation (green spheres or simple shapes)
+- Show access roads and circulation paths
+- Add simple cars for scale (basic shapes)
+- Show building footprints clearly
+
+COMPOSITION:
+- Clear view of the entire development
+- Emphasize the volumetric organization
+- Show spatial relationships between buildings
+- Professional architectural presentation style
+
+Render as a clean architectural study model, similar to professional feasibility studies. Focus on clarity and spatial understanding rather than realism.`;
+
+      const result = await generateImage({ prompt });
+      const imageUrl = result.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "electronic_model",
+        imageUrl,
+        prompt,
+      });
+
+      return { imageUrl, prompt };
+    }),
+
+  // Gerar vista de fachada
+  generateFacadeView: protectedProcedure
+    .input(z.object({ 
+      projectId: z.number(),
+      viewAngle: z.enum(["front", "back", "left", "right"]).optional().default("front")
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const analysis = await db.getLatestAnalysis(input.projectId);
+      
+      let geometryInfo = "";
+      if (project.polygonCoordinates) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+      }
+
+      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+
+      const viewDescriptions = {
+        front: "Main street facade view",
+        back: "Rear facade with loading areas",
+        left: "Left side elevation",
+        right: "Right side elevation"
+      };
+
+      const prompt = `Create an ELECTRONIC MODEL FACADE VIEW (${viewDescriptions[input.viewAngle]}) of a strip mall in clean architectural style.
+
+STYLE REQUIREMENTS:
+- Simple geometric volumes with flat, vibrant colors
+- NO photorealistic materials
+- Color-code by function: Pharmacy (yellow/gold), Retail (blue/cyan), Supermarket (red/pink)
+- Add text labels identifying each store/area
+- Clean white background
+- Soft shadows for depth
+- Straight-on elevation view with slight perspective
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building dimensions: ${project.width}m x ${project.length}m${geometryInfo}${briefingSection}
+
+CONTEXT:
+- Show parking lot in foreground (gray with white markings)
+- Include simple trees and landscaping
+- Add simple cars and people for scale
+- Show signage areas
+
+COMPOSITION:
+- Clear view of facade composition
+- Show height variations between different store types
+- Emphasize horizontal rhythm of the strip mall
+- Professional architectural presentation
+
+Render as a clean architectural elevation study, similar to professional feasibility presentations.`;
+
+      const result = await generateImage({ prompt });
+      const imageUrl = result.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "facade_view",
+        imageUrl,
+        prompt,
+      });
+
+      return { imageUrl, prompt, viewAngle: input.viewAngle };
+    }),
+
+  // Gerar todas as 4 vistas de fachada de uma vez
+  generateAllFacadeViews: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const views: Array<"front" | "back" | "left" | "right"> = ["front", "back", "left", "right"];
+      const results = [];
+
+      for (const viewAngle of views) {
+        let geometryInfo = "";
+        if (project.polygonCoordinates) {
+          const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+          geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+        }
+
+        const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+
+        const viewDescriptions = {
+          front: "Main street facade view",
+          back: "Rear facade with loading areas",
+          left: "Left side elevation",
+          right: "Right side elevation"
+        };
+
+        const prompt = `Create an ELECTRONIC MODEL FACADE VIEW (${viewDescriptions[viewAngle]}) of a strip mall in clean architectural style.
+
+STYLE REQUIREMENTS:
+- Simple geometric volumes with flat, vibrant colors
+- NO photorealistic materials
+- Color-code by function: Pharmacy (yellow/gold), Retail (blue/cyan), Supermarket (red/pink)
+- Add text labels identifying each store/area
+- Clean white background
+- Soft shadows for depth
+- Straight-on elevation view with slight perspective
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building dimensions: ${project.width}m x ${project.length}m${geometryInfo}${briefingSection}
+
+CONTEXT:
+- Show parking lot in foreground (gray with white markings)
+- Include simple trees and landscaping
+- Add simple cars and people for scale
+- Show signage areas
+
+COMPOSITION:
+- Clear view of facade composition
+- Show height variations between different store types
+- Emphasize horizontal rhythm of the strip mall
+- Professional architectural presentation
+
+Render as a clean architectural elevation study, similar to professional feasibility presentations.`;
+
+        const result = await generateImage({ prompt });
+        const imageUrl = result.url as string;
+
+        await db.createGeneratedImage({
+          projectId: input.projectId,
+          type: "facade_view",
+          imageUrl,
+          prompt,
+        });
+
+        results.push({ imageUrl, viewAngle });
+      }
+
+      return { results, count: results.length };
+    }),
 });

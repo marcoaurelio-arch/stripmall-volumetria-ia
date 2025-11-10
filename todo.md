@@ -189,3 +189,15 @@
 - [x] Incluir imagem do terreno real como referência visual para a IA
 - [x] Melhorar prompt com descrição geométrica precisa (retangular, irregular, L-shaped, etc)
 - [x] Testar com diferentes formatos de terreno (regular, irregular, esquina)
+
+### Estudos Estilo Maquete Eletrônica (Baseado no PDF de Referência)
+- [x] Criar novo tipo de imagem: "Maquete Eletrônica"
+- [x] Implementar prompt para volumes coloridos por função (farmácia amarelo, lojas azul, supermercado vermelho)
+- [x] Adicionar textos identificadores sobre os volumes 3D
+- [x] Gerar vista isométrica/aérea automática
+- [x] Gerar fachadas de múltiplos ângulos (4 vistas)
+- [x] Melhorar plantas baixas com layout de estacionamento detalhado
+- [ ] Adicionar cotas e dimensões nas plantas
+- [ ] Incluir legendas de áreas nas plantas
+- [ ] Representar circulação e acessos nas plantas
+- [ ] Adicionar quadro de áreas nas imagens geradas

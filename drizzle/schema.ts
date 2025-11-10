@@ -83,7 +83,7 @@ export type InsertScenario = typeof scenarios.$inferInsert;
 export const generatedImages = mysqlTable("generatedImages", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
-  type: mysqlEnum("type", ["conceptual", "floorplan"]).notNull(), // Tipo: estudo conceitual ou planta baixa
+  type: mysqlEnum("type", ["conceptual", "floorplan", "electronic_model", "facade_view"]).notNull(), // Tipo: estudo conceitual, planta baixa, maquete eletrônica ou vista de fachada
   imageUrl: text("imageUrl").notNull(), // URL da imagem no S3
   prompt: text("prompt"), // Prompt usado para gerar a imagem
   createdAt: timestamp("createdAt").defaultNow().notNull(),
