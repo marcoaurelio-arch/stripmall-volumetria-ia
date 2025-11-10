@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import { Readable } from "stream";
+import { calculateAreaBreakdown, formatArea, formatPercentage, formatCoefficient } from "./areaCalculator";
 
 interface ProjectData {
   id: number;
@@ -199,34 +200,194 @@ export async function generateProjectReport(data: ReportData): Promise<Buffer> {
 
         yPos = 130;
 
-        // Quadro de Áreas
+        // Calcular quadro de áreas conforme ABNT NBR 12.721
+        const areaBreakdown = calculateAreaBreakdown({
+          totalLandArea: data.project.totalArea,
+          buildableArea: data.analysis.buildableArea || 0,
+          numberOfStores: data.analysis.numberOfStores || 0,
+          parkingSpaces: data.analysis.parkingSpaces || 0,
+          numberOfFloors: 1,
+        });
+
+        // Quadro de Áreas ABNT NBR 12.721
         doc
-          .fontSize(12)
+          .fontSize(14)
+          .fillColor("#1e40af")
+          .font("Helvetica-Bold")
+          .text("QUADRO DE ÁREAS - ABNT NBR 12.721", 50, yPos);
+
+        yPos += 30;
+
+        // Seção 1: Áreas Principais
+        doc
+          .fontSize(11)
           .fillColor("#333333")
           .font("Helvetica-Bold")
-          .text("Quadro de Áreas e Quantitativos", 50, yPos);
+          .text("1. ÁREAS PRINCIPAIS", 50, yPos);
 
-        yPos += 25;
+        yPos += 20;
 
-        const areaInfo = [
-          ["Área do Terreno", `${data.project.totalArea.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`],
-          ["Área Construída", `${(data.analysis.buildableArea || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`],
-          ["Número de Lojas", (data.analysis.numberOfStores || 0).toString()],
-          ["Vagas de Estacionamento", (data.analysis.parkingSpaces || 0).toString()],
-          ["Score de Viabilidade", `${data.analysis.feasibilityScore}/100`],
+        const mainAreas = [
+          ["Área do Terreno", formatArea(areaBreakdown.areaTerreno)],
+          ["Área Total Construída", formatArea(areaBreakdown.areaTotalConstruida)],
+          ["Número de Pavimentos", areaBreakdown.numeroPavimentos.toString()],
         ];
 
-        areaInfo.forEach(([label, value]) => {
+        mainAreas.forEach(([label, value]) => {
           doc
-            .fontSize(10)
+            .fontSize(9)
             .fillColor("#666666")
             .font("Helvetica")
-            .text(label + ":", 50, yPos, { continued: true })
+            .text(label, 70, yPos, { continued: true, width: 250 })
             .fillColor("#333333")
             .font("Helvetica-Bold")
-            .text(" " + value);
-          yPos += 20;
+            .text(value, { align: "right" });
+          yPos += 18;
         });
+
+        yPos += 10;
+
+        // Seção 2: Áreas Privativas
+        doc
+          .fontSize(11)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("2. ÁREAS PRIVATIVAS (LOJAS)", 50, yPos);
+
+        yPos += 20;
+
+        const privateAreas = [
+          ["Área Privativa Total", formatArea(areaBreakdown.areaPrivativaTotal)],
+          ["Número de Lojas", (data.analysis.numberOfStores || 0).toString()],
+          ["Área Média por Loja", formatArea(areaBreakdown.areaPrivativaPorLoja)],
+          ["Percentual sobre Total", formatPercentage(areaBreakdown.percentualPrivativo)],
+        ];
+
+        privateAreas.forEach(([label, value]) => {
+          doc
+            .fontSize(9)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos, { continued: true, width: 250 })
+            .fillColor("#333333")
+            .font("Helvetica-Bold")
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 10;
+
+        // Seção 3: Áreas Comuns
+        doc
+          .fontSize(11)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("3. ÁREAS COMUNS", 50, yPos);
+
+        yPos += 20;
+
+        const commonAreas = [
+          ["Área Comum Total", formatArea(areaBreakdown.areaComumTotal)],
+          ["  - Circulação e Corredores", formatArea(areaBreakdown.areaCirculacao)],
+          ["  - Sanitários e Vestiários", formatArea(areaBreakdown.areaSanitarios)],
+          ["  - Administrativa e Depósitos", formatArea(areaBreakdown.areaAdministrativa)],
+          ["Percentual sobre Total", formatPercentage(areaBreakdown.percentualComum)],
+        ];
+
+        commonAreas.forEach(([label, value]) => {
+          doc
+            .fontSize(9)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos, { continued: true, width: 250 })
+            .fillColor("#333333")
+            .font("Helvetica-Bold")
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 10;
+
+        // Seção 4: Estacionamento
+        doc
+          .fontSize(11)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("4. ESTACIONAMENTO", 50, yPos);
+
+        yPos += 20;
+
+        const parkingAreas = [
+          ["Área de Estacionamento", formatArea(areaBreakdown.areaEstacionamento)],
+          ["Número de Vagas", (data.analysis.parkingSpaces || 0).toString()],
+          ["Área Média por Vaga", formatArea(areaBreakdown.areaPorVaga)],
+          ["Percentual sobre Terreno", formatPercentage(areaBreakdown.percentualEstacionamento)],
+        ];
+
+        parkingAreas.forEach(([label, value]) => {
+          doc
+            .fontSize(9)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos, { continued: true, width: 250 })
+            .fillColor("#333333")
+            .font("Helvetica-Bold")
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 10;
+
+        // Seção 5: Índices Urbanísticos
+        doc
+          .fontSize(11)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("5. ÍNDICES URBANÍSTICOS", 50, yPos);
+
+        yPos += 20;
+
+        const urbanIndexes = [
+          ["Taxa de Ocupação", formatPercentage(areaBreakdown.taxaOcupacao)],
+          ["Coeficiente de Aproveitamento", formatCoefficient(areaBreakdown.coeficienteAproveitamento)],
+          ["Área Livre", formatArea(areaBreakdown.areaLivre)],
+          ["Área Permeável (estimada)", formatArea(areaBreakdown.areaPermeavel)],
+        ];
+
+        urbanIndexes.forEach(([label, value]) => {
+          doc
+            .fontSize(9)
+            .fillColor("#666666")
+            .font("Helvetica")
+            .text(label, 70, yPos, { continued: true, width: 250 })
+            .fillColor("#333333")
+            .font("Helvetica-Bold")
+            .text(value, { align: "right" });
+          yPos += 18;
+        });
+
+        yPos += 10;
+
+        // Score de Viabilidade
+        doc
+          .fontSize(11)
+          .fillColor("#333333")
+          .font("Helvetica-Bold")
+          .text("6. VIABILIDADE", 50, yPos);
+
+        yPos += 20;
+
+        doc
+          .fontSize(9)
+          .fillColor("#666666")
+          .font("Helvetica")
+          .text("Score de Viabilidade", 70, yPos, { continued: true, width: 250 })
+          .fillColor("#1e40af")
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text(`${data.analysis.feasibilityScore}/100`, { align: "right" });
+
+        yPos += 25;
 
         // Análise da IA
         yPos += 20;

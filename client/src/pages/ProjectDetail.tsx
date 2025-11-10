@@ -7,6 +7,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import LocationViewer from "@/components/LocationViewer";
 import ScenarioManager from "@/components/ScenarioManager";
 import ImageGallery from "@/components/ImageGallery";
+import AreaBreakdownTable from "@/components/AreaBreakdownTable";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -400,6 +401,30 @@ export default function ProjectDetail() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Quadro de Áreas ABNT */}
+                <AreaBreakdownTable
+                  areaTerreno={project.area}
+                  areaTotalConstruida={latestAnalysis.areaMaximaConstruida || 0}
+                  areaPrivativaTotal={(latestAnalysis.areaMaximaConstruida || 0) * 0.78}
+                  areaPrivativaPorLoja={(latestAnalysis.numeroLojas || 0) > 0 ? ((latestAnalysis.areaMaximaConstruida || 0) * 0.78) / (latestAnalysis.numeroLojas || 1) : 0}
+                  areaComumTotal={(latestAnalysis.areaMaximaConstruida || 0) * 0.22}
+                  areaCirculacao={(latestAnalysis.areaMaximaConstruida || 0) * 0.22 * 0.60}
+                  areaSanitarios={(latestAnalysis.areaMaximaConstruida || 0) * 0.22 * 0.25}
+                  areaAdministrativa={(latestAnalysis.areaMaximaConstruida || 0) * 0.22 * 0.15}
+                  areaEstacionamento={(latestAnalysis.vagasEstacionamento || 0) * 25}
+                  areaPorVaga={25}
+                  taxaOcupacao={((latestAnalysis.areaOcupada || 0) / project.area) * 100}
+                  coeficienteAproveitamento={(latestAnalysis.areaMaximaConstruida || 0) / project.area}
+                  numeroPavimentos={1}
+                  areaLivre={Math.max(0, project.area - (latestAnalysis.areaOcupada || 0) - ((latestAnalysis.vagasEstacionamento || 0) * 25))}
+                  areaPermeavel={project.area * 0.15}
+                  percentualPrivativo={78}
+                  percentualComum={22}
+                  percentualEstacionamento={(((latestAnalysis.vagasEstacionamento || 0) * 25) / project.area) * 100}
+                  numberOfStores={latestAnalysis.numeroLojas || 0}
+                  parkingSpaces={latestAnalysis.vagasEstacionamento || 0}
+                />
               </>
             ) : (
               <Card>

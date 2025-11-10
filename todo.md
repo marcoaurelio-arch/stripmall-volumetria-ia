@@ -244,3 +244,17 @@
 - [x] Criar botão de exportação na página de detalhes do projeto
 - [x] Implementar download automático do PDF gerado
 - [x] Testar geração de PDF com projeto completo
+
+### Quadro de Áreas Técnico ABNT NBR 12.721
+- [x] Pesquisar estrutura do quadro de áreas conforme ABNT NBR 12.721
+- [x] Criar função para calcular área privativa (lojas)
+- [x] Calcular área comum (circulação, corredores, banheiros)
+- [x] Calcular área de estacionamento
+- [x] Calcular taxa de ocupação (área construída / área do terreno)
+- [x] Calcular coeficiente de aproveitamento (área total construída / área do terreno)
+- [x] Calcular número de pavimentos
+- [x] Implementar tabela formatada no PDF com todas as áreas
+- [x] Adicionar seção de índices urbanísticos
+- [x] Criar componente visual do quadro de áreas na interface web
+- [x] Adicionar quadro de áreas na página de detalhes do projeto
+- [x] Testar cálculos com diferentes configurações de projeto
