@@ -77,6 +77,16 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
     },
   });
 
+  const generateSitePlanMutation = trpc.image.generateSitePlan.useMutation({
+    onSuccess: () => {
+      toast.success("Planta de implantação gerada com sucesso!");
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar planta de implantação");
+    },
+  });
+
   const generateBothSectionsMutation = trpc.image.generateBothSections.useMutation({
     onSuccess: () => {
       toast.success("Cortes arquitetônicos gerados com sucesso!");
@@ -561,6 +571,94 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
               </p>
               <p className="text-sm text-muted-foreground">
                 Use os botões acima para gerar vistas de diferentes ângulos
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Planta de Implantação */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Planta de Implantação
+              </CardTitle>
+              <CardDescription>
+                Layout completo com estacionamento, acessos, calçadas e áreas verdes
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => generateSitePlanMutation.mutate({ projectId })}
+              disabled={generateSitePlanMutation.isPending}
+              size="sm"
+            >
+              {generateSitePlanMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Gerar Planta de Implantação
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <Skeleton className="h-64 w-full rounded-lg" />
+          ) : (images?.filter((img) => img.type === "site_plan").length ?? 0) > 0 ? (
+            <div className="grid gap-4">
+              {images?.filter((img) => img.type === "site_plan").map((image) => (
+                <div key={image.id} className="group relative overflow-hidden rounded-lg border">
+                  <img
+                    src={image.imageUrl}
+                    alt="Planta de implantação"
+                    className="w-full h-auto object-contain cursor-pointer transition-transform group-hover:scale-105"
+                    onClick={() => setSelectedImage(image.imageUrl)}
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(image.imageUrl, `planta-implantacao-${image.id}.png`);
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Deseja excluir esta imagem?")) {
+                          deleteMutation.mutate({ id: image.id });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+              <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Nenhuma planta de implantação gerada ainda
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Use o botão acima para gerar layout completo do terreno
               </p>
             </div>
           )}

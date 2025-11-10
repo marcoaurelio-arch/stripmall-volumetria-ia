@@ -71,6 +71,13 @@
       "when": 1762792325284,
       "tag": "0009_wide_golden_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1762795539007,
+      "tag": "0010_happy_harrier",
+      "breakpoints": true
     }
   ]
 }

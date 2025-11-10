@@ -216,3 +216,16 @@
 - [x] Incluir representação de materiais conforme ABNT
 - [x] Adicionar cotas verticais e horizontais
 - [x] Testar geração de cortes
+
+### Planta de Implantação Completa
+- [x] Adicionar tipo "site_plan" no schema de imagens
+- [x] Criar procedure para gerar planta de implantação
+- [x] Implementar prompt com layout de estacionamento (vagas 90°, 45°, paralelas)
+- [x] Adicionar acessos veiculares e de pedestres
+- [x] Incluir calçadas perimetrais e passeios
+- [x] Adicionar áreas verdes e paisagismo
+- [x] Incluir cotas de distâncias e recuos
+- [x] Adicionar norte geográfico e escala gráfica
+- [x] Incluir legenda de materiais de piso
+- [x] Adicionar seção de implantação na galeria de imagens
+- [x] Testar geração de planta de implantação

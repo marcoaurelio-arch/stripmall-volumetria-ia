@@ -672,4 +672,129 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
 
       return { results, count: results.length };
     }),
+
+  // Gerar planta de implantação com estacionamento, acessos, calçadas e áreas verdes
+  generateSitePlan: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const geometryInfo = project.polygonCoordinates
+        ? `\n- Terrain shape: ${analyzePolygonGeometry(JSON.parse(project.polygonCoordinates))}`
+        : "";
+
+      const briefingSection = project.briefing
+        ? `\n\nPROJECT BRIEFING:\n${project.briefing}`
+        : "";
+
+      const sitePlanPrompt = `Create a professional architectural SITE PLAN (Planta de Implantação) for a strip mall project following Brazilian ABNT NBR 6492 standards.
+
+STYLE AND FORMAT:
+- Top view (plan view) technical drawing
+- Clean black and white with selective color for areas (green for landscaping, gray for pavement)
+- Thick continuous lines (0.7mm) for building perimeter
+- Medium lines (0.5mm) for paving edges, curbs, walkways
+- Thin lines (0.3mm) for parking stripes, landscaping
+- Dashed lines for property boundaries and setbacks
+- North arrow prominently displayed
+- Graphic scale (1:200 or 1:500)
+- Title block with: project name, "PLANTA DE IMPLANTAÇÃO", scale, date
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building footprint: ${project.width}m x ${project.length}m${geometryInfo}${briefingSection}
+
+SITE PLAN ELEMENTS:
+
+1. BUILDING:
+   - Strip mall building footprint with store divisions
+   - Label main anchor stores and smaller retail units
+   - Show entrances with door swing symbols
+   - Indicate covered walkway/arcade in front of stores
+   - Show loading/service area at rear
+
+2. PARKING LAYOUT:
+   - 90° angle parking stalls (2.5m x 5.0m each)
+   - Some 45° angle parking for better circulation
+   - Accessible parking spaces (3.5m x 5.5m) near entrances - marked with wheelchair symbol
+   - Clear circulation aisles (minimum 5.0m width)
+   - Parking count label: "TOTAL: XX VAGAS"
+   - Show parking stripes and directional arrows
+
+3. VEHICULAR ACCESS:
+   - Main entrance from street with curb cut
+   - Secondary exit for circulation
+   - Clear traffic flow arrows
+   - Speed bumps at strategic points
+   - Delivery truck access to service area
+   - Label: "ACESSO PRINCIPAL", "SAÍDA"
+
+4. PEDESTRIAN WALKWAYS:
+   - Perimeter sidewalks (minimum 1.5m width)
+   - Pedestrian crossings with zebra stripes
+   - Accessible ramps at curb transitions
+   - Covered walkway in front of stores
+   - Tactile paving for visually impaired
+
+5. LANDSCAPING AND GREEN AREAS:
+   - Tree symbols (circles with cross) along perimeter
+   - Green buffer zones between parking and property line
+   - Planter islands in parking area
+   - Grass areas shaded in light green
+   - Label tree species if specified in briefing
+
+6. SITE BOUNDARIES AND SETBACKS:
+   - Property line (dashed line)
+   - Front setback dimension
+   - Side setbacks dimensions
+   - Rear setback dimension
+   - Adjacent street names
+
+7. UTILITIES AND INFRASTRUCTURE:
+   - Water meter location
+   - Electrical transformer pad
+   - Drainage direction arrows
+   - Trash/recycling enclosure
+   - Bike rack area
+
+8. DIMENSIONS AND ANNOTATIONS:
+   - Overall site dimensions
+   - Building setbacks from property lines
+   - Parking aisle widths
+   - Sidewalk widths
+   - Distance from building to parking
+   - All dimensions in meters with 2 decimal places
+
+9. LEGEND (LEGENDA):
+   - Building footprint (solid black)
+   - Paved areas (light gray)
+   - Green areas (light green)
+   - Accessible parking (wheelchair symbol)
+   - Trees (circle with cross)
+
+10. AREA SUMMARY TABLE:
+    - Terreno: ${project.area}m²
+    - Área Construída: [calculated]m²
+    - Estacionamento: [calculated]m²
+    - Áreas Verdes: [calculated]m²
+    - Calçadas: [calculated]m²
+
+Render as a professional technical site plan following ABNT NBR 6492 standards with clear hierarchy, proper line weights, and comprehensive labeling.`;
+
+      const result = await generateImage({ prompt: sitePlanPrompt });
+      const imageUrl = result.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "site_plan",
+        imageUrl,
+        prompt: sitePlanPrompt,
+      });
+
+      return { imageUrl };
+    }),
 });
