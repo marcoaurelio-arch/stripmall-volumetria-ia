@@ -57,6 +57,36 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
     },
   });
 
+  const generateLongitudinalSectionMutation = trpc.image.generateLongitudinalSection.useMutation({
+    onSuccess: () => {
+      toast.success("Corte longitudinal gerado com sucesso!");
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar corte longitudinal");
+    },
+  });
+
+  const generateTransversalSectionMutation = trpc.image.generateTransversalSection.useMutation({
+    onSuccess: () => {
+      toast.success("Corte transversal gerado com sucesso!");
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar corte transversal");
+    },
+  });
+
+  const generateBothSectionsMutation = trpc.image.generateBothSections.useMutation({
+    onSuccess: () => {
+      toast.success("Cortes arquitetônicos gerados com sucesso!");
+      utils.image.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar cortes arquitetônicos");
+    },
+  });
+
   const generateAllFacadeViewsMutation = trpc.image.generateAllFacadeViews.useMutation({
     onSuccess: (data) => {
       toast.success(`${data.count} vistas de fachada geradas com sucesso!`);
@@ -531,6 +561,179 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
               </p>
               <p className="text-sm text-muted-foreground">
                 Use os botões acima para gerar vistas de diferentes ângulos
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Cortes Arquitetônicos ABNT */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Cortes Arquitetônicos ABNT
+              </CardTitle>
+              <CardDescription>
+                Cortes longitudinais e transversais seguindo normas ABNT
+              </CardDescription>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={() => generateBothSectionsMutation.mutate({ projectId })}
+                disabled={generateBothSectionsMutation.isPending || generateLongitudinalSectionMutation.isPending || generateTransversalSectionMutation.isPending}
+                variant="default"
+                size="sm"
+              >
+                {generateBothSectionsMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Gerar Ambos os Cortes
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => generateLongitudinalSectionMutation.mutate({ projectId })}
+                disabled={generateLongitudinalSectionMutation.isPending || generateBothSectionsMutation.isPending}
+                variant="outline"
+                size="sm"
+              >
+                {generateLongitudinalSectionMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Corte Longitudinal
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => generateTransversalSectionMutation.mutate({ projectId })}
+                disabled={generateTransversalSectionMutation.isPending || generateBothSectionsMutation.isPending}
+                variant="outline"
+                size="sm"
+              >
+                {generateTransversalSectionMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Corte Transversal
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {[1, 2].map((i) => (
+                <Skeleton key={i} className="h-48 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : ((images?.filter((img) => img.type === "longitudinal_section" || img.type === "transversal_section").length ?? 0) > 0) ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {images?.filter((img) => img.type === "longitudinal_section").map((image) => (
+                <div key={image.id} className="group relative overflow-hidden rounded-lg border">
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Longitudinal</span>
+                  </div>
+                  <img
+                    src={image.imageUrl}
+                    alt="Corte longitudinal"
+                    className="h-48 w-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                    onClick={() => setSelectedImage(image.imageUrl)}
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(image.imageUrl, `corte-longitudinal-${image.id}.png`);
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Deseja excluir esta imagem?")) {
+                          deleteMutation.mutate({ id: image.id });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              {images?.filter((img) => img.type === "transversal_section").map((image) => (
+                <div key={image.id} className="group relative overflow-hidden rounded-lg border">
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">Transversal</span>
+                  </div>
+                  <img
+                    src={image.imageUrl}
+                    alt="Corte transversal"
+                    className="h-48 w-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                    onClick={() => setSelectedImage(image.imageUrl)}
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownload(image.imageUrl, `corte-transversal-${image.id}.png`);
+                      }}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Deseja excluir esta imagem?")) {
+                          deleteMutation.mutate({ id: image.id });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+              <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">
+                Nenhum corte arquitetônico gerado ainda
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Use os botões acima para gerar cortes seguindo normas ABNT
               </p>
             </div>
           )}

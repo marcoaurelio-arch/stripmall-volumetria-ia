@@ -416,4 +416,260 @@ Render as a clean architectural elevation study, similar to professional feasibi
 
       return { results, count: results.length };
     }),
+
+  // Gerar corte longitudinal ABNT
+  generateLongitudinalSection: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      let geometryInfo = "";
+      if (project.polygonCoordinates) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+      }
+
+      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+
+      const prompt = `Create a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.
+
+ABNT TECHNICAL REQUIREMENTS:
+- Clean black and white technical drawing
+- Continuous thick lines (0.7mm) for cut elements
+- Thin lines (0.3mm) for visible elements beyond cut
+- Dashed lines for hidden elements
+- Level indicators: ±0.00 (ground floor), +3.50 (slab), +5.00 (roof)
+- Vertical dimensions with extension lines and arrows
+- Horizontal dimensions showing total length
+- Material hatching: concrete (45° diagonal lines), masonry (cross-hatch)
+- North arrow and scale (1:100 or 1:200)
+- Title block with: project name, drawing title "CORTE LONGITUDINAL AA", scale, date
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+
+SECTION CONTENT:
+- Cut through the longest dimension showing all stores in sequence
+- Show foundation, floor slab, walls, roof structure
+- Include ceiling height variations (pharmacy 3.5m, retail 4.0m, supermarket 5.0m)
+- Show mezzanine if applicable
+- Indicate drainage slopes on roof
+- Show parking lot level and building floor level difference
+- Add human figures for scale (1.75m)
+
+LABELS AND ANNOTATIONS:
+- Room names: "FARMÁCIA", "LOJA 1", "LOJA 2", "SUPERMERCADO"
+- Level marks: "PISO ACABADO ±0.00", "LAJE +3.50", "COBERTURA +5.00"
+- Structural elements: "VIGA", "PILAR", "FUNDAÇÃO"
+- Dimensions in meters with 2 decimal places
+
+Render as a professional technical drawing following NBR 6492 (Architectural Drawing) standards.`;
+
+      const result = await generateImage({ prompt });
+      const imageUrl = result.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "longitudinal_section",
+        imageUrl,
+        prompt,
+      });
+
+      return { imageUrl, prompt };
+    }),
+
+  // Gerar corte transversal ABNT
+  generateTransversalSection: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      let geometryInfo = "";
+      if (project.polygonCoordinates) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+      }
+
+      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+
+      const prompt = `Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.
+
+ABNT TECHNICAL REQUIREMENTS:
+- Clean black and white technical drawing
+- Continuous thick lines (0.7mm) for cut elements
+- Thin lines (0.3mm) for visible elements beyond cut
+- Dashed lines for hidden elements
+- Level indicators: ±0.00 (ground floor), +3.50 (slab), +5.00 (roof)
+- Vertical dimensions with extension lines and arrows
+- Horizontal dimensions showing width
+- Material hatching: concrete (45° diagonal lines), masonry (cross-hatch)
+- North arrow and scale (1:100 or 1:200)
+- Title block with: project name, drawing title "CORTE TRANSVERSAL BB", scale, date
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+
+SECTION CONTENT:
+- Cut through the width showing typical store depth
+- Show foundation, floor slab, side walls, roof structure
+- Include ceiling height (3.5m to 5.0m depending on store type)
+- Show roof drainage slope
+- Indicate parking area on one side, loading area on other
+- Show lateral setbacks if applicable
+- Add human figures for scale (1.75m)
+- Show typical store depth (15m to 20m)
+
+LABELS AND ANNOTATIONS:
+- Space labels: "ÁREA DE VENDAS", "DEPÓSITO", "ESTACIONAMENTO"
+- Level marks: "PISO ACABADO ±0.00", "LAJE +3.50", "COBERTURA +5.00"
+- Structural elements: "VIGA", "PILAR", "FUNDAÇÃO"
+- Dimensions in meters with 2 decimal places
+- Ceiling height indication
+
+Render as a professional technical drawing following NBR 6492 (Architectural Drawing) standards.`;
+
+      const result = await generateImage({ prompt });
+      const imageUrl = result.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "transversal_section",
+        imageUrl,
+        prompt,
+      });
+
+      return { imageUrl, prompt };
+    }),
+
+  // Gerar ambos os cortes de uma vez
+  generateBothSections: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const results = [];
+
+      // Gerar corte longitudinal
+      let geometryInfo = "";
+      if (project.polygonCoordinates) {
+        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+      }
+
+      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+
+      // Corte Longitudinal
+      const longitudinalPrompt = `Create a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.
+
+ABNT TECHNICAL REQUIREMENTS:
+- Clean black and white technical drawing
+- Continuous thick lines (0.7mm) for cut elements
+- Thin lines (0.3mm) for visible elements beyond cut
+- Dashed lines for hidden elements
+- Level indicators: ±0.00 (ground floor), +3.50 (slab), +5.00 (roof)
+- Vertical dimensions with extension lines and arrows
+- Horizontal dimensions showing total length
+- Material hatching: concrete (45° diagonal lines), masonry (cross-hatch)
+- North arrow and scale (1:100 or 1:200)
+- Title block with: project name, drawing title "CORTE LONGITUDINAL AA", scale, date
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+
+SECTION CONTENT:
+- Cut through the longest dimension showing all stores in sequence
+- Show foundation, floor slab, walls, roof structure
+- Include ceiling height variations (pharmacy 3.5m, retail 4.0m, supermarket 5.0m)
+- Show mezzanine if applicable
+- Indicate drainage slopes on roof
+- Show parking lot level and building floor level difference
+- Add human figures for scale (1.75m)
+
+LABELS AND ANNOTATIONS:
+- Room names: "FARMÁCIA", "LOJA 1", "LOJA 2", "SUPERMERCADO"
+- Level marks: "PISO ACABADO ±0.00", "LAJE +3.50", "COBERTURA +5.00"
+- Structural elements: "VIGA", "PILAR", "FUNDAÇÃO"
+- Dimensions in meters with 2 decimal places
+
+Render as a professional technical drawing following NBR 6492 (Architectural Drawing) standards.`;
+
+      const longitudinalResult = await generateImage({ prompt: longitudinalPrompt });
+      const longitudinalUrl = longitudinalResult.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "longitudinal_section",
+        imageUrl: longitudinalUrl,
+        prompt: longitudinalPrompt,
+      });
+
+      results.push({ type: "longitudinal", imageUrl: longitudinalUrl });
+
+      // Corte Transversal
+      const transversalPrompt = `Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.
+
+ABNT TECHNICAL REQUIREMENTS:
+- Clean black and white technical drawing
+- Continuous thick lines (0.7mm) for cut elements
+- Thin lines (0.3mm) for visible elements beyond cut
+- Dashed lines for hidden elements
+- Level indicators: ±0.00 (ground floor), +3.50 (slab), +5.00 (roof)
+- Vertical dimensions with extension lines and arrows
+- Horizontal dimensions showing width
+- Material hatching: concrete (45° diagonal lines), masonry (cross-hatch)
+- North arrow and scale (1:100 or 1:200)
+- Title block with: project name, drawing title "CORTE TRANSVERSAL BB", scale, date
+
+PROJECT DATA:
+- Site area: ${project.area}m²
+- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+
+SECTION CONTENT:
+- Cut through the width showing typical store depth
+- Show foundation, floor slab, side walls, roof structure
+- Include ceiling height (3.5m to 5.0m depending on store type)
+- Show roof drainage slope
+- Indicate parking area on one side, loading area on other
+- Show lateral setbacks if applicable
+- Add human figures for scale (1.75m)
+- Show typical store depth (15m to 20m)
+
+LABELS AND ANNOTATIONS:
+- Space labels: "ÁREA DE VENDAS", "DEPÓSITO", "ESTACIONAMENTO"
+- Level marks: "PISO ACABADO ±0.00", "LAJE +3.50", "COBERTURA +5.00"
+- Structural elements: "VIGA", "PILAR", "FUNDAÇÃO"
+- Dimensions in meters with 2 decimal places
+- Ceiling height indication
+
+Render as a professional technical drawing following NBR 6492 (Architectural Drawing) standards.`;
+
+      const transversalResult = await generateImage({ prompt: transversalPrompt });
+      const transversalUrl = transversalResult.url as string;
+
+      await db.createGeneratedImage({
+        projectId: input.projectId,
+        type: "transversal_section",
+        imageUrl: transversalUrl,
+        prompt: transversalPrompt,
+      });
+
+      results.push({ type: "transversal", imageUrl: transversalUrl });
+
+      return { results, count: results.length };
+    }),
 });

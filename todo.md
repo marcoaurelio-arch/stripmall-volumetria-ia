@@ -204,3 +204,15 @@
 
 ### Bugs e Correções
 - [x] Corrigir query getLatestAnalysis retornando undefined em vez de null quando não há análise
+
+### Cortes Arquitetônicos ABNT
+- [x] Adicionar tipos "longitudinal_section" e "transversal_section" no schema
+- [x] Criar procedure para gerar corte longitudinal
+- [x] Criar procedure para gerar corte transversal
+- [x] Implementar prompts com normas ABNT (cotas, níveis, materiais, hachuras)
+- [x] Adicionar seção de cortes na galeria de imagens
+- [x] Incluir botão para gerar ambos os cortes automaticamente
+- [x] Adicionar indicação de níveis (±0.00, piso, cobertura)
+- [x] Incluir representação de materiais conforme ABNT
+- [x] Adicionar cotas verticais e horizontais
+- [x] Testar geração de cortes
