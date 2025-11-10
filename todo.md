@@ -201,3 +201,6 @@
 - [ ] Incluir legendas de áreas nas plantas
 - [ ] Representar circulação e acessos nas plantas
 - [ ] Adicionar quadro de áreas nas imagens geradas
+
+### Bugs e Correções
+- [x] Corrigir query getLatestAnalysis retornando undefined em vez de null quando não há análise
