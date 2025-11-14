@@ -294,3 +294,11 @@
 - [x] Adicionar botão "Usar como Referência" na galeria
 - [x] Criar seed data com 10-15 projetos brasileiros relevantes
 - [x] Testar integração com análise volumétrica
+
+## Funcionalidade de Busca em Projetos de Inspiração
+
+- [x] Atualizar procedure de listagem para aceitar parâmetro de busca
+- [x] Implementar busca por texto em nome, localização, arquiteto, incorporadora
+- [x] Adicionar campo de busca na interface da galeria
+- [x] Implementar debounce para otimizar requisições
+- [x] Testar busca com diferentes termos

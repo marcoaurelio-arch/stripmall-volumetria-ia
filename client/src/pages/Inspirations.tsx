@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, MapPin, Building2, Users, Calendar, Lightbulb, Filter, X } from "lucide-react";
+import { Loader2, MapPin, Building2, Users, Calendar, Lightbulb, Filter, X, Search } from "lucide-react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 
@@ -14,7 +14,9 @@ import { Badge } from "@/components/ui/badge";
  * Catálogo de strip malls e centros comerciais relevantes do Brasil
  */
 export default function Inspirations() {
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
+    search: "",
     category: undefined as "strip_mall" | "open_mall" | "shopping_center" | "neighborhood_center" | undefined,
     segment: undefined as "popular" | "medio" | "alto_padrao" | undefined,
     location: "",
@@ -41,8 +43,18 @@ export default function Inspirations() {
     alto_padrao: "Alto Padrão",
   };
 
+  // Debounce para busca
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters(prev => ({ ...prev, search: searchTerm }));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const clearFilters = () => {
+    setSearchTerm("");
     setFilters({
+      search: "",
       category: undefined,
       segment: undefined,
       location: "",
@@ -54,6 +66,7 @@ export default function Inspirations() {
   };
 
   const hasActiveFilters = 
+    searchTerm ||
     filters.category || 
     filters.segment || 
     filters.location || 
@@ -67,20 +80,40 @@ export default function Inspirations() {
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container py-8">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-8">
+            <div className="flex-1">
               <h1 className="text-4xl font-bold text-slate-900 flex items-center gap-3">
                 <Lightbulb className="h-10 w-10 text-yellow-500" />
                 Projetos de Inspiração
               </h1>
-              <p className="text-lg text-slate-600 mt-2">
+              <p className="text-lg text-slate-600 mt-2 mb-4">
                 Catálogo de strip malls e centros comerciais relevantes do Brasil
               </p>
+              
+              {/* Campo de Busca */}
+              <div className="relative max-w-xl">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Buscar por nome, localização, arquiteto, incorporadora..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-10 h-12 text-base"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
             </div>
             <Button
               variant={showFilters ? "default" : "outline"}
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 mt-2"
             >
               <Filter className="h-4 w-4" />
               {showFilters ? "Ocultar Filtros" : "Filtrar"}

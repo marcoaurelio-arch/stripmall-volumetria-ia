@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import { inspirationProjects, InsertInspirationProject } from "../drizzle/schema";
-import { eq, like, and, gte, lte, desc } from "drizzle-orm";
+import { eq, like, and, gte, lte, desc, or } from "drizzle-orm";
 
 /**
  * Router para gerenciar projetos de inspiração (catálogo de strip malls e centros comerciais relevantes)
@@ -14,6 +14,7 @@ export const inspirationRouter = router({
   list: publicProcedure
     .input(
       z.object({
+        search: z.string().optional(), // Busca por palavra-chave
         category: z.enum(["strip_mall", "open_mall", "shopping_center", "neighborhood_center"]).optional(),
         segment: z.enum(["popular", "medio", "alto_padrao"]).optional(),
         location: z.string().optional(), // Busca por cidade/estado
@@ -31,6 +32,20 @@ export const inspirationRouter = router({
 
       // Construir condições de filtro
       const conditions = [];
+      
+      // Busca por palavra-chave em múltiplos campos
+      if (input?.search && input.search.trim() !== "") {
+        const searchTerm = `%${input.search}%`;
+        conditions.push(
+          or(
+            like(inspirationProjects.name, searchTerm),
+            like(inspirationProjects.location, searchTerm),
+            like(inspirationProjects.description, searchTerm),
+            like(inspirationProjects.architect, searchTerm),
+            like(inspirationProjects.developer, searchTerm)
+          )
+        );
+      }
       
       if (input?.category) {
         conditions.push(eq(inspirationProjects.category, input.category));
