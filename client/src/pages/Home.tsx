@@ -23,6 +23,9 @@ export default function Home() {
               <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
             ) : isAuthenticated ? (
               <>
+                <Link href="/inspiracoes">
+                  <Button variant="ghost">Inspirações</Button>
+                </Link>
                 <Link href="/projetos">
                   <Button variant="ghost">Meus Projetos</Button>
                 </Link>

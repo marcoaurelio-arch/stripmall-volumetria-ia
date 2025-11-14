@@ -125,3 +125,50 @@ export const analyses = mysqlTable("analyses", {
 
 export type Analysis = typeof analyses.$inferSelect;
 export type InsertAnalysis = typeof analyses.$inferInsert;
+
+/**
+ * Tabela de projetos de inspiração - catálogo de centros comerciais e strip malls relevantes do Brasil
+ */
+export const inspirationProjects = mysqlTable("inspirationProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Informações básicas
+  name: varchar("name", { length: 255 }).notNull(),
+  location: text("location").notNull(), // Cidade, estado, endereço completo
+  description: text("description"), // Descrição geral do projeto
+  concept: text("concept"), // Conceito arquitetônico e comercial
+  
+  // Dados técnicos
+  area: int("area"), // Área total construída em m²
+  storeCount: int("storeCount"), // Número de lojas
+  parkingSpaces: int("parkingSpaces"), // Número de vagas de estacionamento
+  floors: int("floors"), // Número de pavimentos
+  year: int("year"), // Ano de inauguração
+  
+  // Informações profissionais
+  architect: text("architect"), // Arquiteto ou escritório responsável
+  developer: text("developer"), // Incorporadora/construtora
+  
+  // Características e mix
+  anchors: text("anchors"), // JSON array com lojas âncora
+  features: text("features"), // JSON array com características principais
+  
+  // Categorização
+  category: mysqlEnum("category", ["strip_mall", "open_mall", "shopping_center", "neighborhood_center"]).notNull(),
+  segment: mysqlEnum("segment", ["popular", "medio", "alto_padrao"]).default("medio").notNull(),
+  
+  // Localização geográfica
+  latitude: varchar("latitude", { length: 50 }),
+  longitude: varchar("longitude", { length: 50 }),
+  
+  // Imagens
+  images: text("images"), // JSON array com URLs de imagens
+  mainImageUrl: text("mainImageUrl"), // URL da imagem principal
+  
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InspirationProject = typeof inspirationProjects.$inferSelect;
+export type InsertInspirationProject = typeof inspirationProjects.$inferInsert;

@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import NewProject from "./pages/NewProject";
 import ProjectDetail from "./pages/ProjectDetail";
+import Inspirations from "./pages/Inspirations";
+import InspirationDetail from "./pages/InspirationDetail";
 
 function Router() {
   return (
@@ -16,6 +18,8 @@ function Router() {
       <Route path={"/projetos"} component={Projects} />
       <Route path={"/projeto/:id"} component={ProjectDetail} />
       <Route path={"/novo-projeto"} component={NewProject} />
+      <Route path={"/inspiracoes"} component={Inspirations} />
+      <Route path={"/inspirations/:id"} component={InspirationDetail} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

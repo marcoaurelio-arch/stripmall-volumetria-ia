@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { ArrowLeft, MapPin, Upload } from "lucide-react";
 import LocationPickerWithDrawing from "@/components/LocationPickerWithDrawing";
 import ScenarioManager from "@/components/ScenarioManager";
+import InspirationSelector from "@/components/InspirationSelector";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -38,6 +39,7 @@ export default function NewProject() {
 
   const [tempPolygon, setTempPolygon] = useState("");
   const [tempArea, setTempArea] = useState(0);
+  const [selectedInspiration, setSelectedInspiration] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const parseKMZMutation = trpc.project.parseKMZ.useMutation({
@@ -220,6 +222,23 @@ export default function NewProject() {
                     Este briefing será usado pela IA para gerar estudos conceituais mais precisos e alinhados com suas necessidades
                   </p>
                 </div>
+
+                {/* Seletor de Projeto de Inspiração */}
+                {formData.area && parseInt(formData.area) > 0 && (
+                  <div className="space-y-2">
+                    <Label>Projeto de Referência (Opcional)</Label>
+                    <InspirationSelector
+                      projectArea={parseInt(formData.area)}
+                      onSelect={setSelectedInspiration}
+                      selectedId={selectedInspiration?.id}
+                    />
+                    {selectedInspiration && (
+                      <p className="text-xs text-muted-foreground">
+                        Usando "{selectedInspiration.name}" como referência para a análise
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="address">Endereço</Label>

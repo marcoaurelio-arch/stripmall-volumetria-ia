@@ -275,3 +275,22 @@
 - [x] Criar componente React de análise financeira
 - [x] Adicionar aba de viabilidade financeira na interface
 - [x] Testar cálculos com diferentes parâmetros
+
+### Módulo de Projetos de Inspiração
+- [x] Pesquisar e catalogar strip malls relevantes do Brasil
+- [x] Criar tabela de projetos de inspiração no banco de dados
+- [x] Adicionar campos: nome, localização, área, número de lojas, ano, arquiteto, características
+- [x] Implementar upload de múltiplas imagens por projeto
+- [x] Criar procedure para adicionar projeto de inspiração
+- [x] Criar procedure para listar projetos com filtros (localização, tamanho, tipo)
+- [x] Criar procedure para buscar detalhes de projeto
+- [x] Implementar sistema de tags/categorias
+- [x] Criar componente de galeria de projetos de inspiração
+- [x] Implementar filtros por região, área, número de lojas
+- [x] Criar página de detalhes do projeto de inspiração
+- [x] Adicionar seção de características técnicas
+- [x] Implementar seleção de projeto como referência na análise
+- [ ] Integrar dados de inspiração nos prompts da IA
+- [x] Adicionar botão "Usar como Referência" na galeria
+- [x] Criar seed data com 10-15 projetos brasileiros relevantes
+- [x] Testar integração com análise volumétrica
