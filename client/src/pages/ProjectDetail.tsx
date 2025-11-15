@@ -9,17 +9,21 @@ import ScenarioManager from "@/components/ScenarioManager";
 import ImageGallery from "@/components/ImageGallery";
 import AreaBreakdownTable from "@/components/AreaBreakdownTable";
 import FinancialAnalysis from "@/components/FinancialAnalysis";
+import { PDFPreviewDialog } from "@/components/PDFPreviewDialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
+import { useState } from "react";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const projectId = parseInt(id);
   const { isAuthenticated, loading: authLoading } = useAuth();
   const utils = trpc.useUtils();
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<{ pdfBase64: string; fileName: string } | null>(null);
 
   const { data: project, isLoading: projectLoading } = trpc.project.get.useQuery(
     { id: projectId },
@@ -56,6 +60,24 @@ export default function ProjectDetail() {
   const handleAnalyze = () => {
     if (confirm("Deseja iniciar uma nova análise deste terreno?")) {
       analyzeMutation.mutate({ projectId });
+    }
+  };
+
+  const previewPDFQuery = trpc.project.previewPDF.useQuery(
+    { projectId },
+    { enabled: false } // Não executar automaticamente
+  );
+
+  const handlePreviewPDF = async () => {
+    const result = await previewPDFQuery.refetch();
+    if (result.data) {
+      setPreviewData({
+        pdfBase64: result.data.pdfBase64,
+        fileName: result.data.fileName,
+      });
+      setShowPreview(true);
+    } else if (result.error) {
+      toast.error(result.error.message || "Erro ao gerar prévia do relatório");
     }
   };
 
@@ -203,6 +225,24 @@ export default function ProjectDetail() {
               )}
             </Button>
             <Button
+              onClick={handlePreviewPDF}
+              disabled={previewPDFQuery.isFetching}
+              variant="outline"
+              size="lg"
+            >
+              {previewPDFQuery.isFetching ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando Prévia...
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Visualizar Relatório
+                </>
+              )}
+            </Button>
+            <Button
               onClick={handleExportPDF}
               disabled={exportPDFMutation.isPending}
               variant="outline"
@@ -216,7 +256,7 @@ export default function ProjectDetail() {
               ) : (
                 <>
                   <Download className="h-4 w-4 mr-2" />
-                  Exportar Relatório PDF
+                  Baixar PDF
                 </>
               )}
             </Button>
@@ -507,6 +547,16 @@ export default function ProjectDetail() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Dialog de Prévia do PDF */}
+      {previewData && (
+        <PDFPreviewDialog
+          open={showPreview}
+          onOpenChange={setShowPreview}
+          pdfBase64={previewData.pdfBase64}
+          fileName={previewData.fileName}
+        />
+      )}
     </div>
   );
 }

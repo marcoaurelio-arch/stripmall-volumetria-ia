@@ -311,3 +311,13 @@
 - [x] Adicionar seção de "Estudos Visuais" no relatório com as imagens
 - [x] Garantir que imagens sejam redimensionadas adequadamente no PDF
 - [x] Testar geração de relatório completo com imagens
+
+## Visualização Prévia de Relatórios PDF
+
+- [x] Criar endpoint tRPC para gerar preview do PDF
+- [x] Retornar PDF como base64 ou blob URL para visualização
+- [x] Criar componente PDFPreviewDialog com react-pdf ou iframe
+- [x] Adicionar botão "Visualizar" ao lado do botão "Exportar PDF"
+- [x] Implementar modal de preview com opções de download e fechar
+- [x] Adicionar indicador de carregamento durante geração do preview
+- [x] Testar preview com diferentes projetos e tamanhos de PDF

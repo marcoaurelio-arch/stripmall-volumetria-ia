@@ -308,6 +308,69 @@ Responda APENAS com um JSON válido no seguinte formato:
       }
     }),
 
+  // Visualizar prévia do relatório em PDF (retorna base64)
+  previewPDF: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        // Buscar dados do projeto
+        const project = await db.getProjectById(input.projectId);
+        
+        if (!project || project.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+        }
+        
+        // Buscar análise mais recente
+        const analysis = await db.getLatestAnalysis(input.projectId);
+        
+        // Buscar todas as imagens geradas
+        const images = await db.getGeneratedImagesByProjectId(input.projectId);
+        
+        // Preparar dados para o relatório
+        const reportData = {
+          project: {
+            id: project.id,
+            name: project.name,
+            address: project.address || "Não informado",
+            totalArea: project.area,
+            briefing: project.briefing,
+            pricePerSqm: project.pricePerSqm,
+            latitude: project.latitude ? parseFloat(project.latitude) : null,
+            longitude: project.longitude ? parseFloat(project.longitude) : null,
+            createdAt: project.createdAt,
+          },
+          analysis: analysis ? {
+            buildableArea: analysis.areaMaximaConstruida,
+            numberOfStores: analysis.numeroLojas,
+            parkingSpaces: analysis.vagasEstacionamento,
+            feasibilityScore: 85,
+            aiAnalysis: analysis.aiSuggestions,
+          } : null,
+          images: images.map((img: any) => ({
+            id: img.id,
+            type: img.type,
+            imageUrl: img.imageUrl,
+          })),
+        };
+        
+        // Gerar PDF
+        const pdfBuffer = await generateProjectReport(reportData);
+        
+        // Retornar PDF como base64 para preview no navegador
+        return {
+          success: true,
+          pdfBase64: pdfBuffer.toString('base64'),
+          fileName: `relatorio-${project.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
+        };
+      } catch (error) {
+        console.error("Erro ao gerar preview do PDF:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao gerar prévia do relatório",
+        });
+      }
+    }),
+
   // Exportar relatório técnico em PDF
   exportPDF: protectedProcedure
     .input(z.object({ projectId: z.number() }))
