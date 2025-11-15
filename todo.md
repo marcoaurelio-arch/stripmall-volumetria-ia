@@ -302,3 +302,12 @@
 - [x] Adicionar campo de busca na interface da galeria
 - [x] Implementar debounce para otimizar requisições
 - [x] Testar busca com diferentes termos
+
+## Anexar Imagens dos Estudos Visuais nos Relatórios PDF
+
+- [x] Analisar código atual de geração de relatórios PDF
+- [x] Identificar onde as imagens geradas são armazenadas
+- [x] Atualizar lógica de geração de PDF para incluir imagens
+- [x] Adicionar seção de "Estudos Visuais" no relatório com as imagens
+- [x] Garantir que imagens sejam redimensionadas adequadamente no PDF
+- [x] Testar geração de relatório completo com imagens

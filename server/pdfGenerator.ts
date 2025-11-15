@@ -1,7 +1,24 @@
 import PDFDocument from "pdfkit";
 import { Readable } from "stream";
+import axios from "axios";
 import { calculateAreaBreakdown, formatArea, formatPercentage, formatCoefficient } from "./areaCalculator";
 import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS, formatCurrency, formatPercent, formatYears } from "./financialCalculator";
+
+/**
+ * Função auxiliar para baixar imagem de uma URL
+ */
+async function downloadImage(url: string): Promise<Buffer> {
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+      timeout: 10000, // 10 segundos de timeout
+    });
+    return Buffer.from(response.data);
+  } catch (error) {
+    console.error(`Erro ao baixar imagem ${url}:`, error);
+    throw error;
+  }
+}
 
 interface ProjectData {
   id: number;
@@ -36,7 +53,7 @@ interface ReportData {
 }
 
 export async function generateProjectReport(data: ReportData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       const doc = new PDFDocument({
         size: "A4",
@@ -669,28 +686,46 @@ export async function generateProjectReport(data: ReportData): Promise<Buffer> {
               .font("Helvetica-Bold")
               .text(`${sectionNumber}. ${imageType.title.toUpperCase()}`, 50, 80);
 
-            // Note: PDFKit doesn't support loading images from URLs directly
-            // In a real implementation, you would need to download the images first
-            doc
-              .fontSize(10)
-              .fillColor("#666666")
-              .font("Helvetica")
-              .text(
-                `[Imagem: ${imageType.title}]`,
-                50,
-                150,
-                { align: "center" }
-              );
-
-            doc
-              .fontSize(9)
-              .fillColor("#999999")
-              .text(
-                `URL: ${imagesOfType[0].imageUrl}`,
-                50,
-                doc.page.height - 80,
-                { align: "center", width: doc.page.width - 100 }
-              );
+            // Baixar e inserir a imagem real
+            try {
+              const imageBuffer = await downloadImage(imagesOfType[0].imageUrl);
+              
+              // Calcular dimensões para caber na página mantendo proporção
+              const maxWidth = doc.page.width - 100; // margens de 50px de cada lado
+              const maxHeight = doc.page.height - 200; // espaço para título e rodapé
+              
+              // Inserir imagem centralizada
+              doc.image(imageBuffer, 50, 130, {
+                fit: [maxWidth, maxHeight],
+                align: 'center',
+                valign: 'center',
+              });
+              
+              // Adicionar legenda abaixo da imagem
+              doc
+                .fontSize(9)
+                .fillColor("#666666")
+                .font("Helvetica-Oblique")
+                .text(
+                  `Figura ${sectionNumber}: ${imageType.title}`,
+                  50,
+                  doc.page.height - 80,
+                  { align: "center", width: doc.page.width - 100 }
+                );
+            } catch (error) {
+              // Se falhar ao baixar a imagem, mostrar placeholder
+              console.error(`Erro ao processar imagem ${imageType.title}:`, error);
+              doc
+                .fontSize(10)
+                .fillColor("#999999")
+                .font("Helvetica")
+                .text(
+                  `[Imagem não disponível: ${imageType.title}]`,
+                  50,
+                  150,
+                  { align: "center" }
+                );
+            }
 
             addPageNumber();
             sectionNumber++;
