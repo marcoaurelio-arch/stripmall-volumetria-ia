@@ -15,7 +15,12 @@ import {
   LineChart, Line, BarChart, Bar, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
-import { TrendingUp, DollarSign, Calendar, AlertCircle, RefreshCw } from 'lucide-react';
+import { TrendingUp, DollarSign, Calendar, AlertCircle, RefreshCw, Save, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 
 interface AdvancedFinancialDashboardProps {
@@ -31,6 +36,11 @@ export default function AdvancedFinancialDashboard({
   custoTotal,
   receitaMensal,
 }: AdvancedFinancialDashboardProps) {
+  // Estado do modal de salvar
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [scenarioName, setScenarioName] = useState('');
+  const [scenarioNotes, setScenarioNotes] = useState('');
+
   // Parâmetros de entrada
   const [taxaVacancia, setTaxaVacancia] = useState([10]); // 10%
   const [custoOperacional, setCustoOperacional] = useState([20]); // 20% da receita
@@ -42,6 +52,19 @@ export default function AdvancedFinancialDashboard({
 
   // Calcular custos operacionais em reais
   const custoOperacionalMensal = Math.round(receitaMensal * custoOperacional[0] / 100);
+
+  // Mutation para salvar cenário
+  const saveScenarioMutation = trpc.financialProjection.save.useMutation({
+    onSuccess: () => {
+      toast.success('Cenário salvo com sucesso!');
+      setSaveDialogOpen(false);
+      setScenarioName('');
+      setScenarioNotes('');
+    },
+    onError: (error) => {
+      toast.error('Erro ao salvar cenário: ' + error.message);
+    },
+  });
 
   // Query para calcular análise avançada
   const { data: analise, isLoading, refetch } = trpc.project.calculateAdvancedFinancial.useQuery(
@@ -82,6 +105,137 @@ export default function AdvancedFinancialDashboard({
   };
 
   /**
+   * Exportar para Excel
+   */
+  const handleExportExcel = () => {
+    if (!analise) {
+      toast.error('Aguarde o cálculo da análise financeira');
+      return;
+    }
+
+    try {
+      // Criar workbook
+      const wb = XLSX.utils.book_new();
+
+      // Aba 1: Resumo
+      const resumoData = [
+        ['ANÁLISE FINANCEIRA AVANÇADA'],
+        [],
+        ['INDICADORES PRINCIPAIS'],
+        ['TIR (Taxa Interna de Retorno)', formatarPercentual(analise.tir)],
+        ['VPL (Valor Presente Líquido)', formatarMoeda(analise.vpl)],
+        ['Payback Simples', `${analise.paybackSimples} meses`],
+        ['Payback Descontado', `${analise.paybackDescontado} meses`],
+        [],
+        ['PARÂMETROS'],
+        ['Investimento Inicial', formatarMoeda(custoTotal)],
+        ['Receita Mensal de Aluguel', formatarMoeda(receitaMensal)],
+        ['Taxa de Vacância', `${taxaVacancia[0]}%`],
+        ['Custo Operacional Mensal', formatarMoeda(custoOperacionalMensal)],
+        ['Taxa de Desconto', `${taxaDesconto[0]}%`],
+        [],
+        ['FINANCIAMENTO'],
+        ['Tipo', tipoFinanciamento],
+        ['Percentual Financiado', `${percentualFinanciado[0]}%`],
+        ['Taxa de Juros Anual', `${taxaJuros[0]}%`],
+        ['Prazo', `${prazoFinanciamento[0]} meses`],
+      ];
+      const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+      XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+
+      // Aba 2: Fluxo de Caixa
+      const fluxoData = [
+        ['ANO', 'RECEITA', 'DESPESA', 'SALDO', 'SALDO ACUMULADO'],
+        ...analise.fluxoCaixaAnual.map((item: any) => [
+          item.ano,
+          item.receita,
+          item.despesa,
+          item.saldo,
+          item.saldoAcumulado,
+        ]),
+      ];
+      const wsFluxo = XLSX.utils.aoa_to_sheet(fluxoData);
+      XLSX.utils.book_append_sheet(wb, wsFluxo, 'Fluxo de Caixa');
+
+      // Aba 3: Análise de Sensibilidade
+      const sensibilidadeData = [
+        ['ANÁLISE DE SENSIBILIDADE'],
+        [],
+        ['VARIAÇÃO DE ALUGUEL'],
+        ['Variação', 'TIR', 'VPL'],
+        ...analise.analiseSensibilidade.aluguel.map((item: any) => [
+          `${item.variacao > 0 ? '+' : ''}${item.variacao}%`,
+          formatarPercentual(item.tir),
+          formatarMoeda(item.vpl),
+        ]),
+        [],
+        ['VARIAÇÃO DE VACÂNCIA'],
+        ['Variação', 'TIR', 'VPL'],
+        ...analise.analiseSensibilidade.vacancia.map((item: any) => [
+          `${item.variacao > 0 ? '+' : ''}${item.variacao}%`,
+          formatarPercentual(item.tir),
+          formatarMoeda(item.vpl),
+        ]),
+        [],
+        ['VARIAÇÃO DE CUSTOS'],
+        ['Variação', 'TIR', 'VPL'],
+        ...analise.analiseSensibilidade.custos.map((item: any) => [
+          `${item.variacao > 0 ? '+' : ''}${item.variacao}%`,
+          formatarPercentual(item.tir),
+          formatarMoeda(item.vpl),
+        ]),
+      ];
+      const wsSensibilidade = XLSX.utils.aoa_to_sheet(sensibilidadeData);
+      XLSX.utils.book_append_sheet(wb, wsSensibilidade, 'Sensibilidade');
+
+      // Salvar arquivo
+      const fileName = `analise-financeira-projeto-${projectId}-${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success('Arquivo Excel exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error);
+      toast.error('Erro ao exportar arquivo Excel');
+    }
+  };
+
+  /**
+   * Salvar cenário atual
+   */
+  const handleSaveScenario = () => {
+    if (!scenarioName.trim()) {
+      toast.error('Por favor, insira um nome para o cenário');
+      return;
+    }
+
+    if (!analise) {
+      toast.error('Aguarde o cálculo da análise financeira');
+      return;
+    }
+
+    saveScenarioMutation.mutate({
+      projectId,
+      nome: scenarioName,
+      notas: scenarioNotes,
+      investimentoInicial: custoTotal,
+      receitaMensalAluguel: receitaMensal,
+      taxaVacancia: taxaVacancia[0],
+      custoOperacionalMensal,
+      taxaDesconto: taxaDesconto[0] * 100,
+      tipoFinanciamento,
+      percentualFinanciado: percentualFinanciado[0],
+      taxaJurosAnual: taxaJuros[0] * 100,
+      prazoFinanciamento: prazoFinanciamento[0],
+      tir: analise.tir,
+      vpl: analise.vpl,
+      paybackSimples: analise.paybackSimples,
+      paybackDescontado: analise.paybackDescontado,
+      fluxoCaixaAnual: JSON.stringify(analise.fluxoCaixaAnual),
+      analiseSensibilidade: JSON.stringify(analise.analiseSensibilidade),
+    });
+  };
+
+  /**
    * Recalcular análise
    */
   const handleRecalcular = () => {
@@ -93,10 +247,76 @@ export default function AdvancedFinancialDashboard({
       {/* Controles de Parâmetros */}
       <Card>
         <CardHeader>
-          <CardTitle>Parâmetros da Análise</CardTitle>
-          <CardDescription>
-            Ajuste os parâmetros para simular diferentes cenários financeiros
-          </CardDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle>Parâmetros da Análise</CardTitle>
+              <CardDescription>
+                Ajuste os parâmetros para simular diferentes cenários financeiros
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isLoading || !analise}
+                onClick={handleExportExcel}
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Exportar Excel
+              </Button>
+              <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isLoading || !analise}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Salvar Cenário
+                  </Button>
+                </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Salvar Cenário Financeiro</DialogTitle>
+                  <DialogDescription>
+                    Salve os parâmetros e resultados atuais para comparação futura
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="scenario-name">Nome do Cenário *</Label>
+                    <Input
+                      id="scenario-name"
+                      placeholder="Ex: Cenário Conservador"
+                      value={scenarioName}
+                      onChange={(e) => setScenarioName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="scenario-notes">Notas (opcional)</Label>
+                    <Textarea
+                      id="scenario-notes"
+                      placeholder="Adicione observações sobre este cenário..."
+                      value={scenarioNotes}
+                      onChange={(e) => setScenarioNotes(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSaveDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleSaveScenario}
+                    disabled={saveScenarioMutation.isPending}
+                  >
+                    {saveScenarioMutation.isPending ? 'Salvando...' : 'Salvar'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">

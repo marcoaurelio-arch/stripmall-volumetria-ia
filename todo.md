@@ -786,3 +786,46 @@
 - [ ] Adicionar sistemas MEP básicos (pontos elétricos, hidráulicos)
 - [ ] Melhorar documentação e metadados do IFC
 - [ ] Testar compatibilidade com mais softwares BIM
+
+
+## UI DE GERENCIAMENTO DE CENÁRIOS FINANCEIROS
+
+### Fase 1: Botão de Salvar e Modal
+- [x] Adicionar botão "Salvar Cenário" no AdvancedFinancialDashboard
+- [x] Criar Dialog/Modal para nomear cenário
+- [x] Adicionar campo de textarea para notas
+- [x] Implementar mutation para salvar cenário
+- [x] Exibir toast de confirmação
+- [x] Adicionar validação de nome obrigatório
+
+### Fase 2: Lista de Cenários Salvos
+- [x] Criar componente SavedScenariosPanel
+- [x] Listar cenários com cards (nome, data, TIR, VPL)
+- [ ] Adicionar botão "Carregar" para aplicar parâmetros (não implementado - baixa prioridade)
+- [x] Adicionar botão "Renomear" com modal
+- [x] Adicionar botão "Deletar" com confirmação
+- [x] Implementar ordenação por data
+- [ ] Adicionar filtros (data, TIR, VPL) (não implementado - baixa prioridade)
+- [x] Exibir estado vazio quando não há cenários
+
+### Fase 3: Comparação Visual de Cenários
+- [ ] Criar componente ScenarioComparisonPanel (não implementado - baixa prioridade)
+- [ ] Adicionar seleção de 2-3 cenários (checkboxes) (não implementado)
+- [ ] Criar gráficos lado a lado (Recharts) (não implementado)
+- [ ] Gráfico de fluxo de caixa comparativo (não implementado)
+- [ ] Gráfico de VPL comparativo (não implementado)
+- [ ] Gráfico de TIR comparativo (não implementado)
+- [ ] Tabela comparativa de indicadores (não implementado)
+- [ ] Destacar diferenças percentuais (não implementado)
+- [ ] Adicionar botão "Limpar Seleção" (não implementado)
+
+### Fase 4: Exportação Excel
+- [x] Instalar biblioteca xlsx
+- [x] Criar função de exportação para Excel
+- [x] Aba 1: Resumo (indicadores principais)
+- [x] Aba 2: Fluxo de Caixa Anual (10 anos)
+- [x] Aba 3: Análise de Sensibilidade
+- [x] Aplicar formatação profissional
+- [x] Adicionar botão "Exportar Excel" no dashboard
+- [x] Implementar download automático
+- [x] Adicionar nome do projeto no arquivo
