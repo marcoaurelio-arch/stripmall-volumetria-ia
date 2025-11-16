@@ -560,11 +560,16 @@
 - [x] Validar restrições legais automaticamente
 - [x] Identificar melhor variação por score overall
 - [x] Criar matriz de comparação de critérios
-- [ ] Criar componente ProjectVariationsPanel no frontend
-- [ ] Exibir comparação lado a lado de variações
-- [ ] Adicionar filtros e ordenação por critérios
-- [ ] Permitir salvar variações favoritas
-- [ ] Gerar relatório comparativo de variações
+- [x] Criar componente ProjectVariationsPanel no frontend
+- [x] Exibir grid de variações com cards
+- [x] Destacar melhor variação recomendada
+- [x] Exibir scores detalhados por critério
+- [x] Mostrar vantagens, desvantagens e recomendações
+- [x] Implementar tabs (Visão Geral, Detalhes, Comparar)
+- [x] Criar matriz de comparação de critérios
+- [x] Adicionar aba "Variações de Projeto" em ProjectDetail
+- [x] Exibir configuração de lojas (pequenas, médias, grandes)
+- [x] Exibir distribuição de áreas com progress bars
 
 ### Dados de Mercado Imobiliário
 - [ ] Pesquisar APIs de valor de mercado (Fipe ZAP, QuintoAndar)

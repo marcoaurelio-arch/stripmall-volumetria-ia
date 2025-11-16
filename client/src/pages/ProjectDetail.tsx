@@ -16,6 +16,7 @@ import UrbanLegislationChecker from "@/components/UrbanLegislationChecker";
 import CostAnalysisPanel from "@/components/CostAnalysisPanel";
 import ComplianceChecklistPanel from "@/components/ComplianceChecklistPanel";
 import SolarAnalysisPanel from "@/components/SolarAnalysisPanel";
+import ProjectVariationsPanel from "@/components/ProjectVariationsPanel";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun } from "lucide-react";
 import { toast } from "sonner";
@@ -315,6 +316,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="conforto">
               <ThermometerSun className="h-4 w-4 mr-2" />
               Conforto Ambiental
+            </TabsTrigger>
+            <TabsTrigger value="variacoes" disabled={!latestAnalysis}>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Variações de Projeto
             </TabsTrigger>
           </TabsList>
 
@@ -664,6 +669,38 @@ export default function ProjectDetail() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Adicione um arquivo KMZ na aba "Dados do Terreno" ou preencha as coordenadas manualmente.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Variações de Projeto */}
+          <TabsContent value="variacoes" className="space-y-6">
+            {latestAnalysis ? (
+              <ProjectVariationsPanel
+                projectId={projectId}
+                totalArea={project.area}
+                buildableArea={latestAnalysis.areaMaximaConstruida || 0}
+                occupancyRate={project.taxaOcupacao || 0}
+                buildingCoefficient={(project.coeficienteAproveitamento || 0) / 100}
+                setbackFront={project.recuoFrontal || 0}
+                setbackSide={project.recuoLateral || 0}
+                setbackRear={project.recuoFundos || 0}
+                minParkingSpaces={latestAnalysis.vagasEstacionamento || 0}
+                permeableAreaRequired={project.area * 0.15}
+              />
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Análise Volumétrica Não Realizada</CardTitle>
+                  <CardDescription>
+                    Para gerar variações de projeto, é necessário primeiro realizar a análise volumétrica.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Acesse a aba "Análise Volumétrica" para gerar a análise inicial do projeto.
                   </p>
                 </CardContent>
               </Card>
