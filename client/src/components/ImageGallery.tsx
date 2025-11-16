@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
-import { Download, Image as ImageIcon, Loader2, Sparkles, Trash2 } from "lucide-react";
+import { Download, Image as ImageIcon, Loader2, Sparkles, Trash2, Eye } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import ReferenceImageGallery from "@/components/ReferenceImageGallery";
+import VirtualTour360Viewer from "@/components/VirtualTour360Viewer";
 
 interface ImageGalleryProps {
   projectId: number;
@@ -15,6 +16,7 @@ interface ImageGalleryProps {
 export default function ImageGallery({ projectId }: ImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedReferenceImages, setSelectedReferenceImages] = useState<number[]>([]);
+  const [showVirtualTour, setShowVirtualTour] = useState(false);
   const utils = trpc.useUtils();
 
   const { data: images, isLoading } = trpc.image.list.useQuery({ projectId });
@@ -140,8 +142,75 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
   const conceptualImages = images?.filter((img) => img.type === "conceptual") || [];
   const floorplanImages = images?.filter((img) => img.type === "floorplan") || [];
 
+  // Mutation para gerar tour virtual
+  const generateTourMutation = trpc.virtualTour.generateTour.useMutation({
+    onSuccess: () => {
+      toast.success("Tour virtual 360° gerado com sucesso!");
+      setShowVirtualTour(true);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar tour virtual");
+    },
+  });
+
+  const handleGenerateTour = () => {
+    if (confirm("Gerar tour virtual 360° pode levar alguns minutos. Deseja continuar?")) {
+      generateTourMutation.mutate({ projectId });
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {/* Tour Virtual 360° */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5 text-primary" />
+                Tour Virtual 360°
+              </CardTitle>
+              <CardDescription>
+                Visualização imersiva panorâmica do projeto com navegação entre diferentes viewpoints
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleGenerateTour}
+                disabled={generateTourMutation.isPending}
+                variant="outline"
+              >
+                {generateTourMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Gerando Tour...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Gerar Tour 360°
+                  </>
+                )}
+              </Button>
+              {showVirtualTour && (
+                <Button
+                  onClick={() => setShowVirtualTour(!showVirtualTour)}
+                  variant="secondary"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  {showVirtualTour ? "Ocultar" : "Visualizar"} Tour
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        {showVirtualTour && (
+          <CardContent>
+            <VirtualTour360Viewer projectId={projectId} />
+          </CardContent>
+        )}
+      </Card>
+
       {/* Imagens de Referência */}
       <Card>
         <CardHeader>

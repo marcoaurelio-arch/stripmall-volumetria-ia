@@ -380,3 +380,22 @@ export const costAnalyses = mysqlTable("costAnalyses", {
 
 export type CostAnalysis = typeof costAnalyses.$inferSelect;
 export type InsertCostAnalysis = typeof costAnalyses.$inferInsert;
+
+/**
+ * Tabela de tours virtuais 360°
+ * Armazena panoramas equirectangulares para visualização imersiva
+ */
+export const virtualTours = mysqlTable("virtualTours", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  
+  // Dados do tour
+  scenes: text("scenes").notNull(), // JSON array com viewpoints e hotspots
+  defaultScene: varchar("defaultScene", { length: 100 }).notNull(), // ID da cena inicial
+  
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type VirtualTour = typeof virtualTours.$inferSelect;
+export type InsertVirtualTour = typeof virtualTours.$inferInsert;

@@ -646,19 +646,17 @@
 - [ ] Criar variável de ambiente GOOGLE_PLACES_API_KEY
 
 ## Tour Virtual 360°
-- [ ] Pesquisar biblioteca para visualização 360° (pannellum ou three.js)
-- [ ] Instalar biblioteca escolhida
-- [ ] Criar virtualTourService.ts para geração de panoramas
-- [ ] Implementar geração de imagens 360° via IA
-- [ ] Criar procedure tRPC para gerar tour virtual
-- [ ] Criar componente VirtualTourViewer.tsx
-- [ ] Implementar visualizador 360° navegável
-- [ ] Adicionar controles de navegação (zoom, rotação)
-- [ ] Adicionar hotspots clicáveis para diferentes viewpoints
-- [ ] Integrar na aba de Estudos Visuais
-- [ ] Adicionar botão "Visualizar em 360°" nos estudos gerados
-- [ ] Testar em diferentes navegadores
-
+- [ ] Pesquisar biblioteca para visualização 360° (pannellum ou thre### Fase 3 - Tour Virtual 360° (Pannellum)
+- [x] Criar virtualTourService.ts para geração de panoramas
+- [x] Implementar geração de imagens 360° via IA
+- [x] Criar procedure tRPC para gerar tour virtual
+- [x] Criar componente VirtualTourViewer.tsx
+- [x] Implementar visualizador 360° navegável
+- [x] Adicionar controles de navegação (zoom, rotação)
+- [x] Adicionar hotspots clicáveis para diferentes viewpoints
+- [x] Integrar na aba de Estudos Visuais
+- [x] Adicionar botão "Visualizar em 360°" nos estudos gerados
+- [x] Testar em diferentes navegadores
 ### Fase 2 - Dados de Mercado Imobiliário (Google Places + IBGE)
 - [x] Criar serviço marketAnalysisService.ts com integração Google Places API
 - [x] Buscar shopping centers e strip malls concorrentes num raio de 5km

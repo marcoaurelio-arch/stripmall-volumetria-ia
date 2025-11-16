@@ -115,6 +115,9 @@ importers:
       '@trpc/server':
         specifier: ^11.6.0
         version: 11.6.0(typescript@5.9.3)
+      '@types/pannellum':
+        specifier: ^2.5.0
+        version: 2.5.0
       '@types/pdfkit':
         specifier: ^0.17.3
         version: 0.17.3
@@ -181,6 +184,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      pannellum:
+        specifier: ^2.5.6
+        version: 2.5.6
       pdf2pic:
         specifier: ^3.2.0
         version: 3.2.0
@@ -2395,6 +2401,9 @@ packages:
   '@types/node@24.7.0':
     resolution: {integrity: sha512-IbKooQVqUBrlzWTi79E8Fw78l8k1RNtlDDNWsFZs7XonuQSJ8oNYfEeclhprUldXISRMLzBpILuKgPlIxm+/Yw==}
 
+  '@types/pannellum@2.5.0':
+    resolution: {integrity: sha512-iFVwMHmsTx91t74gU12bDmB1ty5lRgmfK6X+FxymQe8n0nuw3Pp/vk0nw73YdL9WqZgthrpf1KLPzQjZDUsj0g==}
+
   '@types/pdfkit@0.17.3':
     resolution: {integrity: sha512-E4tp2qFaghqfS4K5TR4Gn1uTIkg0UAkhUgvVIszr5cS6ZmbioPWEkvhNDy3GtR9qdKC8DLQAnaaMlTcf346VsA==}
 
@@ -3866,6 +3875,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  pannellum@2.5.6:
+    resolution: {integrity: sha512-R4kSPpj36wQPlyIi9ZftxPfVYF11DEbNBATUEI+pkMGZDFYBV5Jxi6tYFVDdmxA2xaTeKZQHMIuIIj7njVSTQQ==}
 
   parse-entities@4.0.2:
     resolution: {integrity: sha512-GG2AQYWoLgL877gQIKeRPGO1xF9+eG1ujIb5soS5gPvLQ1y2o8FL90w2QWNdf9I361Mpp7726c+lj3U0qK1uGw==}
@@ -7004,6 +7016,8 @@ snapshots:
     dependencies:
       undici-types: 7.14.0
 
+  '@types/pannellum@2.5.0': {}
+
   '@types/pdfkit@0.17.3':
     dependencies:
       '@types/node': 24.7.0
@@ -8722,6 +8736,8 @@ snapshots:
   pako@0.2.9: {}
 
   pako@1.0.11: {}
+
+  pannellum@2.5.6: {}
 
   parse-entities@4.0.2:
     dependencies:
