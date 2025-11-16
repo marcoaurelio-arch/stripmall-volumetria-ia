@@ -12,7 +12,7 @@ import ScenarioManager from "@/components/ScenarioManager";
 import InspirationSelector from "@/components/InspirationSelector";
 import TemplateSelector from "@/components/TemplateSelector";
 import InspirationUpload from "@/components/InspirationUpload";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
 
@@ -43,7 +43,37 @@ export default function NewProject() {
   const [tempArea, setTempArea] = useState(0);
   const [selectedInspiration, setSelectedInspiration] = useState<any>(null);
   const [inspirationFiles, setInspirationFiles] = useState<File[]>([]);
+  const [cepForLegislation, setCepForLegislation] = useState("");
+  const [legislationSuggested, setLegislationSuggested] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Buscar legislação automaticamente quando CEP for detectado
+  const legislationQuery = trpc.urbanLegislation.getParametersByCEP.useQuery(
+    { cep: cepForLegislation },
+    { enabled: cepForLegislation.length === 8 }
+  );
+
+  // Preencher automaticamente quando legislação for encontrada
+  useEffect(() => {
+    if (legislationQuery.data?.success && legislationQuery.data.parameters && !legislationSuggested) {
+      const params = legislationQuery.data.parameters[0]; // Pegar primeira zona
+      if (params) {
+        setFormData(prev => ({
+          ...prev,
+          taxaOcupacao: params.taxaOcupacaoMax?.toString() || prev.taxaOcupacao,
+          coeficienteAproveitamento: params.coeficienteAproveitamentoMax?.toString() || prev.coeficienteAproveitamento,
+          recuoFrontal: params.recuoFrontalMin?.toString() || prev.recuoFrontal,
+          recuoLateral: params.recuoLateralMin?.toString() || prev.recuoLateral,
+          recuoFundos: params.recuoFundosMin?.toString() || prev.recuoFundos,
+        }));
+        setLegislationSuggested(true);
+        toast.success(
+          `Parâmetros urbanísticos sugeridos para ${legislationQuery.data.city}/${legislationQuery.data.state} preenchidos automaticamente. Você pode editá-los se necessário.`,
+          { duration: 5000 }
+        );
+      }
+    }
+  }, [legislationQuery.data, legislationSuggested]);
 
   const parseKMZMutation = trpc.project.parseKMZ.useMutation({
     onSuccess: (result) => {
@@ -169,10 +199,20 @@ export default function NewProject() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Detectar CEP no campo de endereço
+    if (name === 'address') {
+      const cepMatch = value.match(/\d{5}-?\d{3}/);
+      if (cepMatch) {
+        const cep = cepMatch[0].replace('-', '');
+        if (cep !== cepForLegislation) {
+          setCepForLegislation(cep);
+          setLegislationSuggested(false);
+        }
+      }
+    }
   };
 
   const handleApplyTemplate = (template: any) => {

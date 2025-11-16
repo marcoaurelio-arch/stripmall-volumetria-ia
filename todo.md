@@ -620,3 +620,41 @@
 - [ ] Adicionar heatmap de densidade
 - [ ] Gerar relatório de otimização de circulação
 - [ ] Adicionar recomendações de posicionamento de acessos
+
+## Integração Automática no Formulário de Criação
+- [x] Adicionar listener no campo de endereço do NewProject.tsx
+- [x] Extrair CEP do endereço digitado com regex
+- [x] Chamar trpc.urbanLegislation.getParametersByCEP.useQuery quando CEP válido (8 dígitos)
+- [x] Preencher automaticamente taxaOcupacao, coeficienteAproveitamento, recuos
+- [x] Exibir toast informando preenchimento automático com cidade/estado
+- [x] Permitir edição manual dos valores sugeridos
+- [x] Adicionar estado legislationSuggested para evitar preenchimento duplicado
+- [x] Usar useEffect para reagir a mudanças na legislação
+
+## Dados de Mercado Imobiliário
+- [ ] Criar marketAnalysisService.ts com integração Google Places API
+- [ ] Implementar busca de shopping centers num raio de 5km
+- [ ] Calcular distância de cada concorrente
+- [ ] Integrar com IBGE API para dados demográficos
+- [ ] Buscar população do município
+- [ ] Criar marketRouter.ts com procedure analyze
+- [ ] Criar componente MarketAnalysisPanel.tsx
+- [ ] Exibir lista de concorrentes com rating e distância
+- [ ] Exibir dados demográficos (população, renda média)
+- [ ] Calcular score de potencial comercial
+- [ ] Adicionar aba "Análise de Mercado" no ProjectDetail
+- [ ] Criar variável de ambiente GOOGLE_PLACES_API_KEY
+
+## Tour Virtual 360°
+- [ ] Pesquisar biblioteca para visualização 360° (pannellum ou three.js)
+- [ ] Instalar biblioteca escolhida
+- [ ] Criar virtualTourService.ts para geração de panoramas
+- [ ] Implementar geração de imagens 360° via IA
+- [ ] Criar procedure tRPC para gerar tour virtual
+- [ ] Criar componente VirtualTourViewer.tsx
+- [ ] Implementar visualizador 360° navegável
+- [ ] Adicionar controles de navegação (zoom, rotação)
+- [ ] Adicionar hotspots clicáveis para diferentes viewpoints
+- [ ] Integrar na aba de Estudos Visuais
+- [ ] Adicionar botão "Visualizar em 360°" nos estudos gerados
+- [ ] Testar em diferentes navegadores
