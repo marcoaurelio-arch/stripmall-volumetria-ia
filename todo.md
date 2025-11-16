@@ -552,12 +552,15 @@
 - [ ] Gerar relatório de conforto ambiental exportable
 
 ### IA para Variações de Projeto
-- [ ] Criar algoritmo de geração de variações volumétricas
-- [ ] Implementar otimização por algoritmo genético
-- [ ] Adicionar procedure para gerar múltiplas variações
-- [ ] Criar sistema de pontuação de variações (área útil, custos, eficiência)
-- [ ] Implementar aprendizado com projetos anteriores
-- [ ] Criar componente ProjectVariations no frontend
+- [x] Criar algoritmo de geração de variações volumétricas (projectVariationsService.ts)
+- [x] Usar LLM com JSON schema para otimização inteligente
+- [x] Adicionar procedure para gerar múltiplas variações (variationsRouter)
+- [x] Criar sistema de pontuação de variações (eficiência, acessibilidade, flexibilidade, sustentabilidade, custo)
+- [x] Gerar 5 estratégias diferentes (eficiência, mix, âncora, sustentabilidade, baixo custo)
+- [x] Validar restrições legais automaticamente
+- [x] Identificar melhor variação por score overall
+- [x] Criar matriz de comparação de critérios
+- [ ] Criar componente ProjectVariationsPanel no frontend
 - [ ] Exibir comparação lado a lado de variações
 - [ ] Adicionar filtros e ordenação por critérios
 - [ ] Permitir salvar variações favoritas
