@@ -508,11 +508,18 @@
 - [x] Gerar relatório de viabilidade econômica (ROI, payback, receita, lucro)
 
 ### Checklist Automatizado de Conformidade
-- [ ] Criar base de dados de requisitos por tipo de projeto
-- [ ] Implementar validações de código de obras
-- [ ] Adicionar checklist de corpo de bombeiros
-- [ ] Validar requisitos ambientais (área permeável, arborização)
-- [ ] Criar procedure para gerar checklist de conformidade
+- [x] Criar base de dados de requisitos por tipo de projeto
+- [x] Implementar validações de código de obras (recuos, TO, CA)
+- [x] Adicionar checklist de corpo de bombeiros (saídas, hidrantes, extintores, alarme)
+- [x] Validar requisitos ambientais (área permeável, arborização, drenagem)
+- [x] Adicionar validações de acessibilidade (NBR 9050)
+- [x] Adicionar validações de estacionamento (vagas mínimas, dimensões)
+- [x] Criar serviço complianceChecklistService.ts com 28 validações
+- [x] Criar procedures tRPC (complianceRouter)
+- [x] Implementar exportação em Markdown
+- [ ] Criar componente ComplianceChecklist no frontend
+- [ ] Adicionar aba de Conformidade na página de detalhes
+- [ ] Implementar exportação em PDF
 - [ ] Adicionar componente ComplianceChecklist no frontend
 - [ ] Exibir status de conformidade (conforme, não conforme, atenção)
 - [ ] Adicionar explicações e referências normativas
