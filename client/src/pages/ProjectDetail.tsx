@@ -14,6 +14,7 @@ import FileUploadZone from "@/components/FileUploadZone";
 import AttachmentManager from "@/components/AttachmentManager";
 import UrbanLegislationChecker from "@/components/UrbanLegislationChecker";
 import CostAnalysisPanel from "@/components/CostAnalysisPanel";
+import ComplianceChecklistPanel from "@/components/ComplianceChecklistPanel";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale } from "lucide-react";
 import { toast } from "sonner";
@@ -617,6 +618,26 @@ export default function ProjectDetail() {
               recuoLateral={project.recuoLateral || undefined}
               recuoFundos={project.recuoFundos || undefined}
             />
+            
+            {/* Checklist de Conformidade */}
+            {latestAnalysis && (
+              <ComplianceChecklistPanel
+                projectId={projectId}
+                area={project.area}
+                totalBuiltArea={latestAnalysis.areaMaximaConstruida || 0}
+                commercialArea={(latestAnalysis.areaMaximaConstruida || 0) * 0.78}
+                parkingSpaces={latestAnalysis.vagasEstacionamento || 0}
+                parkingArea={(latestAnalysis.vagasEstacionamento || 0) * 25}
+                permeableArea={project.area * 0.15}
+                setbackFront={project.recuoFrontal || 0}
+                setbackSide={project.recuoLateral || 0}
+                setbackRear={project.recuoFundos || 0}
+                occupancyRate={((latestAnalysis.areaOcupada || 0) / project.area) * 100}
+                buildingCoefficient={(latestAnalysis.areaMaximaConstruida || 0) / project.area}
+                numberOfStores={latestAnalysis.numeroLojas || 0}
+                state={project.address ? project.address.split(",").slice(-1)[0]?.trim().split(" ")[0] : "SP"}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </main>

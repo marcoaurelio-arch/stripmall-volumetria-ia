@@ -517,13 +517,16 @@
 - [x] Criar serviço complianceChecklistService.ts com 28 validações
 - [x] Criar procedures tRPC (complianceRouter)
 - [x] Implementar exportação em Markdown
-- [ ] Criar componente ComplianceChecklist no frontend
-- [ ] Adicionar aba de Conformidade na página de detalhes
+- [x] Criar componente ComplianceChecklistPanel no frontend
+- [x] Adicionar na aba de Conformidade Legal (após UrbanLegislationChecker)
+- [x] Exibir status de conformidade (conforme, não conforme, pendente, não aplicável)
+- [x] Adicionar explicações e referências normativas
+- [x] Agrupar validações por categoria com accordion
+- [x] Exibir badges de severidade (crítico, alto, médio, baixo)
+- [x] Mostrar recomendações para itens não conformes
+- [x] Implementar exportação em Markdown
+- [x] Exibir resumo geral (status, conformes, não conformes, pendentes)
 - [ ] Implementar exportação em PDF
-- [ ] Adicionar componente ComplianceChecklist no frontend
-- [ ] Exibir status de conformidade (conforme, não conforme, atenção)
-- [ ] Adicionar explicações e referências normativas
-- [ ] Gerar memorial descritivo automático
 - [ ] Exportar checklist em PDF
 
 ## FASE 2: Diferencial Competitivo
