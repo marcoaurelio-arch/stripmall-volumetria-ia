@@ -349,11 +349,20 @@
 - [x] Preencher formulário automaticamente com dados do template
 - [x] Testar funcionalidade completa com template de Saúde
 
-## Upload de Plantas e Coordenadas
-- [ ] Implementar upload de imagens de plantas (PNG, JPG, PDF)
-- [ ] Implementar upload de arquivos KML/KMZ (Google Earth)
-- [ ] Implementar parser de coordenadas de arquivos KML
-- [ ] Criar procedure para salvar arquivos no S3
-- [ ] Adicionar campo de upload no formulário de novo projeto
-- [ ] Exibir preview da planta/mapa após upload
-- [ ] Extrair coordenadas automaticamente de arquivos KML
+## Upload de Plantas e Arquivos com Drag-and-Drop
+- [x] Criar tabela de anexos no banco de dados (projectAttachments)
+- [x] Implementar procedure de upload com S3 (uploadAttachment)
+- [x] Implementar procedure para listar anexos (listAttachments)
+- [x] Implementar procedure para excluir anexos (deleteAttachment)
+- [x] Implementar procedure para obter detalhes de anexo (getAttachment)
+- [x] Criar componente FileUploadZone com drag-and-drop
+- [x] Suportar múltiplos formatos (PNG, JPG, PDF, DWG, KML, KMZ)
+- [x] Validar tamanho máximo de arquivo (16MB)
+- [x] Converter arquivos para base64 para upload
+- [x] Exibir lista de arquivos selecionados
+- [x] Implementar preview de imagens no gerenciador
+- [x] Criar componente AttachmentManager para visualização
+- [x] Adicionar botão de download de arquivos
+- [x] Adicionar botão de exclusão de arquivos
+- [x] Integrar na página de detalhes do projeto (nova aba Anexos)
+- [x] Testar upload com diferentes tipos e tamanhos

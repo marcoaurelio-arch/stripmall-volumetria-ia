@@ -7,6 +7,7 @@ import { projectRouter } from "./projectRouters";
 import { scenarioRouter } from "./scenarioRouters";
 import { inspirationRouter } from "./inspirationRouter";
 import { templateRouter } from "./templateRouter";
+import { attachmentRouter } from "./attachmentRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -28,6 +29,7 @@ export const appRouter = router({
   scenario: scenarioRouter,
   inspiration: inspirationRouter,
   template: templateRouter,
+  attachment: attachmentRouter,
 });
 
 export type AppRouter = typeof appRouter;

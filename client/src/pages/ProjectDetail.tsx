@@ -10,8 +10,10 @@ import ImageGallery from "@/components/ImageGallery";
 import AreaBreakdownTable from "@/components/AreaBreakdownTable";
 import FinancialAnalysis from "@/components/FinancialAnalysis";
 import { PDFPreviewDialog } from "@/components/PDFPreviewDialog";
+import FileUploadZone from "@/components/FileUploadZone";
+import AttachmentManager from "@/components/AttachmentManager";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -285,6 +287,10 @@ export default function ProjectDetail() {
               <Sparkles className="h-4 w-4 mr-2" />
               Estudos Visuais
             </TabsTrigger>
+            <TabsTrigger value="anexos">
+              <Paperclip className="h-4 w-4 mr-2" />
+              Anexos
+            </TabsTrigger>
           </TabsList>
 
           {/* Dados do Terreno */}
@@ -544,6 +550,39 @@ export default function ProjectDetail() {
           {/* Estudos Visuais */}
           <TabsContent value="imagens" className="space-y-6">
             <ImageGallery projectId={projectId} />
+          </TabsContent>
+
+          {/* Anexos */}
+          <TabsContent value="anexos" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload de Arquivos</CardTitle>
+                <CardDescription>
+                  Envie plantas, documentos, imagens de referência e arquivos KMZ/KML
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FileUploadZone
+                  projectId={projectId}
+                  onUploadComplete={() => {
+                    // Recarregar lista de anexos após upload
+                    utils.attachment.listAttachments.invalidate({ projectId });
+                  }}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Arquivos Anexados</CardTitle>
+                <CardDescription>
+                  Visualize, baixe ou exclua arquivos anexados a este projeto
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AttachmentManager projectId={projectId} />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
