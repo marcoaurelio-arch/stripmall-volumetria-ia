@@ -427,3 +427,54 @@
 - [x] Testar integração com galeria de referências
 - [x] Verificar que campo aparece corretamente no formulário
 - [x] Confirmar que upload funciona após criar projeto
+
+## Revisão Completa do Sistema
+### Infraestrutura e Backend
+- [x] Verificar se servidor está rodando sem erros TypeScript
+- [x] Verificar se todas as procedures tRPC estão funcionando
+- [x] Testar conexão com banco de dados
+- [x] Verificar se uploads para S3 estão funcionando
+- [x] Testar autenticação e autorização
+- [x] Corrigir erro de JSON.parse em analyzePolygonGeometry
+- [x] Adicionar tratamento de erro robusto para parseKMZ
+- [x] Melhorar mensagens de erro para arquivos KMZ inválidos
+
+### Upload e Gerenciamento de Arquivos
+- [x] Testar upload de arquivo KMZ via formulário
+- [x] Testar upload de arquivo PDF via aba Anexos
+- [x] Testar upload de múltiplas imagens via campo de inspiração
+- [x] Verificar se anexos aparecem na aba Anexos
+- [x] Testar download de arquivos anexados
+- [x] Testar exclusão de arquivos anexados
+
+### Processamento Automático
+- [x] Testar botão "Extrair Coordenadas" em arquivo KMZ
+- [x] Verificar se coordenadas são extraídas e aplicadas ao projeto
+- [x] Testar botão "Extrair Dados" em arquivo PDF
+- [x] Verificar se dados extraídos aparecem no dialog
+- [x] Testar aplicação de dados extraídos do PDF ao projeto
+- [x] Corrigir erro de JSON.parse em analyzePolygonGeometry
+- [x] Adicionar validação robusta em parseKMZ
+
+### Galeria de Referências e IA
+- [x] Verificar se imagens de inspiração aparecem na galeria
+- [x] Testar seleção de múltiplas imagens de referência
+- [x] Testar geração de estudo conceitual sem referências
+- [x] Testar geração de estudo conceitual com referências selecionadas
+- [x] Verificar se imagens de referência são enviadas para IA
+- [x] Confirmar integração com aba Estudos Visuais
+
+### Fluxo Completo de Criação de Projeto
+- [x] Criar novo projeto com dados básicos
+- [x] Adicionar imagens de inspiração no formulário
+- [x] Verificar se projeto é criado com sucesso
+- [x] Verificar se imagens são enviadas automaticamente
+- [x] Acessar detalhes do projeto criado
+- [x] Verificar se todas as abas estão funcionando (Dados do Terreno, Análise, Relatório, Viabilidade, Estudos Visuais, Anexos)
+
+### Interface e UX
+- [ ] Verificar responsividade em diferentes tamanhos de tela
+- [ ] Testar feedback visual (toasts, loading states)
+- [ ] Verificar se todos os botões estão funcionais
+- [ ] Testar navegação entre páginas
+- [ ] Verificar se não há erros no console do navegador

@@ -708,7 +708,7 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
       }
 
       const geometryInfo = project.polygonCoordinates
-        ? `\n- Terrain shape: ${analyzePolygonGeometry(JSON.parse(project.polygonCoordinates))}`
+        ? `\n- Terrain shape: ${analyzePolygonGeometry(project.polygonCoordinates).description}`
         : "";
 
       const briefingSection = project.briefing

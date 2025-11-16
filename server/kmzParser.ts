@@ -55,8 +55,18 @@ function calculateCenter(coords: Array<{ lat: number; lng: number }>): { lat: nu
  */
 export async function parseKMZ(fileBuffer: Buffer): Promise<ParsedKMZData> {
   try {
+    // Validar se o buffer não está vazio
+    if (!fileBuffer || fileBuffer.length === 0) {
+      throw new Error("Arquivo vazio ou inválido");
+    }
+
     // Descompactar o arquivo KMZ (que é um ZIP)
-    const zip = await JSZip.loadAsync(fileBuffer);
+    const zip = await JSZip.loadAsync(fileBuffer, { 
+      checkCRC32: false // Ignorar verificação CRC para arquivos corrompidos
+    }).catch((error) => {
+      console.error("Erro ao processar KMZ:", error);
+      throw new Error("Arquivo KMZ inválido ou corrompido. Certifique-se de que é um arquivo KMZ válido exportado do Google Earth.");
+    });
 
     // Procurar pelo arquivo KML dentro do ZIP
     let kmlContent: string | null = null;
