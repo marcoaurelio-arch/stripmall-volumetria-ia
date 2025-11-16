@@ -478,3 +478,119 @@
 - [ ] Verificar se todos os botões estão funcionais
 - [ ] Testar navegação entre páginas
 - [ ] Verificar se não há erros no console do navegador
+
+## FASE 1: Impacto Imediato
+
+### Integração com Legislação Urbanística por CEP
+- [x] Pesquisar APIs públicas de legislação urbanística brasileira
+- [x] Criar serviço de busca de parâmetros por CEP/município (urbanLegislationService.ts)
+- [x] Implementar integração com ViaCEP para buscar endereço
+- [x] Criar tabela no banco para armazenar parâmetros urbanísticos (urbanLegislation)
+- [x] Adicionar procedures tRPC para buscar legislação (urbanLegislationRouter)
+- [x] Criar componente UrbanLegislationChecker no frontend
+- [x] Implementar busca por CEP com feedback visual
+- [x] Exibir comparação: parâmetros informados vs. legislação
+- [x] Adicionar alertas visuais quando projeto excede limites legais
+- [x] Adicionar aba "Conformidade Legal" na página de detalhes
+- [x] Implementar base de dados com principais municípios brasileiros
+- [x] Adicionar sugestões via IA quando legislação não está cadastrada
+
+### Análise de Custos com CUB/SINAPI
+- [ ] Pesquisar APIs de CUB (Custo Unitário Básico) por estado
+- [ ] Integrar com dados SINAPI (Sistema Nacional de Pesquisa de Custos)
+- [ ] Criar tabela de custos por categoria (estrutura, acabamento, instalações)
+- [ ] Implementar cálculo de custo estimado por m²
+- [ ] Adicionar procedure para calcular orçamento total do projeto
+- [ ] Criar componente CostEstimator no frontend
+- [ ] Exibir breakdown de custos por categoria
+- [ ] Adicionar gráfico de distribuição de custos
+- [ ] Implementar comparação com projetos similares
+- [ ] Gerar relatório de viabilidade econômica (VGV, TIR, payback)
+
+### Checklist Automatizado de Conformidade
+- [ ] Criar base de dados de requisitos por tipo de projeto
+- [ ] Implementar validações de código de obras
+- [ ] Adicionar checklist de corpo de bombeiros
+- [ ] Validar requisitos ambientais (área permeável, arborização)
+- [ ] Criar procedure para gerar checklist de conformidade
+- [ ] Adicionar componente ComplianceChecklist no frontend
+- [ ] Exibir status de conformidade (conforme, não conforme, atenção)
+- [ ] Adicionar explicações e referências normativas
+- [ ] Gerar memorial descritivo automático
+- [ ] Exportar checklist em PDF
+
+## FASE 2: Diferencial Competitivo
+
+### Simulação de Insolação e Ventilação
+- [ ] Pesquisar bibliotecas de cálculo solar (SunCalc.js)
+- [ ] Implementar cálculo de trajetória solar por localização
+- [ ] Criar visualização de sombreamento por hora/estação
+- [ ] Adicionar análise de conforto térmico
+- [ ] Implementar simulação de ventilação natural
+- [ ] Criar componente SolarAnalysis no frontend
+- [ ] Exibir gráficos de insolação ao longo do dia
+- [ ] Adicionar recomendações de orientação de fachadas
+- [ ] Gerar relatório de conforto ambiental
+- [ ] Integrar com geração de imagens (mostrar sombras)
+
+### IA para Variações de Projeto
+- [ ] Criar algoritmo de geração de variações volumétricas
+- [ ] Implementar otimização por algoritmo genético
+- [ ] Adicionar procedure para gerar múltiplas variações
+- [ ] Criar sistema de pontuação de variações (área útil, custos, eficiência)
+- [ ] Implementar aprendizado com projetos anteriores
+- [ ] Criar componente ProjectVariations no frontend
+- [ ] Exibir comparação lado a lado de variações
+- [ ] Adicionar filtros e ordenação por critérios
+- [ ] Permitir salvar variações favoritas
+- [ ] Gerar relatório comparativo de variações
+
+### Dados de Mercado Imobiliário
+- [ ] Pesquisar APIs de valor de mercado (Fipe ZAP, QuintoAndar)
+- [ ] Integrar com dados demográficos (IBGE)
+- [ ] Buscar dados de fluxo de veículos (Google Maps Traffic)
+- [ ] Criar serviço de análise de concorrência (raio de 5km)
+- [ ] Implementar cálculo de potencial de mercado
+- [ ] Adicionar procedure para análise de mercado
+- [ ] Criar componente MarketAnalysis no frontend
+- [ ] Exibir mapa com concorrentes e dados demográficos
+- [ ] Adicionar gráficos de renda média e densidade populacional
+- [ ] Gerar relatório de análise de mercado
+
+## FASE 3: Inovação
+
+### Tour Virtual 360°
+- [ ] Pesquisar bibliotecas de renderização 360° (Three.js, Pannellum)
+- [ ] Criar serviço de geração de tour virtual
+- [ ] Implementar navegação entre pontos de vista
+- [ ] Adicionar hotspots interativos
+- [ ] Integrar com imagens geradas pela IA
+- [ ] Criar componente VirtualTour no frontend
+- [ ] Adicionar controles de navegação (mouse, teclado, touch)
+- [ ] Implementar modo VR (compatível com óculos)
+- [ ] Adicionar sistema de anotações colaborativas
+- [ ] Gerar link compartilhável de tour virtual
+
+### Exportação BIM
+- [ ] Pesquisar formato IFC (Industry Foundation Classes)
+- [ ] Criar serviço de conversão de geometria para IFC
+- [ ] Implementar exportação de parâmetros e metadados
+- [ ] Adicionar suporte para Revit (RVT) e ArchiCAD
+- [ ] Criar procedure para gerar arquivo BIM
+- [ ] Adicionar botão de exportação BIM no frontend
+- [ ] Implementar download de arquivo IFC
+- [ ] Adicionar validação de arquivo exportado
+- [ ] Criar documentação de uso do arquivo BIM
+- [ ] Testar importação em softwares BIM populares
+
+### Simulador de Fluxo de Pessoas
+- [ ] Pesquisar algoritmos de simulação de multidões
+- [ ] Implementar modelo de fluxo de pedestres
+- [ ] Criar simulação de horários de pico
+- [ ] Adicionar análise de gargalos e pontos críticos
+- [ ] Implementar simulação de evacuação de emergência
+- [ ] Criar componente FlowSimulator no frontend
+- [ ] Exibir animação de fluxo de pessoas
+- [ ] Adicionar heatmap de densidade
+- [ ] Gerar relatório de otimização de circulação
+- [ ] Adicionar recomendações de posicionamento de acessos

@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario, generatedImages, InsertGeneratedImage, projectAttachments } from "../drizzle/schema";
+import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario, generatedImages, InsertGeneratedImage, projectAttachments, urbanLegislation, InsertUrbanLegislation } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -269,4 +269,64 @@ export async function getAttachmentsByIds(ids: number[]) {
     .where(inArray(projectAttachments.id, ids));
 
   return attachments;
+}
+
+
+// ==================== Urban Legislation Functions ====================
+
+/**
+ * Busca legislação urbanística por cidade e estado
+ */
+export async function getUrbanLegislationByCity(city: string, state: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get urban legislation: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(urbanLegislation)
+    .where(and(
+      eq(urbanLegislation.city, city),
+      eq(urbanLegislation.state, state)
+    ))
+    .orderBy(desc(urbanLegislation.verifiedAt));
+
+  return result;
+}
+
+/**
+ * Cria nova entrada de legislação urbanística
+ */
+export async function createUrbanLegislation(data: InsertUrbanLegislation) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create urban legislation: database not available");
+    return null;
+  }
+
+  const result = await db.insert(urbanLegislation).values(data);
+  return result;
+}
+
+/**
+ * Busca todas as cidades com legislação cadastrada
+ */
+export async function getCitiesWithLegislation() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get cities: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select({
+      city: urbanLegislation.city,
+      state: urbanLegislation.state,
+    })
+    .from(urbanLegislation)
+    .groupBy(urbanLegislation.city, urbanLegislation.state);
+
+  return result;
 }

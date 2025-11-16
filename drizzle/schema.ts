@@ -242,3 +242,51 @@ export const projectAttachments = mysqlTable("projectAttachments", {
 
 export type ProjectAttachment = typeof projectAttachments.$inferSelect;
 export type InsertProjectAttachment = typeof projectAttachments.$inferInsert;
+
+/**
+ * Tabela de legislação urbanística por município
+ * Armazena parâmetros urbanísticos de diferentes municípios brasileiros
+ */
+export const urbanLegislation = mysqlTable("urbanLegislation", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Identificação do município
+  city: varchar("city", { length: 255 }).notNull(),
+  state: varchar("state", { length: 2 }).notNull(), // UF
+  zipCodeRange: varchar("zipCodeRange", { length: 50 }), // Faixa de CEPs (ex: "01000-000 a 05999-999")
+  
+  // Zona urbanística
+  zone: varchar("zone", { length: 100 }), // Ex: "ZM-1", "ZC", "ZI"
+  zoneDescription: text("zoneDescription"), // Descrição da zona
+  
+  // Parâmetros urbanísticos
+  taxaOcupacaoMax: int("taxaOcupacaoMax"), // Taxa de ocupação máxima em %
+  coeficienteAproveitamentoMax: int("coeficienteAproveitamentoMax"), // CA máximo * 100
+  gabaritoMax: int("gabaritoMax"), // Gabarito máximo em metros ou pavimentos
+  recuoFrontalMin: int("recuoFrontalMin"), // Recuo frontal mínimo em metros
+  recuoLateralMin: int("recuoLateralMin"), // Recuo lateral mínimo em metros
+  recuoFundosMin: int("recuoFundosMin"), // Recuo de fundos mínimo em metros
+  
+  // Requisitos específicos
+  areaPermeavelMin: int("areaPermeavelMin"), // Área permeável mínima em %
+  vagasPorM2: int("vagasPorM2"), // Vagas por m² * 1000 (ex: 1 vaga/40m² = 25)
+  
+  // Usos permitidos
+  usosPermitidos: text("usosPermitidos"), // JSON array com usos permitidos
+  restricoes: text("restricoes"), // JSON array com restrições específicas
+  
+  // Referências legais
+  leiReferencia: text("leiReferencia"), // Lei ou decreto de referência
+  linkLegislacao: text("linkLegislacao"), // URL para legislação completa
+  
+  // Metadados
+  source: mysqlEnum("source", ["official", "user_contributed", "ai_suggested"]).default("user_contributed").notNull(),
+  verifiedBy: int("verifiedBy"), // userId de quem verificou
+  verifiedAt: timestamp("verifiedAt"),
+  createdBy: int("createdBy").notNull(), // userId
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UrbanLegislation = typeof urbanLegislation.$inferSelect;
+export type InsertUrbanLegislation = typeof urbanLegislation.$inferInsert;

@@ -12,8 +12,9 @@ import FinancialAnalysis from "@/components/FinancialAnalysis";
 import { PDFPreviewDialog } from "@/components/PDFPreviewDialog";
 import FileUploadZone from "@/components/FileUploadZone";
 import AttachmentManager from "@/components/AttachmentManager";
+import UrbanLegislationChecker from "@/components/UrbanLegislationChecker";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -290,6 +291,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="anexos">
               <Paperclip className="h-4 w-4 mr-2" />
               Anexos
+            </TabsTrigger>
+            <TabsTrigger value="conformidade">
+              <Scale className="h-4 w-4 mr-2" />
+              Conformidade Legal
             </TabsTrigger>
           </TabsList>
 
@@ -583,6 +588,21 @@ export default function ProjectDetail() {
                 <AttachmentManager projectId={projectId} />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Conformidade Legal */}
+          <TabsContent value="conformidade" className="space-y-6">
+            <UrbanLegislationChecker
+              projectId={projectId}
+              address={project.address || undefined}
+              city={project.address ? project.address.split(",").slice(-2)[0]?.trim() : undefined}
+              state={project.address ? project.address.split(",").slice(-1)[0]?.trim() : undefined}
+              taxaOcupacao={project.taxaOcupacao || undefined}
+              coeficienteAproveitamento={project.coeficienteAproveitamento ? project.coeficienteAproveitamento / 100 : undefined}
+              recuoFrontal={project.recuoFrontal || undefined}
+              recuoLateral={project.recuoLateral || undefined}
+              recuoFundos={project.recuoFundos || undefined}
+            />
           </TabsContent>
         </Tabs>
       </main>
