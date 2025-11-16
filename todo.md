@@ -532,16 +532,20 @@
 ## FASE 2: Diferencial Competitivo
 
 ### Simulação de Insolação e Ventilação
-- [ ] Pesquisar bibliotecas de cálculo solar (SunCalc.js)
-- [ ] Implementar cálculo de trajetória solar por localização
-- [ ] Criar visualização de sombreamento por hora/estação
-- [ ] Adicionar análise de conforto térmico
-- [ ] Implementar simulação de ventilação natural
-- [ ] Criar componente SolarAnalysis no frontend
+- [x] Pesquisar bibliotecas de cálculo solar (SunCalc.js)
+- [x] Implementar cálculo de trajetória solar por localização (solarAnalysisService.ts)
+- [x] Calcular horas de luz solar por estação (verão, inverno, primavera, outono)
+- [x] Adicionar análise de conforto térmico por estação
+- [x] Implementar análise de ventilação natural
+- [x] Analisar orientações de fachadas (norte, sul, leste, oeste)
+- [x] Determinar melhor e pior orientação baseado em localização
+- [x] Adicionar recomendações específicas por orientação
+- [x] Criar procedure tRPC (solarRouter)
+- [ ] Criar componente SolarAnalysisPanel no frontend
 - [ ] Exibir gráficos de insolação ao longo do dia
-- [ ] Adicionar recomendações de orientação de fachadas
+- [ ] Visualizar trajetória solar em diagrama
+- [ ] Adicionar aba de Conforto Ambiental na página de detalhes
 - [ ] Gerar relatório de conforto ambiental
-- [ ] Integrar com geração de imagens (mostrar sombras)
 
 ### IA para Variações de Projeto
 - [ ] Criar algoritmo de geração de variações volumétricas
