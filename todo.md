@@ -496,16 +496,16 @@
 - [x] Adicionar sugestões via IA quando legislação não está cadastrada
 
 ### Análise de Custos com CUB/SINAPI
-- [ ] Pesquisar APIs de CUB (Custo Unitário Básico) por estado
-- [ ] Integrar com dados SINAPI (Sistema Nacional de Pesquisa de Custos)
-- [ ] Criar tabela de custos por categoria (estrutura, acabamento, instalações)
-- [ ] Implementar cálculo de custo estimado por m²
-- [ ] Adicionar procedure para calcular orçamento total do projeto
-- [ ] Criar componente CostEstimator no frontend
-- [ ] Exibir breakdown de custos por categoria
-- [ ] Adicionar gráfico de distribuição de custos
-- [ ] Implementar comparação com projetos similares
-- [ ] Gerar relatório de viabilidade econômica (VGV, TIR, payback)
+- [x] Pesquisar APIs de CUB (Custo Unitário Básico) por estado
+- [x] Criar base de dados local com valores CUB (12 estados)
+- [x] Criar tabelas de custos (constructionCosts, costAnalyses)
+- [x] Implementar cálculo de custo estimado por m² (costCalculationService.ts)
+- [x] Adicionar procedure para calcular orçamento total do projeto (costRouter)
+- [x] Criar componente CostAnalysisPanel no frontend
+- [x] Exibir breakdown de custos por categoria (estrutura, acabamento, instalações, estacionamento, áreas comuns)
+- [x] Adicionar barras de progressão de distribuição de custos
+- [x] Integrar na aba de Viabilidade Financeira
+- [x] Gerar relatório de viabilidade econômica (ROI, payback, receita, lucro)
 
 ### Checklist Automatizado de Conformidade
 - [ ] Criar base de dados de requisitos por tipo de projeto

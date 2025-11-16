@@ -290,3 +290,93 @@ export const urbanLegislation = mysqlTable("urbanLegislation", {
 
 export type UrbanLegislation = typeof urbanLegislation.$inferSelect;
 export type InsertUrbanLegislation = typeof urbanLegislation.$inferInsert;
+
+/**
+ * Tabela de custos de construção baseados em CUB/SINAPI
+ * Armazena valores de referência por estado e tipo de construção
+ */
+export const constructionCosts = mysqlTable("constructionCosts", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Localização
+  state: varchar("state", { length: 2 }).notNull(), // UF
+  city: varchar("city", { length: 255 }), // Opcional, para custos específicos de cidade
+  
+  // Tipo de construção
+  buildingType: mysqlEnum("buildingType", ["strip_mall", "shopping_center", "commercial", "mixed_use"]).notNull(),
+  standard: mysqlEnum("standard", ["low", "medium", "high", "luxury"]).default("medium").notNull(),
+  
+  // Custos por m² (em centavos para precisão)
+  totalCostPerSqm: int("totalCostPerSqm").notNull(), // Custo total por m²
+  structureCost: int("structureCost").notNull(), // Estrutura (fundação, pilares, lajes)
+  finishingCost: int("finishingCost").notNull(), // Acabamento (revestimentos, pintura, esquadrias)
+  installationsCost: int("installationsCost").notNull(), // Instalações (elétrica, hidráulica, climatização)
+  parkingCost: int("parkingCost").notNull(), // Estacionamento (pavimentação, sinalização)
+  commonAreasCost: int("commonAreasCost").notNull(), // Áreas comuns (paisagismo, mobiliário urbano)
+  
+  // Custos adicionais
+  projectCost: int("projectCost"), // Projeto arquitetônico e complementares (% do total)
+  managementCost: int("managementCost"), // Gerenciamento de obra (% do total)
+  contingencyCost: int("contingencyCost"), // Contingência (% do total)
+  
+  // Referência e validade
+  referenceMonth: int("referenceMonth").notNull(), // Mês de referência (1-12)
+  referenceYear: int("referenceYear").notNull(), // Ano de referência
+  source: varchar("source", { length: 255 }), // Fonte dos dados (CUB-SP, SINAPI, etc)
+  notes: text("notes"), // Observações adicionais
+  
+  // Metadados
+  isActive: int("isActive").default(1).notNull(), // 0 = inativo, 1 = ativo
+  createdBy: int("createdBy").notNull(), // userId
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ConstructionCost = typeof constructionCosts.$inferSelect;
+export type InsertConstructionCost = typeof constructionCosts.$inferInsert;
+
+/**
+ * Tabela de análises de custo por projeto
+ * Armazena estimativas de custo calculadas para cada projeto
+ */
+export const costAnalyses = mysqlTable("costAnalyses", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  
+  // Áreas
+  totalArea: int("totalArea").notNull(), // Área total construída em m²
+  commercialArea: int("commercialArea"), // Área comercial (lojas)
+  parkingArea: int("parkingArea"), // Área de estacionamento
+  commonArea: int("commonArea"), // Áreas comuns
+  
+  // Custos totais (em centavos)
+  totalCost: int("totalCost").notNull(), // Custo total estimado
+  structureCost: int("structureCost").notNull(),
+  finishingCost: int("finishingCost").notNull(),
+  installationsCost: int("installationsCost").notNull(),
+  parkingCost: int("parkingCost").notNull(),
+  commonAreasCost: int("commonAreasCost").notNull(),
+  projectCost: int("projectCost"),
+  managementCost: int("managementCost"),
+  contingencyCost: int("contingencyCost"),
+  
+  // Custos por m²
+  costPerSqm: int("costPerSqm").notNull(), // Custo médio por m²
+  
+  // Análise de viabilidade
+  estimatedRevenue: int("estimatedRevenue"), // Receita estimada (VGV)
+  profitMargin: int("profitMargin"), // Margem de lucro em %
+  roi: int("roi"), // ROI em % * 100
+  paybackMonths: int("paybackMonths"), // Payback em meses
+  
+  // Referência de custo utilizada
+  costReferenceId: int("costReferenceId"), // ID da tabela constructionCosts
+  adjustmentFactor: int("adjustmentFactor"), // Fator de ajuste aplicado (* 100)
+  
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CostAnalysis = typeof costAnalyses.$inferSelect;
+export type InsertCostAnalysis = typeof costAnalyses.$inferInsert;
