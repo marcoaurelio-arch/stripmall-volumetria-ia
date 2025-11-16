@@ -172,3 +172,73 @@ export const inspirationProjects = mysqlTable("inspirationProjects", {
 
 export type InspirationProject = typeof inspirationProjects.$inferSelect;
 export type InsertInspirationProject = typeof inspirationProjects.$inferInsert;
+
+/**
+ * Tabela de templates pré-configurados de strip malls
+ * Templates prontos para acelerar criação de projetos com configurações típicas
+ */
+export const projectTemplates = mysqlTable("projectTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Informações básicas
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  category: mysqlEnum("category", ["gastronomia", "saude", "conveniencia", "varejo", "servicos"]).notNull(),
+  
+  // Configurações padrão do template
+  briefingTemplate: text("briefingTemplate").notNull(), // Briefing pré-escrito
+  typicalArea: int("typicalArea"), // Área típica em m²
+  typicalStoreCount: int("typicalStoreCount"), // Número típico de lojas
+  
+  // Parâmetros urbanísticos típicos
+  defaultTaxaOcupacao: int("defaultTaxaOcupacao"), // %
+  defaultCoeficiente: int("defaultCoeficiente"), // * 100
+  defaultRecuoFrontal: int("defaultRecuoFrontal"), // metros
+  defaultRecuoLateral: int("defaultRecuoLateral"), // metros
+  defaultRecuoFundos: int("defaultRecuoFundos"), // metros
+  
+  // Mix de lojas sugerido
+  anchorStores: text("anchorStores"), // JSON array com lojas âncora sugeridas
+  complementaryStores: text("complementaryStores"), // JSON array com lojas complementares
+  
+  // Características típicas
+  features: text("features"), // JSON array com características (ex: playground, praça alimentação)
+  targetAudience: text("targetAudience"), // Público-alvo típico
+  
+  // Imagem de referência
+  imageUrl: text("imageUrl"),
+  
+  // Metadados
+  isActive: int("isActive").default(1).notNull(), // 0 = inativo, 1 = ativo
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProjectTemplate = typeof projectTemplates.$inferSelect;
+export type InsertProjectTemplate = typeof projectTemplates.$inferInsert;
+
+/**
+ * Tabela de arquivos anexados aos projetos (plantas, documentos, imagens de referência)
+ */
+export const projectAttachments = mysqlTable("projectAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  
+  // Informações do arquivo
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileType: mysqlEnum("fileType", ["plant", "document", "reference_image", "kmz"]).notNull(),
+  mimeType: varchar("mimeType", { length: 100 }),
+  fileSize: int("fileSize"), // em bytes
+  
+  // Armazenamento
+  fileUrl: text("fileUrl").notNull(), // URL no S3
+  fileKey: text("fileKey").notNull(), // Chave no S3
+  
+  // Metadados
+  description: text("description"),
+  uploadedBy: int("uploadedBy").notNull(), // userId
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProjectAttachment = typeof projectAttachments.$inferSelect;
+export type InsertProjectAttachment = typeof projectAttachments.$inferInsert;

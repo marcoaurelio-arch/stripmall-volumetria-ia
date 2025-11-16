@@ -10,6 +10,7 @@ import { ArrowLeft, MapPin, Upload } from "lucide-react";
 import LocationPickerWithDrawing from "@/components/LocationPickerWithDrawing";
 import ScenarioManager from "@/components/ScenarioManager";
 import InspirationSelector from "@/components/InspirationSelector";
+import TemplateSelector from "@/components/TemplateSelector";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -129,6 +130,22 @@ export default function NewProject() {
     });
   };
 
+  const handleApplyTemplate = (template: any) => {
+    // Preencher formulário com dados do template
+    setFormData({
+      ...formData,
+      name: template.name,
+      description: template.description,
+      briefing: template.briefingTemplate,
+      area: template.typicalArea?.toString() || "",
+      taxaOcupacao: template.defaultTaxaOcupacao?.toString() || "",
+      coeficienteAproveitamento: template.defaultCoeficiente?.toString() || "",
+      recuoFrontal: template.defaultRecuoFrontal?.toString() || "",
+      recuoLateral: template.defaultRecuoLateral?.toString() || "",
+      recuoFundos: template.defaultRecuoFundos?.toString() || "",
+    });
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -177,6 +194,9 @@ export default function NewProject() {
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
+            {/* Seletor de Template */}
+            <TemplateSelector onSelectTemplate={handleApplyTemplate} />
+
             {/* Informações Básicas */}
             <Card>
               <CardHeader>

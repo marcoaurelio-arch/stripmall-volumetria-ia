@@ -321,3 +321,39 @@
 - [x] Implementar modal de preview com opções de download e fechar
 - [x] Adicionar indicador de carregamento durante geração do preview
 - [x] Testar preview com diferentes projetos e tamanhos de PDF
+
+## Resolver Erro InvalidKeyMapError do Google Maps
+
+- [x] Diagnosticar causa do erro InvalidKeyMapError
+- [x] Verificar se a chave está corretamente configurada no ambiente
+- [x] Verificar restrições de domínio no Google Cloud Console
+- [ ] Implementar modo de desenho manual como fallback (sem Google Maps)
+- [ ] Adicionar interface para entrada manual de coordenadas
+- [ ] Testar funcionalidade de desenho sem dependência do Google Maps
+- [ ] Documentar solução alternativa para o usuário
+
+## Criar Exemplo Prático: Centro de Conveniência Uberlândia
+- [x] Pesquisar características da Av. Nicomedes Alves dos Santos
+- [x] Pesquisar perfil do bairro Morada da Colina
+- [x] Criar documento completo com briefing detalhado
+- [x] Incluir análise volumétrica adaptada para conveniência
+- [x] Incluir análise financeira com valores de mercado local
+
+## Templates Pré-configurados
+- [x] Criar tabela de templates no banco de dados
+- [x] Criar 5 templates iniciais (Gastronomia, Saúde, Conveniência, Varejo, Serviços)
+- [x] Implementar procedure para listar templates
+- [x] Implementar procedure para aplicar template ao projeto
+- [x] Criar componente de seleção de templates no frontend
+- [x] Adicionar botão "Usar Template" na criação de projeto
+- [x] Preencher formulário automaticamente com dados do template
+- [x] Testar funcionalidade completa com template de Saúde
+
+## Upload de Plantas e Coordenadas
+- [ ] Implementar upload de imagens de plantas (PNG, JPG, PDF)
+- [ ] Implementar upload de arquivos KML/KMZ (Google Earth)
+- [ ] Implementar parser de coordenadas de arquivos KML
+- [ ] Criar procedure para salvar arquivos no S3
+- [ ] Adicionar campo de upload no formulário de novo projeto
+- [ ] Exibir preview da planta/mapa após upload
+- [ ] Extrair coordenadas automaticamente de arquivos KML
