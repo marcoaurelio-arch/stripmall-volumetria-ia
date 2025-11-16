@@ -134,6 +134,13 @@
       "when": 1763327353806,
       "tag": "0018_mighty_demogoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1763337174521,
+      "tag": "0019_parallel_inhumans",
+      "breakpoints": true
     }
   ]
 }

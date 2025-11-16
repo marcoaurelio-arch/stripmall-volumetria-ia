@@ -854,3 +854,37 @@
 - [x] Criar procedure tRPC para geração do PDF profissional
 - [x] Adicionar botão "Gerar PDF Profissional" na interface
 - [ ] Testar geração completa do documento (pendente)
+
+
+## CUSTOMIZAÇÃO DE BRANDING E TEMPLATES DE PDF
+
+### Passo 1: Testar Geração do PDF Profissional
+- [ ] Verificar se projeto "Area Nicomedes Piazza" tem análise completa
+- [ ] Verificar se há imagens geradas (conceitual, plantas)
+- [ ] Clicar no botão "PDF Profissional" e aguardar geração
+- [ ] Baixar e abrir PDF gerado
+- [ ] Verificar qualidade da capa
+- [ ] Verificar anotações de área nas imagens
+- [ ] Verificar dados técnicos e quadro de áreas
+- [ ] Documentar problemas encontrados
+
+### Passo 2: Adicionar Customização de Branding
+- [x] Adicionar campo `logoUrl` na tabela projects do schema
+- [x] Adicionar campo `brandColor` para cor da marca
+- [x] Executar `pnpm db:push` para aplicar mudanças
+- [x] Criar componente LogoUploader.tsx
+- [ ] Integrar upload de logo no formulário de criação/edição (não implementado - baixa prioridade)
+- [ ] Atualizar professionalPdfService para usar logo customizado (não implementado)
+- [ ] Usar logo do projeto na capa e rodapé do PDF (não implementado)
+- [ ] Aplicar cor da marca em elementos do PDF (não implementado)
+
+### Passo 3: Implementar Sistema de Templates
+- [ ] Criar enum de templates (modern, classic, minimalist)
+- [ ] Criar função generateModernPDF no professionalPdfService
+- [ ] Criar função generateClassicPDF no professionalPdfService
+- [ ] Criar função generateMinimalistPDF no professionalPdfService
+- [ ] Adicionar parâmetro `template` no procedure generateProfessionalPDF
+- [ ] Criar componente TemplateSelector.tsx com preview visual
+- [ ] Adicionar modal de seleção de template antes de exportar
+- [ ] Implementar preview dos 3 estilos (cards com thumbnails)
+- [ ] Testar geração com cada template

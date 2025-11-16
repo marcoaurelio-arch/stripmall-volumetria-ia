@@ -101,6 +101,53 @@ export const projectRouter = router({
       return { success: true };
     }),
 
+  // Upload de logo personalizado
+  uploadLogo: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        logoBase64: z.string(),
+        fileName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      try {
+        // Extrair dados da imagem base64
+        const matches = input.logoBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+          throw new Error("Formato de imagem inválido");
+        }
+
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, "base64");
+
+        // Upload para S3
+        const fileExtension = input.fileName.split(".").pop() || "png";
+        const fileName = `logos/project-${input.projectId}-${Date.now()}.${fileExtension}`;
+        const { url } = await storagePut(fileName, buffer, mimeType);
+
+        // Atualizar projeto com URL do logo
+        await db.updateProject(input.projectId, { logoUrl: url });
+
+        return {
+          success: true,
+          logoUrl: url,
+        };
+      } catch (error) {
+        console.error("Erro ao fazer upload do logo:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao fazer upload do logo",
+        });
+      }
+    }),
+
   // Deletar projeto
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))

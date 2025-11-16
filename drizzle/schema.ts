@@ -52,7 +52,12 @@ export const projects = mysqlTable("projects", {
   latitude: varchar("latitude", { length: 50 }),
   longitude: varchar("longitude", { length: 50 }),
   polygonCoordinates: text("polygonCoordinates"),
-  pricePerSqm: int("pricePerSqm"), // Preço por metro quadrado em centavos // JSON com array de coordenadas do polígono
+  pricePerSqm: int("pricePerSqm"), // Preço por metro quadrado em centavos
+  
+  // Branding personalizado
+  logoUrl: text("logoUrl"), // URL do logo customizado do projeto
+  brandColor: varchar("brandColor", { length: 7 }), // Cor da marca em hex (#RRGGBB)
+  
   status: mysqlEnum("status", ["draft", "analyzing", "completed"]).default("draft").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
