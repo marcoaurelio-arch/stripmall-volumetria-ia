@@ -18,8 +18,9 @@ import ComplianceChecklistPanel from "@/components/ComplianceChecklistPanel";
 import SolarAnalysisPanel from "@/components/SolarAnalysisPanel";
 import ProjectVariationsPanel from "@/components/ProjectVariationsPanel";
 import MarketAnalysisPanel from "@/components/MarketAnalysisPanel";
+import FlowSimulatorPanel from "@/components/FlowSimulatorPanel";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -51,6 +52,17 @@ export default function ProjectDetail() {
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao analisar projeto");
+    },
+  });
+
+  const exportIFCMutation = trpc.bim.exportIFC.useMutation({
+    onSuccess: (data) => {
+      toast.success("Arquivo IFC gerado com sucesso!");
+      // Download do IFC
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar arquivo IFC");
     },
   });
 
@@ -91,6 +103,12 @@ export default function ProjectDetail() {
 
   const handleExportPDF = () => {
     exportPDFMutation.mutate({ projectId });
+  };
+
+  const handleExportIFC = () => {
+    if (confirm("Exportar projeto como arquivo IFC para Revit/ArchiCAD?")) {
+      exportIFCMutation.mutate({ projectId });
+    }
   };
 
   // Componente para carregar análise financeira
@@ -281,6 +299,25 @@ export default function ProjectDetail() {
                 </>
               )}
             </Button>
+            <Button
+              onClick={handleExportIFC}
+              disabled={exportIFCMutation.isPending || !latestAnalysis}
+              variant="outline"
+              size="lg"
+              title="Exportar para Revit/ArchiCAD"
+            >
+              {exportIFCMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando IFC...
+                </>
+              ) : (
+                <>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Exportar IFC
+                </>
+              )}
+            </Button>
           </div>
         </div>
 
@@ -325,6 +362,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="mercado" disabled={!project.latitude || !project.longitude}>
               <TrendingUp className="h-4 w-4 mr-2" />
               Análise de Mercado
+            </TabsTrigger>
+            <TabsTrigger value="fluxo" disabled={!latestAnalysis}>
+              <Users className="h-4 w-4 mr-2" />
+              Simulação de Fluxo
             </TabsTrigger>
           </TabsList>
 
@@ -735,6 +776,11 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Simulação de Fluxo */}
+          <TabsContent value="fluxo" className="space-y-6">
+            <FlowSimulatorPanel projectId={projectId} />
           </TabsContent>
         </Tabs>
       </main>

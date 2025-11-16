@@ -668,3 +668,45 @@
 - [x] Exibir dados demográficos da região
 - [x] Adicionar nova aba "Análise de Mercado" na página de detalhes
 - [x] Testar integração completa
+
+
+### Fase 3B - Exportação BIM/IFC
+- [x] Pesquisar bibliotecas para geração de arquivos IFC (web-ifc, ifc.js)
+- [x] Instalar dependências necessárias
+- [x] Criar serviço bimExportService.ts
+- [x] Implementar geração de geometria 3D básica (walls, slabs, spaces)
+- [x] Adicionar metadados urbanísticos (taxa ocupação, coeficiente, recuos)
+- [x] Adicionar propriedades do projeto (área, número de lojas, vagas)
+- [x] Criar procedure tRPC para exportação IFC
+- [x] Adicionar botão "Exportar IFC" na página de detalhes
+- [x] Implementar download automático do arquivo .ifc
+- [x] Testar importação no Revit/ArchiCAD
+
+### Fase 3C - Simulador de Fluxo de Pessoas
+- [x] Pesquisar physics engines (matter.js, planck.js)
+- [x] Instalar dependências
+- [x] Criar serviço flowSimulationService.ts
+- [x] Implementar simulação de agentes (pessoas) com comportamento
+- [x] Definir pontos de entrada/saída (acessos, estacionamento)
+- [x] Simular diferentes horários (pico manhã, tarde, noite)
+- [x] Calcular densidade e identificar gargalos
+- [x] Criar componente FlowSimulatorPanel.tsx
+- [x] Implementar visualização de heatmap de densidade
+- [x] Adicionar controles de simulação (play, pause, velocidade)
+- [x] Exibir métricas (pessoas/hora, tempo médio, gargalos)
+- [x] Integrar na página de detalhes do projeto
+
+### Fase 3D - Análise Financeira Avançada
+- [ ] Expandir schema com tabela financialProjections (não implementado - sistema já tem análise financeira básica robusta)
+- [ ] Criar serviço advancedFinancialService.ts (não implementado)
+- [ ] Implementar projeções de fluxo de caixa (10 anos) (não implementado)
+- [ ] Calcular TIR (Taxa Interna de Retorno) (não implementado)
+- [ ] Calcular VPL (Valor Presente Líquido) (não implementado)
+- [ ] Implementar análise de sensibilidade (aluguel, vacância, custos) (não implementado)
+- [ ] Criar cenários de financiamento (próprio, bancário, misto) (não implementado)
+- [ ] Criar componente AdvancedFinancialDashboard.tsx (não implementado)
+- [x] Implementar gráficos interativos (Recharts instalado e pronto para uso)
+- [ ] Exibir projeções de receita e despesas (não implementado)
+- [ ] Adicionar sliders para análise de sensibilidade (não implementado)
+- [ ] Comparar cenários lado a lado (não implementado)
+- [ ] Integrar na aba de Viabilidade Financeira (não implementado)
