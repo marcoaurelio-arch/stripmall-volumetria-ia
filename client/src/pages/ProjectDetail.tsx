@@ -19,6 +19,7 @@ import SolarAnalysisPanel from "@/components/SolarAnalysisPanel";
 import ProjectVariationsPanel from "@/components/ProjectVariationsPanel";
 import MarketAnalysisPanel from "@/components/MarketAnalysisPanel";
 import FlowSimulatorPanel from "@/components/FlowSimulatorPanel";
+import AdvancedFinancialDashboard from "@/components/AdvancedFinancialDashboard";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -152,6 +153,13 @@ export default function ProjectDetail() {
         
         {/* Análise Financeira Existente */}
         <FinancialAnalysis {...financialData} />
+
+        {/* Dashboard Financeiro Avançado */}
+        <AdvancedFinancialDashboard
+          projectId={projectId}
+          custoTotal={financialData.constructionCost}
+          receitaMensal={Math.round(financialData.annualGrossRevenue / 12)}
+        />
       </div>
     );
   };

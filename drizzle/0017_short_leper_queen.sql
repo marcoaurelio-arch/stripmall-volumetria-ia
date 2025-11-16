@@ -1,0 +1,22 @@
+CREATE TABLE `financialProjections` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`projectId` int NOT NULL,
+	`investimentoInicial` int NOT NULL,
+	`receitaMensalAluguel` int NOT NULL,
+	`taxaVacancia` int NOT NULL,
+	`custoOperacionalMensal` int NOT NULL,
+	`taxaDesconto` int NOT NULL,
+	`tipoFinanciamento` varchar(50) NOT NULL,
+	`percentualFinanciado` int,
+	`taxaJurosAnual` int,
+	`prazoFinanciamento` int,
+	`tir` int,
+	`vpl` int,
+	`paybackSimples` int,
+	`paybackDescontado` int,
+	`fluxoCaixaAnual` text NOT NULL,
+	`analiseSensibilidade` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `financialProjections_id` PRIMARY KEY(`id`)
+);

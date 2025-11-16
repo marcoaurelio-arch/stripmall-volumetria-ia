@@ -120,6 +120,13 @@
       "when": 1763324887469,
       "tag": "0016_condemned_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1763326598586,
+      "tag": "0017_short_leper_queen",
+      "breakpoints": true
     }
   ]
 }

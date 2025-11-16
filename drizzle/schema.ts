@@ -399,3 +399,44 @@ export const virtualTours = mysqlTable("virtualTours", {
 
 export type VirtualTour = typeof virtualTours.$inferSelect;
 export type InsertVirtualTour = typeof virtualTours.$inferInsert;
+
+
+/**
+ * Projeções financeiras avançadas com fluxo de caixa detalhado
+ */
+export const financialProjections = mysqlTable("financialProjections", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  
+  // Parâmetros de entrada
+  investimentoInicial: int("investimentoInicial").notNull(), // Custo total de construção
+  receitaMensalAluguel: int("receitaMensalAluguel").notNull(), // Receita mensal de aluguel
+  taxaVacancia: int("taxaVacancia").notNull(), // Taxa de vacância em % (0-100)
+  custoOperacionalMensal: int("custoOperacionalMensal").notNull(), // Custos operacionais mensais
+  taxaDesconto: int("taxaDesconto").notNull(), // Taxa de desconto anual em % * 100 (ex: 1000 = 10%)
+  
+  // Cenário de financiamento
+  tipoFinanciamento: varchar("tipoFinanciamento", { length: 50 }).notNull(), // 'proprio', 'bancario', 'misto'
+  percentualFinanciado: int("percentualFinanciado"), // % financiado (0-100)
+  taxaJurosAnual: int("taxaJurosAnual"), // Taxa de juros anual em % * 100
+  prazoFinanciamento: int("prazoFinanciamento"), // Prazo em meses
+  
+  // Resultados calculados
+  tir: int("tir"), // Taxa Interna de Retorno em % * 100
+  vpl: int("vpl"), // Valor Presente Líquido em reais
+  paybackSimples: int("paybackSimples"), // Payback simples em meses
+  paybackDescontado: int("paybackDescontado"), // Payback descontado em meses
+  
+  // Projeções (JSON com array de 10 anos)
+  fluxoCaixaAnual: text("fluxoCaixaAnual").notNull(), // JSON: [{ano, receita, despesa, saldo, saldoAcumulado}]
+  
+  // Análise de sensibilidade (JSON com cenários)
+  analiseSensibilidade: text("analiseSensibilidade"), // JSON: {aluguel: [...], vacancia: [...], custos: [...]}
+  
+  // Metadados
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FinancialProjection = typeof financialProjections.$inferSelect;
+export type InsertFinancialProjection = typeof financialProjections.$inferInsert;

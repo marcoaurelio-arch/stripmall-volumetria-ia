@@ -710,3 +710,44 @@
 - [ ] Adicionar sliders para análise de sensibilidade (não implementado)
 - [ ] Comparar cenários lado a lado (não implementado)
 - [ ] Integrar na aba de Viabilidade Financeira (não implementado)
+
+
+## PRÓXIMOS PASSOS - Continuação
+
+### Passo 1: Completar Análise Financeira Avançada
+- [x] Criar tabela financialProjections no schema
+- [x] Criar serviço advancedFinancialService.ts
+- [x] Implementar cálculo de TIR (Taxa Interna de Retorno)
+- [x] Implementar cálculo de VPL (Valor Presente Líquido)
+- [x] Gerar projeções de fluxo de caixa (10 anos)
+- [x] Criar cenários de financiamento (próprio, bancário, misto)
+- [x] Implementar análise de sensibilidade (aluguel, vacância, custos)
+- [x] Criar componente AdvancedFinancialDashboard.tsx
+- [x] Adicionar gráficos com Recharts (linha, barra, área)
+- [x] Implementar sliders para análise de sensibilidade em tempo real
+- [x] Adicionar comparação de cenários lado a lado
+- [x] Integrar na aba de Viabilidade Financeira
+
+### Passo 2: Melhorar Simulador de Fluxo
+- [ ] Implementar sistema de objetivos (pessoas vão a lojas específicas)
+- [ ] Adicionar pathfinding básico (A* ou similar)
+- [ ] Criar variação de velocidade por perfil (idoso, adulto, criança)
+- [ ] Implementar formação de grupos familiares
+- [ ] Adicionar heatmap acumulado ao longo do tempo
+- [ ] Criar visualização de densidade com gradiente de cores
+- [ ] Implementar gravação da simulação
+- [ ] Adicionar botão de exportação de vídeo (WebM/MP4)
+- [ ] Adicionar obstáculos internos (quiosques, bancos)
+- [ ] Melhorar recomendações baseadas em dados coletados
+
+### Passo 3: Refinar Exportação IFC
+- [ ] Adicionar geometria detalhada do polígono do terreno
+- [ ] Implementar conversão de coordenadas geográficas para IFC
+- [ ] Adicionar materiais básicos (concreto, vidro, metal)
+- [ ] Criar Property Sets de materiais
+- [ ] Gerar quantitativos de construção (BIM 5D)
+- [ ] Adicionar tabela de quantidades no arquivo IFC
+- [ ] Implementar exportação de janelas e portas
+- [ ] Adicionar sistemas MEP básicos (elétrica, hidráulica)
+- [ ] Melhorar documentação do arquivo IFC gerado
+- [ ] Testar compatibilidade com mais softwares BIM

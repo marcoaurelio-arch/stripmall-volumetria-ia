@@ -7,6 +7,7 @@ import { storagePut } from "./storage";
 import { parseKMZ } from "./kmzParser";
 import { generateProjectReport } from "./pdfGenerator";
 import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS } from "./financialCalculator";
+import { calcularAnaliseFinanceiraAvancada } from "./services/advancedFinancialService";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -499,5 +500,49 @@ Responda APENAS com um JSON válido no seguinte formato:
         ...financialAnalysis,
         inputs: financialInputs,
       };
+    }),
+
+  // Calcular análise financeira avançada com TIR, VPL e projeções
+  calculateAdvancedFinancial: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        investimentoInicial: z.number(),
+        receitaMensalAluguel: z.number(),
+        taxaVacancia: z.number(),
+        custoOperacionalMensal: z.number(),
+        tipoFinanciamento: z.enum(['proprio', 'bancario', 'misto']),
+        percentualFinanciado: z.number().optional(),
+        taxaJurosAnual: z.number().optional(),
+        prazoFinanciamentoMeses: z.number().optional(),
+        taxaDesconto: z.number().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      // Verificar se o projeto pertence ao usuário
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+      
+      if (project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      // Calcular análise financeira avançada
+      const resultado = calcularAnaliseFinanceiraAvancada(
+        input.investimentoInicial,
+        input.receitaMensalAluguel,
+        input.taxaVacancia,
+        input.custoOperacionalMensal,
+        input.tipoFinanciamento,
+        input.percentualFinanciado || 0,
+        input.taxaJurosAnual || 0,
+        input.prazoFinanciamentoMeses || 0,
+        input.taxaDesconto || 1000
+      );
+
+      return resultado;
     }),
 });
