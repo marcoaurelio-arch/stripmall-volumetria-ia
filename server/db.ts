@@ -1,6 +1,6 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario, generatedImages, InsertGeneratedImage } from "../drizzle/schema";
+import { InsertUser, users, projects, InsertProject, analyses, InsertAnalysis, scenarios, InsertScenario, generatedImages, InsertGeneratedImage, projectAttachments } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -249,4 +249,24 @@ export async function getRecentConceptualImages(limit: number = 10) {
     .limit(limit);
 
   return images;
+}
+
+// Buscar anexos por IDs
+export async function getAttachmentsByIds(ids: number[]) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get attachments: database not available");
+    return [];
+  }
+
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const attachments = await db
+    .select()
+    .from(projectAttachments)
+    .where(inArray(projectAttachments.id, ids));
+
+  return attachments;
 }

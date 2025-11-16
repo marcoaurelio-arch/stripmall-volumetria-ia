@@ -9,7 +9,10 @@ import { generateStaticMapUrl, calculateAppropriateZoom } from "./mapsImageGener
 export const imageRouter = router({
   // Gerar estudo conceitual 3D
   generateConceptual: protectedProcedure
-    .input(z.object({ projectId: z.number() }))
+    .input(z.object({ 
+      projectId: z.number(),
+      referenceImageIds: z.array(z.number()).optional() // IDs dos anexos de referência
+    }))
     .mutation(async ({ input, ctx }) => {
       const project = await db.getProjectById(input.projectId);
       
@@ -68,13 +71,34 @@ VISUAL STYLE:
 - Camera: 24mm lens, f/2.8 aperture${geometryInfo}${briefingContext}`;
 
       try {
-        // Incluir imagem de referência do terreno se disponível
-        const generateParams: any = { prompt };
+        // Buscar imagens de referência selecionadas
+        const originalImages: Array<{ url: string; mimeType: string }> = [];
+        
+        // Adicionar imagem de satélite do terreno
         if (siteImageUrl) {
-          generateParams.originalImages = [{
+          originalImages.push({
             url: siteImageUrl,
             mimeType: "image/jpeg"
-          }];
+          });
+        }
+        
+        // Adicionar imagens de referência selecionadas pelo usuário
+        if (input.referenceImageIds && input.referenceImageIds.length > 0) {
+          const referenceAttachments = await db.getAttachmentsByIds(input.referenceImageIds);
+          for (const attachment of referenceAttachments) {
+            // Verificar se pertence ao projeto correto e tem mimeType
+            if (attachment.projectId === input.projectId && attachment.mimeType) {
+              originalImages.push({
+                url: attachment.fileUrl,
+                mimeType: attachment.mimeType
+              });
+            }
+          }
+        }
+        
+        const generateParams: any = { prompt };
+        if (originalImages.length > 0) {
+          generateParams.originalImages = originalImages;
         }
         
         const { url: imageUrl } = await generateImage(generateParams);

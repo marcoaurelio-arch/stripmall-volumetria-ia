@@ -5,6 +5,9 @@ import { getDb } from "./db";
 import { projectAttachments, projects } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { storagePut } from "./storage";
+import { parseKMZ } from "./kmzParser";
+import { updateProject } from "./db";
+import { extractDataFromPDF } from "./pdfExtractor";
 
 /**
  * Router para gerenciamento de anexos de projetos
@@ -271,5 +274,220 @@ export const attachmentRouter = router({
       }
 
       return attachment[0];
+    }),
+
+  /**
+   * Processar arquivo KMZ anexado e extrair dados do terreno
+   * Atualiza automaticamente os campos do projeto com as coordenadas extraídas
+   */
+  processKMZAttachment: protectedProcedure
+    .input(
+      z.object({
+        attachmentId: z.number(),
+        autoUpdate: z.boolean().default(true), // Se true, atualiza o projeto automaticamente
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+      }
+
+      // Buscar o anexo
+      const attachment = await db
+        .select()
+        .from(projectAttachments)
+        .where(eq(projectAttachments.id, input.attachmentId))
+        .limit(1);
+
+      if (attachment.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Attachment not found",
+        });
+      }
+
+      const attachmentData = attachment[0];
+
+      // Verificar se é arquivo KMZ
+      if (attachmentData.fileType !== "kmz") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "File is not a KMZ file",
+        });
+      }
+
+      // Verificar permissão
+      const project = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.id, attachmentData.projectId))
+        .limit(1);
+
+      if (project.length === 0 || project[0].userId !== ctx.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Access denied",
+        });
+      }
+
+      try {
+        // Baixar arquivo do S3
+        const response = await fetch(attachmentData.fileUrl);
+        if (!response.ok) {
+          throw new Error("Failed to download file from S3");
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Processar KMZ
+        const kmzData = await parseKMZ(buffer);
+
+        // Se autoUpdate estiver ativado, atualizar o projeto
+        if (input.autoUpdate) {
+          await updateProject(attachmentData.projectId, {
+            area: kmzData.area,
+            latitude: kmzData.centerLat.toString(),
+            longitude: kmzData.centerLng.toString(),
+            polygonCoordinates: JSON.stringify(kmzData.coordinates),
+          });
+        }
+
+        return {
+          success: true,
+          data: {
+            area: kmzData.area,
+            latitude: kmzData.centerLat.toString(),
+            longitude: kmzData.centerLng.toString(),
+            polygonCoordinates: JSON.stringify(kmzData.coordinates),
+            name: kmzData.name,
+            description: kmzData.description,
+          },
+          updated: input.autoUpdate,
+        };
+      } catch (error) {
+        console.error("Error processing KMZ attachment:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to process KMZ file",
+        });
+      }
+    }),
+
+  /**
+   * Extrair dados de um PDF anexado usando OCR
+   * Identifica dimensões, área, recuos e parâmetros urbanísticos
+   */
+  extractPDFData: protectedProcedure
+    .input(
+      z.object({
+        attachmentId: z.number(),
+        autoUpdate: z.boolean().default(false), // Se true, atualiza o projeto automaticamente
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+      }
+
+      // Buscar o anexo
+      const attachment = await db
+        .select()
+        .from(projectAttachments)
+        .where(eq(projectAttachments.id, input.attachmentId))
+        .limit(1);
+
+      if (attachment.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Attachment not found",
+        });
+      }
+
+      const attachmentData = attachment[0];
+
+      // Verificar se é arquivo PDF
+      if (attachmentData.mimeType !== "application/pdf") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "File is not a PDF",
+        });
+      }
+
+      // Verificar permissão
+      const project = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.id, attachmentData.projectId))
+        .limit(1);
+
+      if (project.length === 0 || project[0].userId !== ctx.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Access denied",
+        });
+      }
+
+      try {
+        // Baixar arquivo do S3
+        const response = await fetch(attachmentData.fileUrl);
+        if (!response.ok) {
+          throw new Error("Failed to download file from S3");
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Extrair dados do PDF
+        const extractedData = await extractDataFromPDF(buffer);
+
+        // Se autoUpdate estiver ativado, atualizar o projeto
+        if (input.autoUpdate && extractedData.confidence !== "low") {
+          const updateData: any = {};
+          
+          if (extractedData.area) updateData.area = extractedData.area;
+          if (extractedData.width) updateData.width = extractedData.width;
+          if (extractedData.length) updateData.length = extractedData.length;
+          if (extractedData.recuoFrontal) updateData.recuoFrontal = extractedData.recuoFrontal;
+          if (extractedData.recuoLateral) updateData.recuoLateral = extractedData.recuoLateral;
+          if (extractedData.recuoFundos) updateData.recuoFundos = extractedData.recuoFundos;
+          if (extractedData.taxaOcupacao) updateData.taxaOcupacao = extractedData.taxaOcupacao;
+          if (extractedData.coeficienteAproveitamento) {
+            updateData.coeficienteAproveitamento = extractedData.coeficienteAproveitamento;
+          }
+
+          if (Object.keys(updateData).length > 0) {
+            await updateProject(attachmentData.projectId, updateData);
+          }
+        }
+
+        return {
+          success: true,
+          data: {
+            area: extractedData.area,
+            width: extractedData.width,
+            length: extractedData.length,
+            recuoFrontal: extractedData.recuoFrontal,
+            recuoLateral: extractedData.recuoLateral,
+            recuoFundos: extractedData.recuoFundos,
+            taxaOcupacao: extractedData.taxaOcupacao,
+            coeficienteAproveitamento: extractedData.coeficienteAproveitamento,
+            confidence: extractedData.confidence,
+          },
+          updated: input.autoUpdate && extractedData.confidence !== "low",
+        };
+      } catch (error) {
+        console.error("Error extracting PDF data:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to extract data from PDF",
+        });
+      }
     }),
 });

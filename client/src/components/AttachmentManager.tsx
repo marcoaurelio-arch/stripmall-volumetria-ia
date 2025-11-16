@@ -8,6 +8,8 @@ import {
   Map,
   Loader2,
   Eye,
+  Zap,
+  FileSearch,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -46,6 +48,12 @@ export default function AttachmentManager({
   const [selectedAttachment, setSelectedAttachment] =
     useState<ProjectAttachment | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [processingKMZ, setProcessingKMZ] = useState<number | null>(null);
+  const [processingPDF, setProcessingPDF] = useState<number | null>(null);
+  const [pdfDataDialogOpen, setPdfDataDialogOpen] = useState(false);
+  const [extractedPDFData, setExtractedPDFData] = useState<any>(null);
+
+  const utils = trpc.useUtils();
 
   // Query para listar anexos
   const { data: attachments, isLoading, refetch } = trpc.attachment.listAttachments.useQuery({
@@ -62,6 +70,50 @@ export default function AttachmentManager({
     },
     onError: () => {
       toast.error("Erro ao excluir arquivo");
+    },
+  });
+
+  // Mutation para processar KMZ
+  const processKMZMutation = trpc.attachment.processKMZAttachment.useMutation({
+    onSuccess: (data) => {
+      setProcessingKMZ(null);
+      if (data.updated) {
+        toast.success(
+          `Dados extraídos do KMZ! Área: ${data.data.area.toFixed(2)}m². Projeto atualizado.`
+        );
+        // Invalidar cache do projeto para recarregar dados atualizados
+        utils.project.get.invalidate({ id: projectId });
+      } else {
+        toast.success(
+          `Dados extraídos: Área ${data.data.area.toFixed(2)}m²`
+        );
+      }
+    },
+    onError: (error) => {
+      setProcessingKMZ(null);
+      toast.error(error.message || "Erro ao processar arquivo KMZ");
+    },
+  });
+
+  // Mutation para extrair dados de PDF
+  const extractPDFMutation = trpc.attachment.extractPDFData.useMutation({
+    onSuccess: (data) => {
+      setProcessingPDF(null);
+      setExtractedPDFData(data.data);
+      setPdfDataDialogOpen(true);
+      
+      if (data.updated) {
+        toast.success("Dados extraídos e projeto atualizado!");
+        utils.project.get.invalidate({ id: projectId });
+      } else if (data.data.confidence === "low") {
+        toast.warning("Poucos dados encontrados no PDF. Revise manualmente.");
+      } else {
+        toast.success(`Dados extraídos com confiança ${data.data.confidence}`);
+      }
+    },
+    onError: (error) => {
+      setProcessingPDF(null);
+      toast.error(error.message || "Erro ao extrair dados do PDF");
     },
   });
 
@@ -142,6 +194,36 @@ export default function AttachmentManager({
     }
   };
 
+  // Processar arquivo KMZ
+  const handleProcessKMZ = (attachment: ProjectAttachment) => {
+    setProcessingKMZ(attachment.id);
+    processKMZMutation.mutate({
+      attachmentId: attachment.id,
+      autoUpdate: true,
+    });
+  };
+
+  // Extrair dados de PDF
+  const handleExtractPDF = (attachment: ProjectAttachment) => {
+    setProcessingPDF(attachment.id);
+    extractPDFMutation.mutate({
+      attachmentId: attachment.id,
+      autoUpdate: false, // Não atualizar automaticamente, mostrar preview primeiro
+    });
+  };
+
+  // Aplicar dados extraídos do PDF ao projeto
+  const handleApplyPDFData = () => {
+    if (extractedPDFData && selectedAttachment) {
+      setProcessingPDF(selectedAttachment.id);
+      extractPDFMutation.mutate({
+        attachmentId: selectedAttachment.id,
+        autoUpdate: true,
+      });
+      setPdfDataDialogOpen(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -203,6 +285,39 @@ export default function AttachmentManager({
 
               {/* Ações */}
               <div className="flex gap-2 flex-shrink-0">
+                {attachment.fileType === "kmz" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleProcessKMZ(attachment)}
+                    disabled={processingKMZ === attachment.id}
+                    title="Extrair Coordenadas"
+                  >
+                    {processingKMZ === attachment.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Zap className="w-4 h-4" />
+                    )}
+                  </Button>
+                )}
+                {attachment.mimeType === "application/pdf" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedAttachment(attachment);
+                      handleExtractPDF(attachment);
+                    }}
+                    disabled={processingPDF === attachment.id}
+                    title="Extrair Dados"
+                  >
+                    {processingPDF === attachment.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <FileSearch className="w-4 h-4" />
+                    )}
+                  </Button>
+                )}
                 {isImage(attachment.mimeType) && (
                   <Button
                     variant="outline"
@@ -248,6 +363,90 @@ export default function AttachmentManager({
                 alt={selectedAttachment.fileName}
                 className="w-full h-auto rounded"
               />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de dados extraídos do PDF */}
+      <Dialog open={pdfDataDialogOpen} onOpenChange={setPdfDataDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Dados Extraídos do PDF</DialogTitle>
+          </DialogHeader>
+          {extractedPDFData && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                {extractedPDFData.area && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Área Total</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.area.toFixed(2)} m²</p>
+                  </div>
+                )}
+                {extractedPDFData.width && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Largura</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.width.toFixed(2)} m</p>
+                  </div>
+                )}
+                {extractedPDFData.length && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Comprimento</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.length.toFixed(2)} m</p>
+                  </div>
+                )}
+                {extractedPDFData.recuoFrontal && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Recuo Frontal</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.recuoFrontal.toFixed(2)} m</p>
+                  </div>
+                )}
+                {extractedPDFData.recuoLateral && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Recuo Lateral</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.recuoLateral.toFixed(2)} m</p>
+                  </div>
+                )}
+                {extractedPDFData.recuoFundos && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Recuo de Fundos</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.recuoFundos.toFixed(2)} m</p>
+                  </div>
+                )}
+                {extractedPDFData.taxaOcupacao && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Taxa de Ocupação</p>
+                    <p className="text-lg font-semibold">{(extractedPDFData.taxaOcupacao * 100).toFixed(0)}%</p>
+                  </div>
+                )}
+                {extractedPDFData.coeficienteAproveitamento && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Coeficiente de Aproveitamento</p>
+                    <p className="text-lg font-semibold">{extractedPDFData.coeficienteAproveitamento.toFixed(2)}</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-2 p-3 bg-muted rounded">
+                <p className="text-sm">
+                  <strong>Confiança:</strong> {extractedPDFData.confidence === "high" ? "Alta" : extractedPDFData.confidence === "medium" ? "Média" : "Baixa"}
+                </p>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setPdfDataDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleApplyPDFData}
+                  disabled={extractedPDFData.confidence === "low"}
+                >
+                  Aplicar ao Projeto
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

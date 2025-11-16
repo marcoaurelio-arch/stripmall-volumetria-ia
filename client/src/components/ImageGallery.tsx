@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { Download, Image as ImageIcon, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import ReferenceImageGallery from "@/components/ReferenceImageGallery";
 
 interface ImageGalleryProps {
   projectId: number;
@@ -13,6 +14,7 @@ interface ImageGalleryProps {
 
 export default function ImageGallery({ projectId }: ImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedReferenceImages, setSelectedReferenceImages] = useState<number[]>([]);
   const utils = trpc.useUtils();
 
   const { data: images, isLoading } = trpc.image.list.useQuery({ projectId });
@@ -26,6 +28,14 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
       toast.error(error.message || "Erro ao gerar estudo conceitual");
     },
   });
+
+  // Handler para gerar estudo conceitual com imagens de referência
+  const handleGenerateConceptual = () => {
+    generateConceptualMutation.mutate({
+      projectId,
+      referenceImageIds: selectedReferenceImages.length > 0 ? selectedReferenceImages : undefined,
+    });
+  };
 
   const generateFloorplanMutation = trpc.image.generateFloorplan.useMutation({
     onSuccess: () => {
@@ -132,6 +142,26 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
 
   return (
     <div className="space-y-8">
+      {/* Imagens de Referência */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ImageIcon className="h-5 w-5 text-primary" />
+            Imagens de Referência
+          </CardTitle>
+          <CardDescription>
+            Selecione imagens para usar como referência visual na geração de estudos volumétricos personalizados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ReferenceImageGallery
+            projectId={projectId}
+            selectedImages={selectedReferenceImages}
+            onSelectionChange={setSelectedReferenceImages}
+          />
+        </CardContent>
+      </Card>
+
       {/* Estudos Conceituais 3D */}
       <Card>
         <CardHeader>
@@ -146,7 +176,7 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
               </CardDescription>
             </div>
             <Button
-              onClick={() => generateConceptualMutation.mutate({ projectId })}
+              onClick={handleGenerateConceptual}
               disabled={generateConceptualMutation.isPending}
             >
               {generateConceptualMutation.isPending ? (

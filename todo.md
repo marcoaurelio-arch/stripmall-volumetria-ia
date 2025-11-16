@@ -366,3 +366,46 @@
 - [x] Adicionar botão de exclusão de arquivos
 - [x] Integrar na página de detalhes do projeto (nova aba Anexos)
 - [x] Testar upload com diferentes tipos e tamanhos
+
+## Processamento Automático de Arquivos KMZ nos Anexos
+- [x] Detectar quando arquivo KMZ é enviado via aba Anexos
+- [x] Reutilizar função de parsing de KMZ existente (parseKMZ)
+- [x] Extrair coordenadas do polígono automaticamente
+- [x] Atualizar campos do projeto (polygonCoordinates, area, latitude, longitude)
+- [x] Exibir notificação de sucesso com dados extraídos
+- [x] Adicionar botão "Extrair Coordenadas" para arquivos KMZ
+- [x] Implementar procedure processKMZAttachment no backend
+- [x] Download automático do arquivo do S3 para processamento
+- [x] Invalidar cache do projeto após atualização
+- [ ] Testar com diferentes arquivos KMZ
+
+## Extração de Dados de PDFs com OCR
+- [x] Pesquisar bibliotecas de OCR para Node.js (usado pdfjs-dist)
+- [x] Instalar dependências necessárias para OCR
+- [x] Criar função para extrair texto de PDF (extractTextFromPDF)
+- [x] Implementar regex para identificar dimensões (ex: "10m x 20m", "área: 200m²")
+- [x] Implementar regex para identificar recuos (ex: "recuo frontal: 5m")
+- [x] Implementar regex para identificar área total
+- [x] Implementar regex para taxa de ocupação e coeficiente de aproveitamento
+- [x] Criar procedure tRPC para processar PDF e extrair dados (extractPDFData)
+- [x] Adicionar botão "Extrair Dados" ao lado de PDFs anexados
+- [x] Exibir preview dos dados extraídos antes de aplicar
+- [x] Calcular nível de confiança baseado em dados encontrados
+- [x] Atualizar campos do projeto com dados extraídos
+- [x] Adicionar feedback de progresso durante OCR
+- [x] Criar dialog com grid de dados extraídos
+- [ ] Testar com diferentes formatos de plantas em PDF
+
+## Galeria de Imagens de Referência para IA
+- [x] Criar componente ReferenceImageGallery
+- [x] Filtrar apenas anexos do tipo "reference_image" ou imagens
+- [x] Exibir imagens em grid responsivo (2/3/4 colunas)
+- [x] Adicionar seleção visual de imagens como referência
+- [x] Gerenciar seleção via estado local (selectedReferenceImages)
+- [x] Modificar prompts de geração de imagens para incluir referências
+- [x] Enviar imagens selecionadas como originalImages para a IA
+- [x] Implementar preview em modal ao clicar na imagem
+- [x] Adicionar seção "Imagens de Referência" na aba de Estudos Visuais
+- [x] Criar função getAttachmentsByIds para buscar anexos
+- [x] Integrar imagens de referência na geração conceitual
+- [ ] Testar geração de estudos com diferentes imagens de referência
