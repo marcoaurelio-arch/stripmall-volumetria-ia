@@ -751,3 +751,38 @@
 - [ ] Adicionar sistemas MEP básicos (elétrica, hidráulica)
 - [ ] Melhorar documentação do arquivo IFC gerado
 - [ ] Testar compatibilidade com mais softwares BIM
+
+
+## MELHORIAS SUGERIDAS - Implementação
+
+### Melhoria 1: Persistência de Projeções Financeiras
+- [x] Criar procedures tRPC para salvar/listar/deletar projeções
+- [ ] Implementar salvamento automático ao calcular (backend pronto, falta UI)
+- [ ] Criar componente de histórico de análises (backend pronto, falta UI)
+- [ ] Adicionar comparação visual entre cenários (backend pronto, falta UI)
+- [ ] Implementar exportação para Excel (XLSX) (não implementado)
+- [ ] Adicionar gráficos de comparação de cenários (não implementado)
+- [x] Permitir nomear e adicionar notas aos cenários (schema e procedures prontos)
+
+### Melhoria 2: Aprimoramento do Simulador de Fluxo
+- [ ] Implementar sistema de objetivos (pessoas visitam lojas específicas)
+- [ ] Criar algoritmo de pathfinding A* para navegação
+- [ ] Adicionar variação de velocidade por perfil (idoso/adulto/criança)
+- [ ] Implementar formação de grupos familiares
+- [ ] Criar heatmap acumulado ao longo da simulação
+- [ ] Adicionar visualização de densidade com gradiente
+- [ ] Implementar gravação de frames da simulação
+- [ ] Criar exportação de vídeo (WebM/MP4) usando canvas
+- [ ] Adicionar controle de qualidade do vídeo exportado
+
+### Melhoria 3: Refinamento da Exportação IFC
+- [ ] Adicionar geometria detalhada do polígono do terreno
+- [ ] Implementar conversão de coordenadas geográficas para IFC
+- [ ] Criar Property Sets para materiais (concreto, vidro, metal)
+- [ ] Adicionar texturas e acabamentos básicos
+- [ ] Gerar quantitativos de construção (volumes, áreas, perímetros)
+- [ ] Criar tabela de quantidades no arquivo IFC (BIM 5D)
+- [ ] Implementar exportação de janelas e portas
+- [ ] Adicionar sistemas MEP básicos (pontos elétricos, hidráulicos)
+- [ ] Melhorar documentação e metadados do IFC
+- [ ] Testar compatibilidade com mais softwares BIM

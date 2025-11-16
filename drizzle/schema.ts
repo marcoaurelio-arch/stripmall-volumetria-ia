@@ -408,6 +408,10 @@ export const financialProjections = mysqlTable("financialProjections", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
   
+  // Identificação do cenário
+  nome: varchar("nome", { length: 255 }), // Nome do cenário para identificação
+  notas: text("notas"), // Notas e observações sobre o cenário
+  
   // Parâmetros de entrada
   investimentoInicial: int("investimentoInicial").notNull(), // Custo total de construção
   receitaMensalAluguel: int("receitaMensalAluguel").notNull(), // Receita mensal de aluguel

@@ -127,6 +127,13 @@
       "when": 1763326598586,
       "tag": "0017_short_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1763327353806,
+      "tag": "0018_mighty_demogoblin",
+      "breakpoints": true
     }
   ]
 }
