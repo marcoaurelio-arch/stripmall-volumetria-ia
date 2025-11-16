@@ -68,6 +68,17 @@ export default function ProjectDetail() {
     },
   });
 
+  const exportProfessionalPDFMutation = trpc.project.generateProfessionalPDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("PDF profissional gerado com sucesso!");
+      // Download do PDF
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao gerar PDF profissional");
+    },
+  });
+
   const exportPDFMutation = trpc.project.exportPDF.useMutation({
     onSuccess: (data) => {
       toast.success("Relatório PDF gerado com sucesso!");
@@ -110,6 +121,12 @@ export default function ProjectDetail() {
   const handleExportIFC = () => {
     if (confirm("Exportar projeto como arquivo IFC para Revit/ArchiCAD?")) {
       exportIFCMutation.mutate({ projectId });
+    }
+  };
+
+  const handleExportProfessionalPDF = () => {
+    if (confirm("Gerar PDF profissional no estilo Piazza Nicomedes?")) {
+      exportProfessionalPDFMutation.mutate({ projectId });
     }
   };
 
@@ -327,6 +344,25 @@ export default function ProjectDetail() {
                 <>
                   <Building2 className="h-4 w-4 mr-2" />
                   Exportar IFC
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={handleExportProfessionalPDF}
+              disabled={exportProfessionalPDFMutation.isPending || !latestAnalysis}
+              variant="default"
+              size="lg"
+              title="Gerar PDF profissional estilo Piazza Nicomedes"
+            >
+              {exportProfessionalPDFMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando PDF...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  PDF Profissional
                 </>
               )}
             </Button>

@@ -8,6 +8,7 @@ import { parseKMZ } from "./kmzParser";
 import { generateProjectReport } from "./pdfGenerator";
 import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS } from "./financialCalculator";
 import { calcularAnaliseFinanceiraAvancada } from "./services/advancedFinancialService";
+import { generateProfessionalPDF } from "./services/professionalPdfService";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -544,5 +545,71 @@ Responda APENAS com um JSON válido no seguinte formato:
       );
 
       return resultado;
+    }),
+
+  // Gerar PDF profissional no estilo Piazza Nicomedes
+  generateProfessionalPDF: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const project = await db.getProjectById(input.projectId);
+        
+        if (!project) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        }
+        
+        if (project.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+        }
+
+        // Obter análise e imagens
+        const analysis = await db.getLatestAnalysis(input.projectId);
+        const images = await db.getGeneratedImagesByProjectId(input.projectId);
+
+        // Preparar dados do projeto
+        const projectData = {
+          id: project.id,
+          name: project.name,
+          address: project.address || '',
+          areaTotal: project.area,
+          taxaOcupacao: project.taxaOcupacao || 0.7,
+          coeficienteAproveitamento: project.coeficienteAproveitamento || 1.5,
+          numeroLojas: analysis?.numeroLojas || 0,
+          vagasEstacionamento: analysis?.vagasEstacionamento || 0,
+          images: images.map((img: any) => ({
+            url: img.imageUrl,
+            type: img.type,
+          })),
+          analysis: analysis ? {
+            areaOcupada: analysis.areaOcupada || 0,
+            areaConstruida: analysis.areaMaximaConstruida || 0,
+            areaPrivativa: (analysis.areaMaximaConstruida || 0) * 0.7, // 70% área privativa
+            areaComum: (analysis.areaMaximaConstruida || 0) * 0.3, // 30% área comum
+          } : undefined,
+        };
+
+        // Gerar PDF profissional
+        const pdfBuffer = await generateProfessionalPDF(projectData);
+        
+        // Upload do PDF para S3
+        const fileName = `estudo-profissional-${project.id}-${Date.now()}.pdf`;
+        const { url } = await storagePut(
+          `reports/${fileName}`,
+          pdfBuffer,
+          "application/pdf"
+        );
+        
+        return {
+          success: true,
+          url,
+          fileName,
+        };
+      } catch (error) {
+        console.error("Erro ao gerar PDF profissional:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao gerar PDF profissional",
+        });
+      }
     }),
 });

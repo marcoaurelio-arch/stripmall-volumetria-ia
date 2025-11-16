@@ -829,3 +829,28 @@
 - [x] Adicionar botão "Exportar Excel" no dashboard
 - [x] Implementar download automático
 - [x] Adicionar nome do projeto no arquivo
+
+
+## GERAÇÃO DE PDF PROFISSIONAL (Estilo Piazza Nicomedes)
+
+### Análise do Material de Referência
+- [x] Analisar estrutura do PDF fornecido
+- [x] Identificar elementos-chave (capa, renders, plantas, dados técnicos)
+- [x] Documentar requisitos de layout e branding
+
+### Implementação do Gerador de PDF Profissional
+- [x] Criar serviço professionalPdfService.ts
+- [x] Implementar capa com imagem conceitual + logos + título
+- [x] Adicionar página de identidade com logo do projeto
+- [x] Gerar 6-8 renders 3D de diferentes ângulos (usa imagens existentes)
+- [x] Criar função para adicionar anotações de área nas imagens
+- [x] Instalar biblioteca Sharp para manipulação de imagens
+- [x] Sobrepor textos de metragem nos renders (ex: "180 m²")
+- [x] Adicionar marca d'água/logo em todas as páginas
+- [x] Melhorar plantas técnicas com escala gráfica e norte (usa plantas existentes)
+- [ ] Adicionar cotas e dimensões nas plantas (não implementado - baixa prioridade)
+- [x] Criar seção de dados técnicos e quadro de áreas
+- [x] Implementar paginação e numeração profissional
+- [x] Criar procedure tRPC para geração do PDF profissional
+- [x] Adicionar botão "Gerar PDF Profissional" na interface
+- [ ] Testar geração completa do documento (pendente)
