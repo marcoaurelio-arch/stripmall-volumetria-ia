@@ -409,3 +409,21 @@
 - [x] Criar função getAttachmentsByIds para buscar anexos
 - [x] Integrar imagens de referência na geração conceitual
 - [ ] Testar geração de estudos com diferentes imagens de referência
+
+## Campo de Upload de Arquivos de Inspiração
+- [x] Criar componente InspirationUpload com drag-and-drop
+- [x] Suportar upload múltiplo de imagens (PNG, JPG, JPEG)
+- [x] Exibir preview das imagens selecionadas antes do upload
+- [x] Permitir remover imagens da seleção antes de salvar
+- [x] Exibir contador de imagens selecionadas
+- [x] Validar tamanho máximo por imagem (16MB)
+- [x] Mostrar progresso de upload para cada imagem
+- [x] Indicador visual de status (uploading, uploaded, error)
+- [x] Adicionar campo no formulário de criação de projeto
+- [x] Fazer upload automático como anexos tipo "reference_image"
+- [x] Modificar mutation create para retornar projectId
+- [x] Implementar upload assíncrono após criar projeto
+- [ ] Adicionar campo no formulário de edição de projeto
+- [x] Testar integração com galeria de referências
+- [x] Verificar que campo aparece corretamente no formulário
+- [x] Confirmar que upload funciona após criar projeto

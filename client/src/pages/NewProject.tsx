@@ -11,6 +11,7 @@ import LocationPickerWithDrawing from "@/components/LocationPickerWithDrawing";
 import ScenarioManager from "@/components/ScenarioManager";
 import InspirationSelector from "@/components/InspirationSelector";
 import TemplateSelector from "@/components/TemplateSelector";
+import InspirationUpload from "@/components/InspirationUpload";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -41,6 +42,7 @@ export default function NewProject() {
   const [tempPolygon, setTempPolygon] = useState("");
   const [tempArea, setTempArea] = useState(0);
   const [selectedInspiration, setSelectedInspiration] = useState<any>(null);
+  const [inspirationFiles, setInspirationFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const parseKMZMutation = trpc.project.parseKMZ.useMutation({
@@ -84,8 +86,51 @@ export default function NewProject() {
   };
 
   const createMutation = trpc.project.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async (data) => {
       toast.success("Projeto criado com sucesso!");
+      
+      // Se houver imagens de inspiração, fazer upload
+      if (inspirationFiles.length > 0 && data.projectId) {
+        try {
+          const uploadPromises = inspirationFiles.map(async (file) => {
+            // Converter para base64
+            const base64Data = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                const result = reader.result as string;
+                const base64 = result.split(",")[1];
+                resolve(base64);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+
+            // Fazer upload
+            return fetch("/api/trpc/attachment.uploadAttachment", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                projectId: data.projectId,
+                fileName: file.name,
+                fileType: "reference_image",
+                mimeType: file.type,
+                fileSize: file.size,
+                fileData: base64Data,
+                description: "Imagem de inspiração",
+              }),
+            });
+          });
+
+          await Promise.all(uploadPromises);
+          toast.success(`${inspirationFiles.length} imagem(ns) de inspiração enviada(s)!`);
+        } catch (error) {
+          console.error("Erro ao enviar imagens de inspiração:", error);
+          toast.warning("Projeto criado, mas houve erro ao enviar algumas imagens");
+        }
+      }
+      
       setLocation("/projetos");
     },
     onError: (error) => {
@@ -241,6 +286,17 @@ export default function NewProject() {
                   <p className="text-xs text-muted-foreground">
                     Este briefing será usado pela IA para gerar estudos conceituais mais precisos e alinhados com suas necessidades
                   </p>
+                </div>
+
+                {/* Upload de Imagens de Inspiração */}
+                <div className="space-y-2">
+                  <Label>Imagens de Inspiração (Opcional)</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Adicione imagens de referência para personalizar os estudos volumétricos gerados pela IA
+                  </p>
+                  <InspirationUpload
+                    onFilesSelected={setInspirationFiles}
+                  />
                 </div>
 
                 {/* Seletor de Projeto de Inspiração */}

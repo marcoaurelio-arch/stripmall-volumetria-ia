@@ -54,13 +54,13 @@ export const projectRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      await db.createProject({
+      const projectId = await db.createProject({
         ...input,
         userId: ctx.user.id,
         status: "draft",
       });
       
-      return { success: true };
+      return { success: true, projectId };
     }),
 
   // Atualizar projeto
