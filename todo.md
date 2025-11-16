@@ -658,3 +658,15 @@
 - [ ] Integrar na aba de Estudos Visuais
 - [ ] Adicionar botão "Visualizar em 360°" nos estudos gerados
 - [ ] Testar em diferentes navegadores
+
+### Fase 2 - Dados de Mercado Imobiliário (Google Places + IBGE)
+- [x] Criar serviço marketAnalysisService.ts com integração Google Places API
+- [x] Buscar shopping centers e strip malls concorrentes num raio de 5km
+- [x] Integrar IBGE API para dados demográficos (população, renda média)
+- [x] Calcular score de potencial comercial da localização
+- [x] Criar router tRPC marketRouter.ts com procedures de análise
+- [x] Criar componente MarketAnalysisPanel.tsx com mapa de concorrência
+- [x] Exibir lista de concorrentes com distância e rating
+- [x] Exibir dados demográficos da região
+- [x] Adicionar nova aba "Análise de Mercado" na página de detalhes
+- [x] Testar integração completa

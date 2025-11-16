@@ -17,8 +17,9 @@ import CostAnalysisPanel from "@/components/CostAnalysisPanel";
 import ComplianceChecklistPanel from "@/components/ComplianceChecklistPanel";
 import SolarAnalysisPanel from "@/components/SolarAnalysisPanel";
 import ProjectVariationsPanel from "@/components/ProjectVariationsPanel";
+import MarketAnalysisPanel from "@/components/MarketAnalysisPanel";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -320,6 +321,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="variacoes" disabled={!latestAnalysis}>
               <Sparkles className="h-4 w-4 mr-2" />
               Variações de Projeto
+            </TabsTrigger>
+            <TabsTrigger value="mercado" disabled={!project.latitude || !project.longitude}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Análise de Mercado
             </TabsTrigger>
           </TabsList>
 
@@ -701,6 +706,31 @@ export default function ProjectDetail() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Acesse a aba "Análise Volumétrica" para gerar a análise inicial do projeto.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Análise de Mercado */}
+          <TabsContent value="mercado" className="space-y-6">
+            {project.latitude && project.longitude ? (
+              <MarketAnalysisPanel
+                projectId={projectId}
+                latitude={parseFloat(project.latitude)}
+                longitude={parseFloat(project.longitude)}
+              />
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Localização Não Definida</CardTitle>
+                  <CardDescription>
+                    Para realizar a análise de mercado, é necessário definir a localização do terreno (latitude e longitude).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Adicione um arquivo KMZ na aba "Dados do Terreno" ou preencha as coordenadas manualmente.
                   </p>
                 </CardContent>
               </Card>
