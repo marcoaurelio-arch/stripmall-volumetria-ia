@@ -15,8 +15,9 @@ import AttachmentManager from "@/components/AttachmentManager";
 import UrbanLegislationChecker from "@/components/UrbanLegislationChecker";
 import CostAnalysisPanel from "@/components/CostAnalysisPanel";
 import ComplianceChecklistPanel from "@/components/ComplianceChecklistPanel";
+import SolarAnalysisPanel from "@/components/SolarAnalysisPanel";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -310,6 +311,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="conformidade">
               <Scale className="h-4 w-4 mr-2" />
               Conformidade Legal
+            </TabsTrigger>
+            <TabsTrigger value="conforto">
+              <ThermometerSun className="h-4 w-4 mr-2" />
+              Conforto Ambiental
             </TabsTrigger>
           </TabsList>
 
@@ -637,6 +642,31 @@ export default function ProjectDetail() {
                 numberOfStores={latestAnalysis.numeroLojas || 0}
                 state={project.address ? project.address.split(",").slice(-1)[0]?.trim().split(" ")[0] : "SP"}
               />
+            )}
+          </TabsContent>
+
+          {/* Conforto Ambiental */}
+          <TabsContent value="conforto" className="space-y-6">
+            {project.latitude && project.longitude ? (
+              <SolarAnalysisPanel
+                projectId={projectId}
+                latitude={parseFloat(project.latitude)}
+                longitude={parseFloat(project.longitude)}
+              />
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Localização Não Definida</CardTitle>
+                  <CardDescription>
+                    Para realizar a análise de conforto ambiental, é necessário definir a localização do terreno (latitude e longitude).
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Adicione um arquivo KMZ na aba "Dados do Terreno" ou preencha as coordenadas manualmente.
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
         </Tabs>

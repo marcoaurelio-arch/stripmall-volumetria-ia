@@ -541,11 +541,15 @@
 - [x] Determinar melhor e pior orientação baseado em localização
 - [x] Adicionar recomendações específicas por orientação
 - [x] Criar procedure tRPC (solarRouter)
-- [ ] Criar componente SolarAnalysisPanel no frontend
-- [ ] Exibir gráficos de insolação ao longo do dia
-- [ ] Visualizar trajetória solar em diagrama
-- [ ] Adicionar aba de Conforto Ambiental na página de detalhes
-- [ ] Gerar relatório de conforto ambiental
+- [x] Criar componente SolarAnalysisPanel no frontend
+- [x] Exibir análise de orientações de fachadas com vantagens/desvantagens
+- [x] Exibir análise de conforto térmico por estação
+- [x] Exibir análise de ventilação natural
+- [x] Exibir resumo com melhor e pior orientação
+- [x] Adicionar aba de Conforto Ambiental na página de detalhes
+- [x] Implementar tabs (Orientações, Conforto, Ventilação, Resumo)
+- [ ] Visualizar trajetória solar em diagrama (gráfico)
+- [ ] Gerar relatório de conforto ambiental exportable
 
 ### IA para Variações de Projeto
 - [ ] Criar algoritmo de geração de variações volumétricas
