@@ -15,6 +15,12 @@ import axios from 'axios';
  * 6. Dados técnicos e quadro de áreas
  */
 
+export enum PdfTemplateStyle {
+  MODERN = 'modern',     // Layout arrojado, cores vibrantes, tipografia ousada
+  CLASSIC = 'classic',   // Layout tradicional, cores sóbrias, tipografia serifada
+  MINIMALIST = 'minimalist' // Muito espaço em branco, tipografia limpa, cores neutras
+}
+
 interface ProjectData {
   id: number;
   name: string;
@@ -26,6 +32,7 @@ interface ProjectData {
   vagasEstacionamento: number;
   logoUrl?: string | null; // Logo personalizado do projeto
   brandColor?: string | null; // Cor da marca em hex (#RRGGBB)
+  template?: PdfTemplateStyle; // Estilo do template
   images?: Array<{
     url: string;
     type: string;
@@ -115,12 +122,32 @@ async function addAreaAnnotations(
 }
 
 /**
- * Adiciona marca d'água em todas as páginas
+ * Adiciona marca d'água e logo no rodapé de todas as páginas
  */
-function addWatermark(doc: PDFKit.PDFDocument, text: string) {
+async function addWatermark(
+  doc: PDFKit.PDFDocument,
+  text: string,
+  logoUrl?: string | null
+) {
   const pageWidth = doc.page.width;
   const pageHeight = doc.page.height;
   
+  // Logo pequeno no canto inferior direito (se fornecido)
+  if (logoUrl) {
+    try {
+      const response = await axios.get(logoUrl, { responseType: 'arraybuffer' });
+      const logoBuffer = Buffer.from(response.data);
+      const logoSize = 30;
+      doc.image(logoBuffer, pageWidth - logoSize - 20, pageHeight - logoSize - 20, {
+        width: logoSize,
+        fit: [logoSize, logoSize]
+      });
+    } catch (error) {
+      console.error('Erro ao carregar logo para rodapé:', error);
+    }
+  }
+  
+  // Texto de marca d'água no canto superior direito
   doc.save();
   doc.opacity(0.3);
   doc.fontSize(10);
@@ -218,7 +245,7 @@ async function createCoverPage(
 /**
  * Cria página de identidade do projeto
  */
-function createIdentityPage(
+async function createIdentityPage(
   doc: PDFKit.PDFDocument,
   projectName: string
 ) {
@@ -248,7 +275,7 @@ function createIdentityPage(
     align: 'center'
   });
 
-  addWatermark(doc, 'Strip Mall Volumetria IA');
+  await addWatermark(doc, 'Strip Mall Volumetria IA');
 }
 
 /**
@@ -258,7 +285,8 @@ async function addRenderPage(
   doc: PDFKit.PDFDocument,
   imageUrl: string,
   title?: string,
-  annotations?: AreaAnnotation[]
+  annotations?: AreaAnnotation[],
+  logoUrl?: string | null
 ) {
   doc.addPage();
   
@@ -295,7 +323,7 @@ async function addRenderPage(
       doc.text(title.toUpperCase(), 20, 18);
     }
 
-    addWatermark(doc, 'Strip Mall Volumetria IA');
+    await addWatermark(doc, 'Strip Mall Volumetria IA', logoUrl);
   } catch (error) {
     console.error('Erro ao adicionar render:', error);
     // Página de erro
@@ -311,7 +339,7 @@ async function addRenderPage(
 /**
  * Adiciona página de dados técnicos
  */
-function addTechnicalDataPage(
+async function addTechnicalDataPage(
   doc: PDFKit.PDFDocument,
   project: ProjectData
 ) {
@@ -392,7 +420,7 @@ function addTechnicalDataPage(
   y += 20;
   doc.text(`Vagas de Estacionamento: ${project.vagasEstacionamento}`, margin, y);
 
-  addWatermark(doc, 'Strip Mall Volumetria IA');
+  await addWatermark(doc, 'Strip Mall Volumetria IA');
 }
 
 /**
@@ -423,7 +451,7 @@ export async function generateProfessionalPDF(
       await createCoverPage(doc, project.name, coverImage, project.logoUrl, project.brandColor);
 
       // 2. Página de identidade
-      createIdentityPage(doc, project.name);
+      await createIdentityPage(doc, project.name);
 
       // 3. Renders 3D (sem anotações)
       const renderTypes = [
@@ -438,7 +466,7 @@ export async function generateProfessionalPDF(
       for (const type of renderTypes) {
         const image = project.images?.find(img => img.type === type);
         if (image) {
-          await addRenderPage(doc, image.url);
+          await addRenderPage(doc, image.url, undefined, undefined, project.logoUrl);
         }
       }
 
@@ -459,7 +487,8 @@ export async function generateProfessionalPDF(
             doc,
             image.url,
             'ÁREA DE VITRINE / PELE DE VIDRO',
-            annotations
+            annotations,
+            project.logoUrl
           );
         }
       }
@@ -467,11 +496,11 @@ export async function generateProfessionalPDF(
       // 5. Plantas técnicas
       const sitePlan = project.images?.find(img => img.type === 'site_plan');
       if (sitePlan) {
-        await addRenderPage(doc, sitePlan.url, 'TÉRREO');
+        await addRenderPage(doc, sitePlan.url, 'TÉRREO', undefined, project.logoUrl);
       }
 
       // 6. Dados técnicos
-      addTechnicalDataPage(doc, project);
+      await addTechnicalDataPage(doc, project);
 
       doc.end();
     } catch (error) {

@@ -921,3 +921,36 @@
 - [ ] Adicionar cards com preview visual dos 3 templates
 - [ ] Implementar modal de seleção antes de exportar
 - [ ] Testar geração com cada template
+
+
+## IMPLEMENTAÇÃO DAS SUGESTÕES FINAIS
+
+### Sugestão 1: Testar Upload e Geração de PDF
+- [ ] Acessar projeto "Area Nicomedes Piazza"
+- [ ] Fazer upload de um logo de teste na aba "Dados Básicos"
+- [ ] Escolher cor da marca (ex: #FF6B35)
+- [ ] Clicar no botão "PDF Profissional"
+- [ ] Baixar e abrir PDF gerado
+- [ ] Verificar se logo aparece centralizado na capa
+- [ ] Verificar se cor da marca está aplicada em fundos e títulos
+- [ ] Documentar problemas encontrados
+
+### Sugestão 2: Sistema de Templates de PDF
+- [ ] Criar enum PdfTemplateStyle (modern, classic, minimalist)
+- [ ] Adicionar parâmetro template no procedure generateProfessionalPdf
+- [ ] Criar função generateModernPDF (cores vibrantes, layout arrojado)
+- [ ] Criar função generateClassicPDF (cores sóbrias, layout tradicional)
+- [ ] Criar função generateMinimalistPDF (muito espaço em branco, tipografia limpa)
+- [ ] Criar componente TemplateSelector.tsx
+- [ ] Adicionar 3 cards com preview visual dos templates
+- [ ] Implementar Dialog/Modal para seleção de template
+- [ ] Integrar modal no botão "PDF Profissional"
+- [ ] Testar geração com cada template
+
+### Sugestão 3: Logo no Rodapé
+- [x] Modificar função addWatermark no professionalPdfService
+- [x] Adicionar parâmetro logoUrl na função addWatermark
+- [x] Renderizar logo pequeno (30px) no canto inferior direito
+- [x] Aplicar em todas as páginas do PDF
+- [x] Manter texto de marca d'água ao lado do logo
+- [ ] Testar com e sem logo customizado (pendente)
