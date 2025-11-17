@@ -1168,3 +1168,32 @@
 - [ ] Implementar zoom em imagens geradas
 - [ ] Adicionar anotações e medidas nas imagens
 - [ ] Criar modo de apresentação fullscreen
+
+
+## TEMPLATES PRÉ-CONFIGURADOS DE STRIP MALLS
+
+### Funcionalidade 1: Biblioteca de Templates
+- [x] Criar schema de templates no banco de dados (já existia)
+- [x] Definir 7 tipos de templates (compacto, médio, grande, boulevard gastronômico, medical center, power center, neighborhood)
+- [x] Popular banco com templates pré-configurados (7 templates completos)
+- [x] Incluir métricas típicas (faixas de área, lojas, vagas, taxas)
+- [x] Adicionar características de cada template (âncoras, lojas complementares, público-alvo)
+
+### Funcionalidade 2: Seletor Visual de Templates
+- [x] Criar componente de seleção de templates com cards visuais
+- [x] Mostrar características principais (faixa de área, lojas, público)
+- [x] Adicionar descrição e casos de uso de cada template
+- [x] Implementar filtros por categoria (Todos, Conveniência, Varejo, Gastronomia, Saúde, Serviços)
+- [x] Integrar na página de novo projeto (já existia)
+- [x] Exibir âncoras sugeridas com badges
+- [ ] Adicionar imagens ilustrativas dos templates (pendente)
+
+### Funcionalidade 3: Auto-preenchimento de Parâmetros
+- [x] Criar função para aplicar template ao formulário (handleApplyTemplate)
+- [x] Auto-preencher área sugerida (média da faixa min-max)
+- [x] Sugerir taxa de ocupação e coeficiente de aproveitamento (médias)
+- [x] Preencher briefing com características do template
+- [x] Preencher recuos (frontal, lateral, fundos)
+- [x] Adicionar scroll automático para o formulário após seleção
+- [x] Personalização automática disponível (usuário pode editar campos)
+- [ ] Salvar template usado no projeto para referência (pendente)

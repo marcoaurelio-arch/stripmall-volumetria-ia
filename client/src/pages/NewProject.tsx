@@ -217,19 +217,40 @@ export default function NewProject() {
   };
 
   const handleApplyTemplate = (template: any) => {
+    // Calcular valores médios das faixas
+    const avgArea = template.minArea && template.maxArea 
+      ? Math.round((template.minArea + template.maxArea) / 2)
+      : template.typicalArea || "";
+    
+    const avgTaxaOcupacao = template.taxaOcupacaoMin && template.taxaOcupacaoMax
+      ? Math.round((template.taxaOcupacaoMin + template.taxaOcupacaoMax) / 2)
+      : template.defaultTaxaOcupacao || "";
+    
+    const avgCoeficiente = template.coeficienteMin && template.coeficienteMax
+      ? Math.round((template.coeficienteMin + template.coeficienteMax) / 2)
+      : template.defaultCoeficiente || "";
+    
     // Preencher formulário com dados do template
     setFormData({
       ...formData,
-      name: template.name,
+      name: `${template.name} - Novo Projeto`,
       description: template.description,
       briefing: template.briefingTemplate,
-      area: template.typicalArea?.toString() || "",
-      taxaOcupacao: template.defaultTaxaOcupacao?.toString() || "",
-      coeficienteAproveitamento: template.defaultCoeficiente?.toString() || "",
-      recuoFrontal: template.defaultRecuoFrontal?.toString() || "",
-      recuoLateral: template.defaultRecuoLateral?.toString() || "",
-      recuoFundos: template.defaultRecuoFundos?.toString() || "",
+      area: avgArea.toString(),
+      taxaOcupacao: avgTaxaOcupacao.toString(),
+      coeficienteAproveitamento: avgCoeficiente.toString(),
+      recuoFrontal: template.defaultRecuoFrontal?.toString() || "5",
+      recuoLateral: template.defaultRecuoLateral?.toString() || "3",
+      recuoFundos: template.defaultRecuoFundos?.toString() || "3",
     });
+    
+    // Scroll suave para o formulário
+    setTimeout(() => {
+      const formElement = document.querySelector('[data-form="project-info"]');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   if (authLoading) {
@@ -308,7 +329,7 @@ export default function NewProject() {
             <TemplateSelector onSelectTemplate={handleApplyTemplate} />
 
             {/* Informações Básicas */}
-            <Card>
+            <Card data-form="project-info">
               <CardHeader>
                 <CardTitle>Informações Básicas</CardTitle>
                 <CardDescription>Dados gerais do projeto</CardDescription>
