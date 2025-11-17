@@ -1041,3 +1041,37 @@
 - [ ] Adicionar agendamento periódico de atualização
 - [ ] Criar dashboard de monitoramento de importações
 - [ ] Testar sistema completo de atualização
+
+
+## GALERIA DE INSPIRAÇÃO, INTEGRAÇÃO IA E COMPARAÇÃO
+
+### Funcionalidade 1: Interface de Galeria de Inspiração
+- [x] Criar procedures tRPC para listar projetos com filtros
+- [x] Implementar filtros por região (estado)
+- [x] Implementar filtros por porte (área)
+- [x] Implementar filtros por categoria (strip_mall, open_mall, etc)
+- [x] Criar página dedicada /galeria-inspiracao
+- [x] Criar componente de grid de cards de projetos
+- [x] Exibir foto, nome, localização, área e lojas em cada card
+- [ ] Criar modal de detalhes com dados técnicos completos (não implementado)
+- [ ] Adicionar link no menu principal para a galeria (pendente)
+- [ ] Testar filtros e navegação (pendente)
+
+### Funcionalidade 2: Integração na Análise IA
+- [ ] Criar função para buscar projetos similares (mesmo porte e região)
+- [ ] Modificar prompts de geração de maquete eletrônica
+- [ ] Modificar prompts de geração de plantas baixas
+- [ ] Modificar prompts de geração de cortes
+- [ ] Incluir referências de projetos similares nos prompts
+- [ ] Adicionar contexto de mercado local baseado nos projetos
+- [ ] Testar geração com e sem referências
+
+### Funcionalidade 3: Comparação de Projetos
+- [ ] Criar componente de seleção múltipla de projetos
+- [ ] Implementar tabela comparativa lado a lado
+- [ ] Comparar ABL, número de lojas, vagas, âncoras
+- [ ] Adicionar cálculo de diferenças percentuais
+- [ ] Criar visualização de gráficos comparativos
+- [ ] Adicionar botão "Comparar" na galeria
+- [ ] Permitir exportação da comparação em PDF
+- [ ] Testar comparação com 2-3 projetos
