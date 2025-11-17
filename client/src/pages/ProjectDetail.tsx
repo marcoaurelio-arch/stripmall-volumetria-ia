@@ -21,6 +21,7 @@ import MarketAnalysisPanel from "@/components/MarketAnalysisPanel";
 import FlowSimulatorPanel from "@/components/FlowSimulatorPanel";
 import AdvancedFinancialDashboard from "@/components/AdvancedFinancialDashboard";
 import SavedScenariosPanel from "@/components/SavedScenariosPanel";
+import LogoUploader from "@/components/LogoUploader";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -520,6 +521,26 @@ export default function ProjectDetail() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Branding Personalizado */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Branding Personalizado</CardTitle>
+                <CardDescription>
+                  Adicione um logo e escolha uma cor para personalizar os PDFs profissionais
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LogoUploader
+                  projectId={project.id}
+                  currentLogoUrl={project.logoUrl}
+                  onLogoUploaded={() => {
+                    // Recarregar projeto após upload
+                    utils.project.get.invalidate({ id: projectId });
+                  }}
+                />
+              </CardContent>
+            </Card>
 
             {/* Gerenciador de Cenários */}
             <ScenarioManager

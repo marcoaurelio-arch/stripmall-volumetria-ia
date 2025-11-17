@@ -617,13 +617,15 @@ Responda APENAS com um JSON válido no seguinte formato:
         const projectData = {
           id: project.id,
           name: project.name,
-          address: project.address || '',
+          address: project.address || "Endereço não especificado",
           areaTotal: project.area,
-          taxaOcupacao: project.taxaOcupacao || 0.7,
-          coeficienteAproveitamento: project.coeficienteAproveitamento || 1.5,
+          taxaOcupacao: project.taxaOcupacao || 0,
+          coeficienteAproveitamento: (project.coeficienteAproveitamento || 0) / 100,
           numeroLojas: analysis?.numeroLojas || 0,
           vagasEstacionamento: analysis?.vagasEstacionamento || 0,
-          images: images.map((img: any) => ({
+          logoUrl: project.logoUrl,
+          brandColor: project.brandColor,
+          images: images.map(img => ({
             url: img.imageUrl,
             type: img.type,
           })),

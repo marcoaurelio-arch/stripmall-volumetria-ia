@@ -888,3 +888,36 @@
 - [ ] Adicionar modal de seleção de template antes de exportar
 - [ ] Implementar preview dos 3 estilos (cards com thumbnails)
 - [ ] Testar geração com cada template
+
+
+## INTEGRAÇÃO COMPLETA DE BRANDING E TEMPLATES
+
+### Fase 1: Integrar LogoUploader na Interface
+- [x] Adicionar LogoUploader na aba "Dados Básicos" do ProjectDetail
+- [x] Posicionar abaixo do campo de briefing
+- [x] Passar projectId e logoUrl atual como props
+- [x] Implementar callback onLogoUploaded para atualizar estado
+- [x] Adicionar campo de cor da marca (color picker)
+- [ ] Salvar brandColor junto com logoUrl no update do projeto (não implementado - baixa prioridade)
+- [ ] Testar upload e visualização de logo (pendente)
+
+### Fase 2: Atualizar Gerador de PDF
+- [x] Modificar professionalPdfService para receber logo e cor
+- [x] Buscar project.logoUrl do banco de dados
+- [x] Buscar project.brandColor do banco de dados
+- [x] Adicionar logo na capa do PDF (centralizado ou canto)
+- [ ] Adicionar logo no rodapé de todas as páginas (não implementado - baixa prioridade)
+- [x] Aplicar brandColor em elementos gráficos (faixas, títulos)
+- [x] Aplicar brandColor em bordas e destaques
+- [ ] Testar geração com e sem logo customizado (pendente)
+
+### Fase 3: Criar Sistema de Templates
+- [ ] Criar enum PdfTemplate (modern, classic, minimalist)
+- [ ] Implementar generateModernPDF (layout arrojado, cores vibrantes)
+- [ ] Implementar generateClassicPDF (layout tradicional, cores sóbrias)
+- [ ] Implementar generateMinimalistPDF (layout limpo, muito espaço em branco)
+- [ ] Adicionar parâmetro template no procedure generateProfessionalPDF
+- [ ] Criar componente TemplateSelector.tsx
+- [ ] Adicionar cards com preview visual dos 3 templates
+- [ ] Implementar modal de seleção antes de exportar
+- [ ] Testar geração com cada template

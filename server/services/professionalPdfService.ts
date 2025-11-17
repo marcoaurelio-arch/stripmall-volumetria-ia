@@ -24,6 +24,8 @@ interface ProjectData {
   coeficienteAproveitamento: number;
   numeroLojas: number;
   vagasEstacionamento: number;
+  logoUrl?: string | null; // Logo personalizado do projeto
+  brandColor?: string | null; // Cor da marca em hex (#RRGGBB)
   images?: Array<{
     url: string;
     type: string;
@@ -136,7 +138,9 @@ function addWatermark(doc: PDFKit.PDFDocument, text: string) {
 async function createCoverPage(
   doc: PDFKit.PDFDocument,
   projectName: string,
-  coverImageUrl?: string
+  coverImageUrl?: string,
+  logoUrl?: string | null,
+  brandColor?: string | null
 ) {
   const pageWidth = doc.page.width;
   const pageHeight = doc.page.height;
@@ -153,12 +157,12 @@ async function createCoverPage(
       });
     } catch (error) {
       console.error('Erro ao carregar imagem de capa:', error);
-      // Fundo gradiente azul como fallback
-      doc.rect(0, 0, pageWidth, pageHeight).fill('#0066CC');
+      // Fundo gradiente com cor da marca ou azul como fallback
+      doc.rect(0, 0, pageWidth, pageHeight).fill(brandColor || '#0066CC');
     }
   } else {
-    // Fundo gradiente azul
-    doc.rect(0, 0, pageWidth, pageHeight).fill('#0066CC');
+    // Fundo gradiente com cor da marca ou azul
+    doc.rect(0, 0, pageWidth, pageHeight).fill(brandColor || '#0066CC');
   }
 
   // Faixa branca translúcida para título
@@ -167,8 +171,23 @@ async function createCoverPage(
   doc.rect(0, pageHeight / 2 - 80, pageWidth, 160).fill('white');
   doc.restore();
 
+  // Logo do projeto (se fornecido)
+  if (logoUrl) {
+    try {
+      const response = await axios.get(logoUrl, { responseType: 'arraybuffer' });
+      const logoBuffer = Buffer.from(response.data);
+      const logoSize = 120;
+      doc.image(logoBuffer, (pageWidth - logoSize) / 2, pageHeight / 2 - 180, {
+        width: logoSize,
+        fit: [logoSize, logoSize]
+      });
+    } catch (error) {
+      console.error('Erro ao carregar logo:', error);
+    }
+  }
+
   // Título
-  doc.fillColor('#0066CC');
+  doc.fillColor(brandColor || '#0066CC');
   doc.fontSize(36);
   doc.font('Helvetica-Bold');
   doc.text('ESTUDO PRELIMINAR', 0, pageHeight / 2 - 50, {
@@ -401,7 +420,7 @@ export async function generateProfessionalPDF(
 
       // 1. Capa
       const coverImage = project.images?.find(img => img.type === 'aerial_view')?.url;
-      await createCoverPage(doc, project.name, coverImage);
+      await createCoverPage(doc, project.name, coverImage, project.logoUrl, project.brandColor);
 
       // 2. Página de identidade
       createIdentityPage(doc, project.name);
