@@ -1008,3 +1008,36 @@
 - [ ] Verificar se parâmetros sugeridos são realistas
 - [ ] Ajustar fórmulas se necessário
 - [ ] Criar checkpoint
+
+
+## EXPANSÃO DA GALERIA DE INSPIRAÇÃO
+
+### Fase 1: Pesquisa e Catalogação de Projetos Brasileiros
+- [ ] Pesquisar strip malls e open malls em São Paulo
+- [ ] Pesquisar strip malls e open malls no Rio de Janeiro
+- [ ] Pesquisar strip malls e open malls em Minas Gerais
+- [ ] Pesquisar strip malls e open malls em outras regiões
+- [ ] Coletar dados técnicos (área, número de lojas, vagas, ano)
+- [ ] Coletar informações de arquitetos e incorporadoras
+- [ ] Buscar imagens de alta qualidade dos projetos
+- [ ] Documentar características especiais de cada projeto
+- [ ] Organizar dados em planilha estruturada
+- [ ] Meta: catalogar 20-30 projetos reais
+
+### Fase 2: Seed Script para Popular Banco
+- [ ] Criar arquivo seed-inspiration-projects.ts
+- [ ] Implementar função de inserção em lote
+- [ ] Adicionar todos os projetos catalogados
+- [ ] Implementar upload de imagens para S3
+- [ ] Criar script executável via pnpm
+- [ ] Testar inserção no banco de dados
+- [ ] Verificar integridade dos dados inseridos
+
+### Fase 3: Sistema de Atualização Automática
+- [ ] Pesquisar APIs imobiliárias brasileiras disponíveis
+- [ ] Implementar web scraping de sites especializados
+- [ ] Criar procedure tRPC para importação automática
+- [ ] Implementar validação e deduplicação de dados
+- [ ] Adicionar agendamento periódico de atualização
+- [ ] Criar dashboard de monitoramento de importações
+- [ ] Testar sistema completo de atualização
