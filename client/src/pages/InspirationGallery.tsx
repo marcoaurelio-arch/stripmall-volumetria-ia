@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Building2, MapPin, Store, Square, Search, Filter, X, Calendar, Users, Car, Anchor, Briefcase, User } from "lucide-react";
+import { Building2, MapPin, Store, Square, Search, Filter, X, Calendar, Users, Car, Anchor, Briefcase, User, TrendingUp, Check } from "lucide-react";
+import ProjectComparison from "@/components/ProjectComparison";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation } from "wouter";
 
@@ -17,6 +19,8 @@ export default function InspirationGallery() {
   const [maxArea, setMaxArea] = useState<string>("");
   const [location, setLocation] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
   const [, navigate] = useLocation();
 
   const { data: projects, isLoading } = trpc.inspiration.list.useQuery({
@@ -41,6 +45,16 @@ export default function InspirationGallery() {
   };
 
   const hasFilters = search || category || minArea || maxArea || location;
+
+  const toggleProjectSelection = (projectId: number) => {
+    setSelectedForComparison(prev => 
+      prev.includes(projectId) 
+        ? prev.filter(id => id !== projectId)
+        : [...prev, projectId]
+    );
+  };
+
+  const selectedProjects = projects?.filter(p => selectedForComparison.includes(p.id)) || [];
 
   const handleUseAsReference = () => {
     if (selectedProject) {
@@ -181,12 +195,45 @@ export default function InspirationGallery() {
               {projects.map((project) => (
                 <Card 
                   key={project.id} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer group"
-                  onClick={() => setSelectedProjectId(project.id)}
+                  className={`hover:shadow-lg transition-all cursor-pointer group relative ${
+                    selectedForComparison.includes(project.id) ? "ring-2 ring-primary" : ""
+                  }`}
                 >
-                  {/* Imagem placeholder */}
-                  <div className="h-48 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-t-lg flex items-center justify-center relative overflow-hidden">
-                    <Building2 className="h-16 w-16 text-muted-foreground/30 group-hover:scale-110 transition-transform" />
+                  {/* Checkbox de seleção */}
+                  <div 
+                    className="absolute top-3 left-3 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleProjectSelection(project.id);
+                    }}
+                  >
+                    <div className="flex items-center space-x-2 bg-background/90 backdrop-blur-sm rounded-md p-2 shadow-sm">
+                      <Checkbox 
+                        checked={selectedForComparison.includes(project.id)}
+                        onCheckedChange={() => toggleProjectSelection(project.id)}
+                      />
+                      <label className="text-xs font-medium cursor-pointer">
+                        Comparar
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Imagem do projeto */}
+                  <div 
+                    className="h-48 rounded-t-lg flex items-center justify-center relative overflow-hidden"
+                    onClick={() => setSelectedProjectId(project.id)}
+                  >
+                    {project.mainImageUrl ? (
+                      <img 
+                        src={project.mainImageUrl} 
+                        alt={project.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                        <Building2 className="h-16 w-16 text-muted-foreground/30 group-hover:scale-110 transition-transform" />
+                      </div>
+                    )}
                     <div className="absolute top-3 right-3">
                       <Badge variant="secondary">
                         {project.category === "strip_mall" && "Strip Mall"}
@@ -205,7 +252,7 @@ export default function InspirationGallery() {
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent>
+                  <CardContent onClick={() => setSelectedProjectId(project.id)}>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground flex items-center gap-1">
@@ -414,6 +461,28 @@ export default function InspirationGallery() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Botão Flutuante de Comparação */}
+      {selectedForComparison.length >= 2 && (
+        <div className="fixed bottom-8 right-8 z-50">
+          <Button 
+            size="lg" 
+            className="shadow-2xl hover:shadow-3xl transition-all"
+            onClick={() => setShowComparison(true)}
+          >
+            <TrendingUp className="h-5 w-5 mr-2" />
+            Comparar {selectedForComparison.length} Projetos
+          </Button>
+        </div>
+      )}
+
+      {/* Modal de Comparação */}
+      {showComparison && selectedProjects.length >= 2 && (
+        <ProjectComparison 
+          projects={selectedProjects}
+          onClose={() => setShowComparison(false)}
+        />
+      )}
     </div>
   );
 }

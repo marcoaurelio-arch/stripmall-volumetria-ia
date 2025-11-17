@@ -164,6 +164,32 @@ VISUAL STYLE:
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
       
+      // Buscar projetos similares para enriquecer o prompt
+      const dbInstance = await db.getDb();
+      let similarProjectsContext = "";
+      if (dbInstance && project.area) {
+        const { inspirationProjects } = await import("../drizzle/schema");
+        const { and, gte, lte } = await import("drizzle-orm");
+        
+        const similarProjects = await dbInstance
+          .select()
+          .from(inspirationProjects)
+          .where(
+            and(
+              gte(inspirationProjects.area, Math.floor(project.area * 0.7)),
+              lte(inspirationProjects.area, Math.ceil(project.area * 1.3))
+            )
+          )
+          .limit(3);
+        
+        if (similarProjects.length > 0) {
+          const projectDescriptions = similarProjects.map(p => 
+            `${p.name}: ${p.area}m², ${p.storeCount} lojas`
+          ).join('; ');
+          similarProjectsContext = `\n\nREFERENCE PROJECTS (similar Brazilian strip malls for layout reference):\n${projectDescriptions}\nUse these as reference for typical store layouts and parking configurations.`;
+        }
+      }
+      
       // Analisar geometria do terreno se houver polígono
       let geometryInfo = "";
       if (project.polygonCoordinates) {
@@ -176,7 +202,7 @@ VISUAL STYLE:
         ? `\nProject requirements: ${project.briefing}` 
         : '';
       
-      const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center. 
+      const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center.${similarProjectsContext}
 Technical drawing with the following specifications:
 
 LAYOUT DETAILS:
@@ -477,6 +503,32 @@ Render as a clean architectural elevation study, similar to professional feasibi
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Buscar projetos similares
+      const dbInstance = await db.getDb();
+      let similarProjectsContext = "";
+      if (dbInstance && project.area) {
+        const { inspirationProjects } = await import("../drizzle/schema");
+        const { and, gte, lte } = await import("drizzle-orm");
+        
+        const similarProjects = await dbInstance
+          .select()
+          .from(inspirationProjects)
+          .where(
+            and(
+              gte(inspirationProjects.area, Math.floor(project.area * 0.7)),
+              lte(inspirationProjects.area, Math.ceil(project.area * 1.3))
+            )
+          )
+          .limit(3);
+        
+        if (similarProjects.length > 0) {
+          const projectDescriptions = similarProjects.map(p => 
+            `${p.name}: ${p.floors || 1} pavimentos`
+          ).join('; ');
+          similarProjectsContext = `\n\nREFERENCE PROJECTS (similar Brazilian strip malls):\n${projectDescriptions}`;
+        }
+      }
+      
       let geometryInfo = "";
       if (project.polygonCoordinates) {
         const geometry = analyzePolygonGeometry(project.polygonCoordinates);
@@ -485,7 +537,7 @@ Render as a clean architectural elevation study, similar to professional feasibi
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
 
-      const prompt = `Create a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.
+      const prompt = `Create a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
 
 ABNT TECHNICAL REQUIREMENTS:
 - Clean black and white technical drawing
@@ -543,6 +595,32 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Buscar projetos similares
+      const dbInstance = await db.getDb();
+      let similarProjectsContext = "";
+      if (dbInstance && project.area) {
+        const { inspirationProjects } = await import("../drizzle/schema");
+        const { and, gte, lte } = await import("drizzle-orm");
+        
+        const similarProjects = await dbInstance
+          .select()
+          .from(inspirationProjects)
+          .where(
+            and(
+              gte(inspirationProjects.area, Math.floor(project.area * 0.7)),
+              lte(inspirationProjects.area, Math.ceil(project.area * 1.3))
+            )
+          )
+          .limit(3);
+        
+        if (similarProjects.length > 0) {
+          const projectDescriptions = similarProjects.map(p => 
+            `${p.name}: ${p.floors || 1} pavimentos`
+          ).join('; ');
+          similarProjectsContext = `\n\nREFERENCE PROJECTS (similar Brazilian strip malls):\n${projectDescriptions}`;
+        }
+      }
+      
       let geometryInfo = "";
       if (project.polygonCoordinates) {
         const geometry = analyzePolygonGeometry(project.polygonCoordinates);
@@ -551,7 +629,7 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
 
-      const prompt = `Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.
+      const prompt = `Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
 
 ABNT TECHNICAL REQUIREMENTS:
 - Clean black and white technical drawing

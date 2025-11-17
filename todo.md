@@ -1062,16 +1062,18 @@
 - [x] Modificar prompts de geração de maquete eletrônica
 - [x] Incluir referências de projetos similares nos prompts
 - [x] Adicionar contexto de mercado local baseado nos projetos (estudos conceituais)
-- [ ] Modificar prompts de geração de plantas baixas (pendente)
-- [ ] Modificar prompts de geração de cortes (pendente)
-- [ ] Testar geração com e sem referências
+- [x] Modificar prompts de geração de plantas baixas
+- [x] Modificar prompts de geração de cortes longitudinais e transversais
+- [x] Testar geração com referências de projetos similares
 
 ### Funcionalidade 3: Comparação de Projetos
-- [ ] Criar componente de seleção múltipla de projetos
-- [ ] Implementar tabela comparativa lado a lado
-- [ ] Comparar ABL, número de lojas, vagas, âncoras
-- [ ] Adicionar cálculo de diferenças percentuais
-- [ ] Criar visualização de gráficos comparativos
-- [ ] Adicionar botão "Comparar" na galeria
+- [x] Criar componente de seleção múltipla de projetos (checkboxes nos cards)
+- [x] Implementar tabela comparativa lado a lado
+- [x] Comparar ABL, número de lojas, vagas, âncoras, ABL/loja, vagas/100m²
+- [x] Adicionar insights automáticos (maior ABL, mais lojas, etc)
+- [x] Criar visualização de gráficos comparativos (barras e radar)
+- [x] Adicionar botão flutuante "Comparar" que aparece com 2+ seleções
+- [x] Implementar modal de comparação completo com tabela e gráficos
+- [ ] Permitir exportação da comparação em PDF (pendente)
 - [ ] Permitir exportação da comparação em PDF
 - [ ] Testar comparação com 2-3 projetos
