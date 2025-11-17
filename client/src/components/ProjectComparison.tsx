@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
-import { Building2, Square, Store, Car, X, TrendingUp } from "lucide-react";
+import { Building2, Square, Store, Car, X, TrendingUp, FileDown } from "lucide-react";
+import { toast } from "sonner";
 
 interface InspirationProject {
   id: number;
@@ -86,6 +87,117 @@ export default function ProjectComparison({ projects, onClose }: ProjectComparis
 
   const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
 
+  const handleExportPDF = async () => {
+    try {
+      toast.info("Gerando PDF da compara\u00e7\u00e3o...");
+      
+      // Criar conteúdo HTML para o PDF
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #1e40af; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; }
+            h2 { color: #374151; margin-top: 30px; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { border: 1px solid #d1d5db; padding: 12px; text-align: left; }
+            th { background-color: #f3f4f6; font-weight: bold; }
+            tr:nth-child(even) { background-color: #f9fafb; }
+            .metric { font-weight: bold; color: #1f2937; }
+            .highlight { background-color: #dbeafe; }
+            .insights { background-color: #f0fdf4; padding: 15px; border-left: 4px solid #10b981; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <h1>Compara\u00e7\u00e3o de Projetos de Strip Mall</h1>
+          <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+          <p><strong>Projetos analisados:</strong> ${projects.length}</p>
+          
+          <h2>Tabela Comparativa</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>M\u00e9trica</th>
+                ${projectsWithMetrics.map(p => `<th>${p.name}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="metric">Localiza\u00e7\u00e3o</td>
+                ${projectsWithMetrics.map(p => `<td>${p.location}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="metric">Categoria</td>
+                ${projectsWithMetrics.map(p => `<td>${p.category === 'strip_mall' ? 'Strip Mall' : p.category === 'open_mall' ? 'Open Mall' : p.category === 'shopping_center' ? 'Shopping' : 'Convenience'}</td>`).join('')}
+              </tr>
+              <tr class="highlight">
+                <td class="metric">ABL (m\u00b2)</td>
+                ${projectsWithMetrics.map(p => `<td><strong>${p.area?.toLocaleString('pt-BR') || 'N/A'}</strong></td>`).join('')}
+              </tr>
+              <tr class="highlight">
+                <td class="metric">N\u00famero de Lojas</td>
+                ${projectsWithMetrics.map(p => `<td><strong>${p.storeCount || 'N/A'}</strong></td>`).join('')}
+              </tr>
+              <tr class="highlight">
+                <td class="metric">Vagas de Estacionamento</td>
+                ${projectsWithMetrics.map(p => `<td><strong>${p.parkingSpaces || 'N/A'}</strong></td>`).join('')}
+              </tr>
+              <tr>
+                <td class="metric">ABL por Loja (m\u00b2)</td>
+                ${projectsWithMetrics.map(p => `<td>${p.ablPerStore ? p.ablPerStore + ' m\u00b2' : 'N/A'}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="metric">Vagas por 100m\u00b2</td>
+                ${projectsWithMetrics.map(p => `<td>${p.parkingPer100m2 ? p.parkingPer100m2 + ' vagas' : 'N/A'}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="metric">Desenvolvedor</td>
+                ${projectsWithMetrics.map(p => `<td>${p.developer || 'N/A'}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="metric">Ano</td>
+                ${projectsWithMetrics.map(p => `<td>${p.year || 'N/A'}</td>`).join('')}
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="insights">
+            <h2>Insights da Compara\u00e7\u00e3o</h2>
+            <ul>
+              <li><strong>Maior ABL:</strong> ${projectsWithMetrics.reduce((max, p) => (p.area || 0) > (max.area || 0) ? p : max).name} (${Math.max(...projectsWithMetrics.map(p => p.area || 0)).toLocaleString('pt-BR')} m\u00b2)</li>
+              <li><strong>Mais Lojas:</strong> ${projectsWithMetrics.reduce((max, p) => (p.storeCount || 0) > (max.storeCount || 0) ? p : max).name} (${Math.max(...projectsWithMetrics.map(p => p.storeCount || 0))} lojas)</li>
+              <li><strong>Maior ABL/Loja:</strong> ${projectsWithMetrics.reduce((max, p) => (p.ablPerStore || 0) > (max.ablPerStore || 0) ? p : max).name} (${Math.max(...projectsWithMetrics.map(p => p.ablPerStore || 0))} m\u00b2/loja)</li>
+              <li><strong>Mais Vagas:</strong> ${projectsWithMetrics.reduce((max, p) => (p.parkingSpaces || 0) > (max.parkingSpaces || 0) ? p : max).name} (${Math.max(...projectsWithMetrics.map(p => p.parkingSpaces || 0))} vagas)</li>
+            </ul>
+          </div>
+          
+          <p style="margin-top: 40px; color: #6b7280; font-size: 12px; border-top: 1px solid #d1d5db; padding-top: 20px;">
+            Relat\u00f3rio gerado em ${new Date().toLocaleString('pt-BR')} | Strip Mall Volumetria IA
+          </p>
+        </body>
+        </html>
+      `;
+      
+      // Criar blob e fazer download
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `comparacao-projetos-${new Date().toISOString().split('T')[0]}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Relat\u00f3rio HTML exportado! Abra o arquivo e use 'Imprimir > Salvar como PDF' do navegador.");
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      toast.error("Erro ao gerar relat\u00f3rio");
+    }
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
@@ -100,9 +212,15 @@ export default function ProjectComparison({ projects, onClose }: ProjectComparis
                 Análise comparativa de {projects.length} projetos de strip mall
               </DialogDescription>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleExportPDF}>
+                <FileDown className="h-4 w-4 mr-2" />
+                Exportar PDF
+              </Button>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 

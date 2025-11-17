@@ -11,6 +11,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import Inspirations from "./pages/Inspirations";
 import InspirationDetail from "./pages/InspirationDetail";
 import InspirationGallery from "./pages/InspirationGallery";
+import AdminInspirationProjects from "./pages/AdminInspirationProjects";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/inspiracoes"} component={Inspirations} />
       <Route path={"/galeria-inspiracao"} component={InspirationGallery} />
       <Route path={"/inspirations/:id"} component={InspirationDetail} />
+      <Route path={"/admin/inspiracao"} component={AdminInspirationProjects} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
