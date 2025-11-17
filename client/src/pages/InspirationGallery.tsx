@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, MapPin, Store, Square, Search, Filter, X } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Building2, MapPin, Store, Square, Search, Filter, X, Calendar, Users, Car, Anchor, Briefcase, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocation } from "wouter";
 
 export default function InspirationGallery() {
   const [search, setSearch] = useState("");
@@ -14,6 +16,8 @@ export default function InspirationGallery() {
   const [minArea, setMinArea] = useState<string>("");
   const [maxArea, setMaxArea] = useState<string>("");
   const [location, setLocation] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [, navigate] = useLocation();
 
   const { data: projects, isLoading } = trpc.inspiration.list.useQuery({
     search: search || undefined,
@@ -22,6 +26,11 @@ export default function InspirationGallery() {
     maxArea: maxArea ? parseInt(maxArea) : undefined,
     location: location || undefined,
   });
+
+  const { data: selectedProject } = trpc.inspiration.getById.useQuery(
+    { id: selectedProjectId! },
+    { enabled: selectedProjectId !== null }
+  );
 
   const clearFilters = () => {
     setSearch("");
@@ -32,6 +41,18 @@ export default function InspirationGallery() {
   };
 
   const hasFilters = search || category || minArea || maxArea || location;
+
+  const handleUseAsReference = () => {
+    if (selectedProject) {
+      // Navegar para novo projeto com parâmetros pré-preenchidos
+      const params = new URLSearchParams({
+        referenceId: selectedProject.id.toString(),
+        area: selectedProject.area?.toString() || "",
+        storeCount: selectedProject.storeCount?.toString() || "",
+      });
+      navigate(`/novo-projeto?${params.toString()}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -158,7 +179,11 @@ export default function InspirationGallery() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (
-                <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <Card 
+                  key={project.id} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer group"
+                  onClick={() => setSelectedProjectId(project.id)}
+                >
                   {/* Imagem placeholder */}
                   <div className="h-48 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-t-lg flex items-center justify-center relative overflow-hidden">
                     <Building2 className="h-16 w-16 text-muted-foreground/30 group-hover:scale-110 transition-transform" />
@@ -229,6 +254,166 @@ export default function InspirationGallery() {
           </Card>
         )}
       </div>
+
+      {/* Modal de Detalhes */}
+      <Dialog open={selectedProjectId !== null} onOpenChange={(open) => !open && setSelectedProjectId(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {selectedProject && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl flex items-center gap-2">
+                  <Building2 className="h-6 w-6 text-primary" />
+                  {selectedProject.name}
+                </DialogTitle>
+                <DialogDescription className="flex items-center gap-2 text-base">
+                  <MapPin className="h-4 w-4" />
+                  {selectedProject.location}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Categoria e Ano */}
+                <div className="flex gap-2">
+                  <Badge variant="secondary" className="text-sm">
+                    {selectedProject.category === "strip_mall" && "Strip Mall"}
+                    {selectedProject.category === "open_mall" && "Open Mall"}
+                    {selectedProject.category === "shopping_center" && "Shopping Center"}
+                    {selectedProject.category === "neighborhood_center" && "Convenience Center"}
+                  </Badge>
+                  {selectedProject.year && (
+                    <Badge variant="outline" className="text-sm">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {selectedProject.year}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Descrição */}
+                {selectedProject.description && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Sobre o Projeto</h3>
+                    <p className="text-sm text-muted-foreground">{selectedProject.description}</p>
+                  </div>
+                )}
+
+                {/* Dados Técnicos Principais */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col items-center text-center">
+                        <Square className="h-8 w-8 text-primary mb-2" />
+                        <div className="text-2xl font-bold">{selectedProject.area?.toLocaleString("pt-BR")}</div>
+                        <div className="text-xs text-muted-foreground">m² ABL</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col items-center text-center">
+                        <Store className="h-8 w-8 text-primary mb-2" />
+                        <div className="text-2xl font-bold">{selectedProject.storeCount || "N/A"}</div>
+                        <div className="text-xs text-muted-foreground">Lojas</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col items-center text-center">
+                        <Car className="h-8 w-8 text-primary mb-2" />
+                        <div className="text-2xl font-bold">{selectedProject.parkingSpaces || "N/A"}</div>
+                        <div className="text-xs text-muted-foreground">Vagas</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col items-center text-center">
+                        <Users className="h-8 w-8 text-primary mb-2" />
+                        <div className="text-2xl font-bold">
+                          {selectedProject.area && selectedProject.storeCount 
+                            ? Math.round(selectedProject.area / selectedProject.storeCount)
+                            : "N/A"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">m²/loja</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Lojas Âncora */}
+                {selectedProject.anchors && (
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Anchor className="h-5 w-5 text-primary" />
+                      Lojas Âncora
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {JSON.parse(selectedProject.anchors).map((store: string, idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-sm">
+                          {store}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mix de Lojas */}
+                {selectedProject.features && (
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Store className="h-5 w-5 text-primary" />
+                      Características
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {JSON.parse(selectedProject.features).map((feature: string, idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-sm">
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Informações Adicionais */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedProject.developer && (
+                    <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                      <Briefcase className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <div className="text-sm font-medium">Desenvolvedor</div>
+                        <div className="text-sm text-muted-foreground">{selectedProject.developer}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedProject.architect && (
+                    <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                      <User className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <div className="text-sm font-medium">Arquiteto</div>
+                        <div className="text-sm text-muted-foreground">{selectedProject.architect}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Botão de Ação */}
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button onClick={handleUseAsReference} className="flex-1">
+                    Usar como Referência
+                  </Button>
+                  <Button variant="outline" onClick={() => setSelectedProjectId(null)}>
+                    Fechar
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

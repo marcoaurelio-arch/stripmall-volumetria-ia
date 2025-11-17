@@ -23,6 +23,32 @@ export const imageRouter = router({
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
       
+      // Buscar projetos similares para enriquecer o prompt
+      const dbInstance = await db.getDb();
+      let similarProjectsContext = "";
+      if (dbInstance && project.area) {
+        const { inspirationProjects } = await import("../drizzle/schema");
+        const { and, gte, lte } = await import("drizzle-orm");
+        
+        const similarProjects = await dbInstance
+          .select()
+          .from(inspirationProjects)
+          .where(
+            and(
+              gte(inspirationProjects.area, Math.floor(project.area * 0.7)),
+              lte(inspirationProjects.area, Math.ceil(project.area * 1.3))
+            )
+          )
+          .limit(3);
+        
+        if (similarProjects.length > 0) {
+          const projectDescriptions = similarProjects.map(p => 
+            `${p.name} (${p.location}): ${p.area}m², ${p.storeCount} lojas`
+          ).join('; ');
+          similarProjectsContext = `\n\nREFERENCE PROJECTS (similar Brazilian strip malls for architectural inspiration):\n${projectDescriptions}\nUse these as reference for architectural style, scale, and layout typical of Brazilian commercial centers.`;
+        }
+      }
+      
       // Analisar geometria do terreno e gerar imagem de referência
       let geometryInfo = "";
       let siteImageUrl = "";
@@ -45,7 +71,7 @@ export const imageRouter = router({
         ? `\nProject briefing and requirements: ${project.briefing}` 
         : '';
       
-      const prompt = `Photorealistic architectural rendering of a modern strip mall commercial center in Brazil. 
+      const prompt = `Photorealistic architectural rendering of a modern strip mall commercial center in Brazil.${similarProjectsContext}
 Hyper-realistic 3D visualization with the following specifications:
 
 BUILDING DETAILS:

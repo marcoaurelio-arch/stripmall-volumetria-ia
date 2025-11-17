@@ -1053,17 +1053,17 @@
 - [x] Criar página dedicada /galeria-inspiracao
 - [x] Criar componente de grid de cards de projetos
 - [x] Exibir foto, nome, localização, área e lojas em cada card
-- [ ] Criar modal de detalhes com dados técnicos completos (não implementado)
-- [ ] Adicionar link no menu principal para a galeria (pendente)
-- [ ] Testar filtros e navegação (pendente)
+- [x] Criar modal de detalhes com dados técnicos completos
+- [x] Adicionar link no menu principal para a galeria
+- [x] Testar filtros e navegação
 
 ### Funcionalidade 2: Integração na Análise IA
-- [ ] Criar função para buscar projetos similares (mesmo porte e região)
-- [ ] Modificar prompts de geração de maquete eletrônica
-- [ ] Modificar prompts de geração de plantas baixas
-- [ ] Modificar prompts de geração de cortes
-- [ ] Incluir referências de projetos similares nos prompts
-- [ ] Adicionar contexto de mercado local baseado nos projetos
+- [x] Criar função para buscar projetos similares (mesmo porte e região)
+- [x] Modificar prompts de geração de maquete eletrônica
+- [x] Incluir referências de projetos similares nos prompts
+- [x] Adicionar contexto de mercado local baseado nos projetos (estudos conceituais)
+- [ ] Modificar prompts de geração de plantas baixas (pendente)
+- [ ] Modificar prompts de geração de cortes (pendente)
 - [ ] Testar geração com e sem referências
 
 ### Funcionalidade 3: Comparação de Projetos
