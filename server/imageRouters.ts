@@ -71,30 +71,69 @@ export const imageRouter = router({
         ? `\nProject briefing and requirements: ${project.briefing}` 
         : '';
       
-      const prompt = `Photorealistic architectural rendering of a modern strip mall commercial center in Brazil.${similarProjectsContext}
-Hyper-realistic 3D visualization with the following specifications:
+      const prompt = `Ultra-realistic architectural rendering of a contemporary Brazilian strip mall commercial center.${similarProjectsContext}
+Professional real estate marketing visualization with the following specifications:
 
-BUILDING DETAILS:
-- ${analysis ? `${analysis.numeroLojas} retail units` : '8-12 retail units'} arranged in linear configuration
-- Contemporary facade with large glass storefronts and aluminum frames
-- Modern signage areas with LED lighting
-- Covered walkways with steel and glass canopies
+BUILDING ARCHITECTURE:
+- ${analysis ? `${analysis.numeroLojas} retail units` : '8-12 retail units'} in linear strip configuration
+- Contemporary Brazilian commercial architecture style
+- Large glass storefronts (floor-to-ceiling glazing) with slim aluminum frames
+- Modern ACM (Aluminum Composite Material) facade panels in neutral tones (white, gray, beige)
+- Individual storefront signage areas with LED backlighting
+- Covered pedestrian walkway with steel structure and polycarbonate/glass canopy
+- Flat or slightly sloped roof with concealed drainage system
 - Total built area: ${analysis?.areaMaximaConstruida || project.area}m²
+- Building height: single-story (4-5 meters)
 
-SITE LAYOUT:
-- Landscaped parking lot with ${analysis?.vagasEstacionamento || 'multiple'} marked parking spaces
-- Concrete paving with marked circulation paths
-- Green areas with native Brazilian trees and plants
-- Modern street lighting fixtures
+MATERIALS & FINISHES:
+- Facade: ACM panels, glass curtain walls, exposed concrete accents
+- Walkway: Polished concrete floor with expansion joints
+- Canopy: Powder-coated steel structure with transparent polycarbonate or tempered glass
+- Parking: Interlocking concrete pavers or asphalt with painted markings
+- Landscaping: Native Brazilian species (palm trees, ipe trees, ornamental grasses)
 
-VISUAL STYLE:
-- Aerial 3/4 perspective view showing entire complex
-- Golden hour lighting (late afternoon sun)
-- Clear blue sky with subtle clouds
-- Photorealistic materials: glass, concrete, steel, vegetation
-- Professional real estate marketing quality
-- 8K resolution, ray-traced lighting, depth of field
-- Camera: 24mm lens, f/2.8 aperture${geometryInfo}${briefingContext}`;
+SITE LAYOUT & CONTEXT:
+- ${analysis?.vagasEstacionamento || '40-60'} parking spaces in organized rows (90° or 45° angle)
+- Clear circulation lanes (3.5m wide) with directional arrows
+- Accessible parking spots near entrance (blue markings)
+- Pedestrian crosswalks with tactile paving
+- Perimeter landscaping with trees and shrubs
+- Modern LED street lighting poles (6-8m height)
+- Sidewalks with concrete pavers
+- Urban context: visible street, neighboring buildings in background, cars, people
+
+LIGHTING & ATMOSPHERE:
+- Time: Late afternoon (golden hour, 5-6 PM)
+- Sun angle: 30-40 degrees, casting long soft shadows
+- Sky: Clear blue with wispy cirrus clouds
+- Ambient occlusion and contact shadows for depth
+- Realistic reflections on glass and car surfaces
+- Warm sunlight on facade, cool shadows
+
+COMPOSITION & CAMERA:
+- Aerial 3/4 perspective view (bird's eye at 45° angle)
+- Camera height: 15-20 meters above ground
+- Focal length: 24mm wide-angle lens
+- Aperture: f/4 for balanced depth of field
+- Frame: Entire complex visible, including parking and surroundings
+- Rule of thirds composition
+
+REALISM DETAILS:
+- Parked cars (Brazilian models: Fiat, Chevrolet, Volkswagen, Toyota)
+- People walking, shopping (Brazilian demographics)
+- Shopping carts, store displays visible through glass
+- Realistic wear and weathering on materials
+- Proper scale and proportions
+- Accurate shadows and reflections
+- Natural color grading (not oversaturated)
+
+TECHNICAL QUALITY:
+- 8K resolution rendering
+- Physically-based rendering (PBR) materials
+- Ray-traced global illumination
+- Ambient occlusion
+- Depth of field with focal point on building
+- Professional color grading${geometryInfo}${briefingContext}`;
 
       try {
         // Buscar imagens de referência selecionadas
@@ -202,13 +241,21 @@ VISUAL STYLE:
         ? `\nProject requirements: ${project.briefing}` 
         : '';
       
-      const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center.${similarProjectsContext}
+      const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center following ABNT NBR 6492 standards.${similarProjectsContext}
 Technical drawing with the following specifications:
 
-LAYOUT DETAILS:
-- ${analysis?.numeroLojas || '8-12'} retail units in linear configuration
-- Each unit: glass storefront, sales area, storage, restroom
-- Total site area: ${project.area}m²
+BUILDING LAYOUT:
+- ${analysis?.numeroLojas || '8-12'} retail units in linear strip configuration
+- Each unit typical composition:
+  * Glass storefront entrance (3-4m wide)
+  * Sales floor area (60-120m² per unit)
+  * Storage/stock room (15-25% of sales area)
+  * Employee restroom (ADA compliant)
+  * Service entrance/loading area (rear access)
+- Covered pedestrian walkway (3-4m wide) along storefront
+- Common areas: central plaza, seating areas
+- Total built area: ${analysis?.areaMaximaConstruida || project.area}m²
+- Site area: ${project.area}m²
 - Built area: ${analysis?.areaMaximaConstruida || project.area * 0.6}m²
 - Parking: ${analysis?.vagasEstacionamento || 'multiple'} spaces with marked dimensions${geometryInfo}
 

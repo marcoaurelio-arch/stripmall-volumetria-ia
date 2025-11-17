@@ -63,6 +63,28 @@ export default function LocationPickerWithDrawing({
     }
   }, [initialPolygon]);
 
+  // Calcular perímetro do polígono
+  const calculatePerimeter = (path: Array<{lat: number, lng: number}>): number => {
+    if (!path || path.length < 2) return 0;
+    
+    const googleMaps = (window as any).google.maps;
+    let perimeter = 0;
+    
+    for (let i = 0; i < path.length; i++) {
+      const start = path[i];
+      const end = path[(i + 1) % path.length];
+      
+      const distance = googleMaps.geometry.spherical.computeDistanceBetween(
+        new googleMaps.LatLng(start.lat, start.lng),
+        new googleMaps.LatLng(end.lat, end.lng)
+      );
+      
+      perimeter += distance;
+    }
+    
+    return perimeter;
+  };
+  
   // Calcular área do polígono usando a biblioteca de geometria do Google Maps
   const calculatePolygonArea = (path: Array<{lat: number, lng: number}>): number => {
     if (!path || path.length < 3) return 0;
@@ -174,11 +196,91 @@ export default function LocationPickerWithDrawing({
       const newPolygon = new googleMaps.Polygon({
         paths: polygonPath,
         strokeColor: '#3b82f6',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
+        strokeOpacity: 0.9,
+        strokeWeight: 3,
         fillColor: '#3b82f6',
-        fillOpacity: 0.35,
+        fillOpacity: 0.25,
         map: mapRef.current,
+        editable: false,
+        draggable: false,
+      });
+      
+      // Adicionar marcadores nos vértices do polígono
+      polygonPath.forEach((point, index) => {
+        new googleMaps.Marker({
+          position: point,
+          map: mapRef.current,
+          label: {
+            text: `${index + 1}`,
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          },
+          icon: {
+            path: googleMaps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#3b82f6',
+            fillOpacity: 1,
+            strokeColor: 'white',
+            strokeWeight: 2,
+          },
+        });
+      });
+      
+      // Adicionar linhas de medida entre vértices
+      for (let i = 0; i < polygonPath.length; i++) {
+        const start = polygonPath[i];
+        const end = polygonPath[(i + 1) % polygonPath.length];
+        
+        // Calcular distância entre pontos
+        const distance = googleMaps.geometry.spherical.computeDistanceBetween(
+          new googleMaps.LatLng(start.lat, start.lng),
+          new googleMaps.LatLng(end.lat, end.lng)
+        );
+        
+        // Ponto médio para label
+        const midLat = (start.lat + end.lat) / 2;
+        const midLng = (start.lng + end.lng) / 2;
+        
+        // Adicionar label de distância
+        new googleMaps.Marker({
+          position: { lat: midLat, lng: midLng },
+          map: mapRef.current,
+          label: {
+            text: `${distance.toFixed(1)}m`,
+            color: '#1e40af',
+            fontSize: '11px',
+            fontWeight: 'bold'
+          },
+          icon: {
+            path: googleMaps.SymbolPath.CIRCLE,
+            scale: 0, // Invisível, apenas para mostrar o label
+          },
+        });
+      }
+      
+      // Adicionar indicador de Norte
+      const bounds = new googleMaps.LatLngBounds();
+      polygonPath.forEach(point => bounds.extend(point));
+      const center = bounds.getCenter();
+      
+      // Posicionar indicador de Norte no canto superior direito do polígono
+      const northLat = bounds.getNorthEast().lat();
+      const eastLng = bounds.getNorthEast().lng();
+      
+      new googleMaps.Marker({
+        position: { lat: northLat, lng: eastLng },
+        map: mapRef.current,
+        label: {
+          text: '↑ N',
+          color: '#dc2626',
+          fontSize: '16px',
+          fontWeight: 'bold'
+        },
+        icon: {
+          path: googleMaps.SymbolPath.CIRCLE,
+          scale: 0,
+        },
       });
 
       setPolygon(newPolygon);
@@ -262,15 +364,25 @@ export default function LocationPickerWithDrawing({
           </div>
         </div>
 
-        {/* Área calculada */}
+        {/* Área calculada e dimensões */}
         {calculatedArea !== null && (
-          <div className="mt-3 pt-3 border-t">
+          <div className="mt-3 pt-3 border-t space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Área calculada:</span>
+              <span className="text-sm text-muted-foreground">Área total:</span>
               <span className="text-lg font-bold text-primary">{calculatedArea.toLocaleString()} m²</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {polygonPath.length} pontos desenhados
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Vértices:</span>
+                <span className="font-medium">{polygonPath.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Perímetro:</span>
+                <span className="font-medium">{calculatePerimeter(polygonPath).toFixed(1)}m</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground italic">
+              ℹ️ Medidas exibidas nas arestas do polígono
             </p>
           </div>
         )}

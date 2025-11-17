@@ -1126,3 +1126,45 @@
 - [x] Adicionar análise de mix de âncoras mais comum (top 5)
 - [x] Adicionar rota /benchmarking e link no menu principal
 - [x] Usar dados da análise do projeto para comparação
+
+
+## MELHORIA DE EFEITOS VISUAIS E REALISMO
+
+### Funcionalidade 1: Visualização Aprimorada do Polígono do Terreno
+- [x] Adicionar marcadores numerados nos vértices do polígono
+- [x] Exibir medidas em metros em cada aresta do polígono
+- [x] Adicionar indicador de orientação Norte (↑ N) em vermelho
+- [x] Mostrar área total calculada em destaque
+- [x] Adicionar cálculo e exibição de perímetro
+- [x] Melhorar estilo visual (bordas grossas, transparência ajustada)
+- [ ] Adicionar visualização de recuos obrigatórios (pendente)
+- [ ] Implementar zoom e pan no mapa (já existe no Google Maps)
+
+### Funcionalidade 2: Prompts Enriquecidos para Geração de Imagens
+- [x] Adicionar detalhes de materiais (ACM, vidro, concreto, policarbonato)
+- [x] Incluir especificações de iluminação natural (golden hour, ângulo solar, sombras)
+- [x] Adicionar contexto urbano (ruas, vegetação nativa, carros brasileiros, pessoas)
+- [x] Especificar estilo arquitetônico brasileiro contemporâneo
+- [x] Incluir detalhes técnicos (estrutura, cobertura, fachada, dimensões)
+- [x] Adicionar referências de projetos similares nos prompts (já implementado)
+- [x] Especificar câmera, lente e composição (24mm, f/4, aerial 3/4 view)
+- [x] Adicionar padrões ABNT para plantas baixas (NBR 6492)
+
+### Funcionalidade 3: Visualização 3D Interativa
+- [x] Criar componente de visualização 3D com Three.js e React Three Fiber
+- [x] Renderizar polígono do terreno em 3D (verde, textura grama)
+- [x] Adicionar volumetria do projeto em 3D (edifício cinza com altura)
+- [x] Implementar controles de câmera (rotação, zoom, pan) com OrbitControls
+- [x] Adicionar sombras e iluminação realista (directional light, ambient, hemisphere)
+- [x] Incluir texturas básicas (grama verde, concreto cinza, estacionamento escuro)
+- [x] Adicionar grid de referência (linhas de 5m e 10m)
+- [x] Adicionar área de estacionamento (30% do terreno, asfalto escuro)
+- [x] Integrar na página de detalhes do projeto (nova tab "Visualização 3D")
+- [x] Exibir informações do projeto (altura, área, lojas, vagas)
+
+### Funcionalidade 4: Melhorias na Interface de Visualização
+- [ ] Criar galeria de imagens geradas com navegação
+- [ ] Adicionar comparação lado a lado (antes/depois)
+- [ ] Implementar zoom em imagens geradas
+- [ ] Adicionar anotações e medidas nas imagens
+- [ ] Criar modo de apresentação fullscreen

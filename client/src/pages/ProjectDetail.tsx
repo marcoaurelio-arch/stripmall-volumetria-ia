@@ -22,6 +22,7 @@ import FlowSimulatorPanel from "@/components/FlowSimulatorPanel";
 import AdvancedFinancialDashboard from "@/components/AdvancedFinancialDashboard";
 import SavedScenariosPanel from "@/components/SavedScenariosPanel";
 import LogoUploader from "@/components/LogoUploader";
+import Terrain3DViewer from "@/components/Terrain3DViewer";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -415,6 +416,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="fluxo" disabled={!latestAnalysis}>
               <Users className="h-4 w-4 mr-2" />
               Simulação de Fluxo
+            </TabsTrigger>
+            <TabsTrigger value="3d">
+              <Eye className="h-4 w-4 mr-2" />
+              Visualização 3D
             </TabsTrigger>
           </TabsList>
 
@@ -850,6 +855,57 @@ export default function ProjectDetail() {
           {/* Simulação de Fluxo */}
           <TabsContent value="fluxo" className="space-y-6">
             <FlowSimulatorPanel projectId={projectId} />
+          </TabsContent>
+          
+          {/* Visualização 3D */}
+          <TabsContent value="3d" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Visualização 3D do Terreno e Volumetria</CardTitle>
+                <CardDescription>
+                  Visualização interativa em 3D do terreno, estacionamento e volumetria do projeto.
+                  Use o mouse para rotacionar, zoom e navegar.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Terrain3DViewer 
+                  polygonCoordinates={project.polygonCoordinates || undefined}
+                  buildingFootprint={latestAnalysis?.areaMaximaConstruida || project.area}
+                  buildingHeight={latestAnalysis?.volumetriaHeight || 5}
+                  parkingSpaces={latestAnalysis?.vagasEstacionamento || 40}
+                />
+                
+                <div className="mt-4 p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">Controles:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• <strong>Rotacionar:</strong> Botão esquerdo do mouse + arrastar</li>
+                    <li>• <strong>Zoom:</strong> Roda do mouse</li>
+                    <li>• <strong>Pan:</strong> Botão direito do mouse + arrastar</li>
+                  </ul>
+                  
+                  {latestAnalysis && (
+                    <div className="mt-3 pt-3 border-t grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <div className="text-muted-foreground">Altura:</div>
+                        <div className="font-semibold">{latestAnalysis.volumetriaHeight || 5}m</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Área Construída:</div>
+                        <div className="font-semibold">{latestAnalysis.areaMaximaConstruida?.toLocaleString()}m²</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Lojas:</div>
+                        <div className="font-semibold">{latestAnalysis.numeroLojas}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Vagas:</div>
+                        <div className="font-semibold">{latestAnalysis.vagasEstacionamento}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
