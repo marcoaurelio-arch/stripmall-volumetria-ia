@@ -163,6 +163,8 @@ export const inspirationProjects = mysqlTable("inspirationProjects", {
   segment: mysqlEnum("segment", ["popular", "medio", "alto_padrao"]).default("medio").notNull(),
   
   // Localização geográfica
+  region: mysqlEnum("region", ["norte", "nordeste", "centro_oeste", "sudeste", "sul"]),
+  state: varchar("state", { length: 2 }), // Sigla do estado (MG, SP, RJ, etc)
   latitude: varchar("latitude", { length: 50 }),
   longitude: varchar("longitude", { length: 50 }),
   

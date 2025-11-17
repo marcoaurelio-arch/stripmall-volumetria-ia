@@ -18,6 +18,8 @@ export const inspirationRouter = router({
         category: z.enum(["strip_mall", "open_mall", "shopping_center", "neighborhood_center"]).optional(),
         segment: z.enum(["popular", "medio", "alto_padrao"]).optional(),
         location: z.string().optional(), // Busca por cidade/estado
+        region: z.enum(["norte", "nordeste", "centro_oeste", "sudeste", "sul"]).optional(),
+        state: z.string().optional(), // Sigla do estado (MG, SP, RJ, etc)
         minArea: z.number().optional(),
         maxArea: z.number().optional(),
         minStores: z.number().optional(),
@@ -57,6 +59,14 @@ export const inspirationRouter = router({
       
       if (input?.location) {
         conditions.push(like(inspirationProjects.location, `%${input.location}%`));
+      }
+      
+      if (input?.region) {
+        conditions.push(eq(inspirationProjects.region, input.region));
+      }
+      
+      if (input?.state) {
+        conditions.push(eq(inspirationProjects.state, input.state));
       }
       
       if (input?.minArea !== undefined) {

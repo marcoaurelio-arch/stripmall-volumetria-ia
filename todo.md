@@ -1103,3 +1103,26 @@
 - [x] Criar guia de uso com sugestões de associação
 - [x] Documentar URLs locais e processo de atualização
 - [ ] Atualizar banco de dados com URLs (pendente - usar painel admin)
+
+
+## PRÓXIMOS PASSOS (Fase 4)
+
+### Funcionalidade 1: Associar Imagens aos Projetos
+- [x] Atualizar banco de dados com URLs locais das imagens (IDs 1-7)
+- [x] Verificar associação correta de cada imagem ao projeto
+- [x] Testar visualização na galeria
+
+### Funcionalidade 2: Filtro por Região Geográfica
+- [x] Adicionar campo de região/estado ao schema de projetos (region, state)
+- [x] Criar dropdown de filtro por região na galeria (Norte, Nordeste, Centro-Oeste, Sudeste, Sul)
+- [x] Implementar lógica de filtragem por região no backend
+- [x] Atualizar projetos existentes com suas regiões (Sudeste/MG)
+
+### Funcionalidade 3: Dashboard de Benchmarking
+- [x] Criar página de dashboard de benchmarking
+- [x] Implementar busca de projetos similares (mesma categoria e porte)
+- [x] Calcular médias de ABL/loja, vagas/100m², etc
+- [x] Criar gráficos comparativos (projeto vs média) - barras e radar
+- [x] Adicionar análise de mix de âncoras mais comum (top 5)
+- [x] Adicionar rota /benchmarking e link no menu principal
+- [x] Usar dados da análise do projeto para comparação

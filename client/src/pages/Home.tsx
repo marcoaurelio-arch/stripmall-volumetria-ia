@@ -26,6 +26,9 @@ export default function Home() {
                 <Link href="/galeria-inspiracao">
                   <Button variant="ghost">Galeria de Inspiração</Button>
                 </Link>
+                <Link href="/benchmarking">
+                  <Button variant="ghost">Benchmarking</Button>
+                </Link>
                 <Link href="/projetos">
                   <Button variant="ghost">Meus Projetos</Button>
                 </Link>

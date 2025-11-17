@@ -18,6 +18,7 @@ export default function InspirationGallery() {
   const [minArea, setMinArea] = useState<string>("");
   const [maxArea, setMaxArea] = useState<string>("");
   const [location, setLocation] = useState("");
+  const [region, setRegion] = useState<string>("");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -29,6 +30,7 @@ export default function InspirationGallery() {
     minArea: minArea ? parseInt(minArea) : undefined,
     maxArea: maxArea ? parseInt(maxArea) : undefined,
     location: location || undefined,
+    region: region as any || undefined,
   });
 
   const { data: selectedProject } = trpc.inspiration.getById.useQuery(
@@ -42,9 +44,10 @@ export default function InspirationGallery() {
     setMinArea("");
     setMaxArea("");
     setLocation("");
+    setRegion("");
   };
 
-  const hasFilters = search || category || minArea || maxArea || location;
+  const hasFilters = search || category || minArea || maxArea || location || region;
 
   const toggleProjectSelection = (projectId: number) => {
     setSelectedForComparison(prev => 
@@ -102,7 +105,7 @@ export default function InspirationGallery() {
             <CardDescription>Refine sua busca por categoria, localização ou porte</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               {/* Busca por texto */}
               <div className="lg:col-span-2">
                 <label className="text-sm font-medium mb-2 block">Buscar</label>
@@ -130,6 +133,24 @@ export default function InspirationGallery() {
                     <SelectItem value="open_mall">Open Mall</SelectItem>
                     <SelectItem value="shopping_center">Shopping Center</SelectItem>
                     <SelectItem value="neighborhood_center">Convenience Center</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Região */}
+              <div>
+                <label className="text-sm font-medium mb-2 block">Região</label>
+                <Select value={region} onValueChange={setRegion}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todas</SelectItem>
+                    <SelectItem value="norte">Norte</SelectItem>
+                    <SelectItem value="nordeste">Nordeste</SelectItem>
+                    <SelectItem value="centro_oeste">Centro-Oeste</SelectItem>
+                    <SelectItem value="sudeste">Sudeste</SelectItem>
+                    <SelectItem value="sul">Sul</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
