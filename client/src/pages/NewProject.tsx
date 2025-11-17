@@ -12,6 +12,7 @@ import ScenarioManager from "@/components/ScenarioManager";
 import InspirationSelector from "@/components/InspirationSelector";
 import TemplateSelector from "@/components/TemplateSelector";
 import InspirationUpload from "@/components/InspirationUpload";
+import ScenarioSelector from "@/components/ScenarioSelector";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
@@ -279,6 +280,30 @@ export default function NewProject() {
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-6">
+            {/* Seletor de Cenário por Área */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Seletor de Cenário</CardTitle>
+                <CardDescription>
+                  Escolha um cenário baseado na área do terreno para preencher automaticamente os parâmetros urbanísticos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScenarioSelector
+                  onSelectScenario={(scenario) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      taxaOcupacao: scenario.taxaOcupacao.toString(),
+                      coeficienteAproveitamento: scenario.coeficienteAproveitamento.toString(),
+                      recuoFrontal: scenario.recuoFrontal.toString(),
+                      recuoLateral: scenario.recuoLateral.toString(),
+                      recuoFundos: scenario.recuoFundos.toString(),
+                    }));
+                  }}
+                />
+              </CardContent>
+            </Card>
+
             {/* Seletor de Template */}
             <TemplateSelector onSelectTemplate={handleApplyTemplate} />
 

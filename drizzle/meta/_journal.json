@@ -141,6 +141,13 @@
       "when": 1763337174521,
       "tag": "0019_parallel_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1763340612725,
+      "tag": "0020_high_wild_child",
+      "breakpoints": true
     }
   ]
 }

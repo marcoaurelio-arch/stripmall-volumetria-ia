@@ -213,6 +213,21 @@ export const projectTemplates = mysqlTable("projectTemplates", {
   // Imagem de referência
   imageUrl: text("imageUrl"),
   
+  // Faixa de área (para templates de porte)
+  minArea: int("minArea"), // Área mínima em m²
+  maxArea: int("maxArea"), // Área máxima em m²
+  
+  // Parâmetros para cenários (Conservador/Balanceado/Otimista)
+  taxaOcupacaoMin: int("taxaOcupacaoMin"), // Taxa de ocupação mínima em %
+  taxaOcupacaoMax: int("taxaOcupacaoMax"), // Taxa de ocupação máxima em %
+  coeficienteMin: int("coeficienteMin"), // Coeficiente mínimo * 100 (ex: 80 = 0.8)
+  coeficienteMax: int("coeficienteMax"), // Coeficiente máximo * 100 (ex: 120 = 1.2)
+  numeroLojasMin: int("numeroLojasMin"), // Número mínimo de lojas
+  numeroLojasMax: int("numeroLojasMax"), // Número máximo de lojas
+  m2PorVagaMin: int("m2PorVagaMin"), // m² de ABL por vaga (mínimo)
+  m2PorVagaMax: int("m2PorVagaMax"), // m² de ABL por vaga (máximo)
+  alturaMaxima: int("alturaMaxima"), // Altura máxima em metros
+  
   // Metadados
   isActive: int("isActive").default(1).notNull(), // 0 = inativo, 1 = ativo
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -449,3 +464,4 @@ export const financialProjections = mysqlTable("financialProjections", {
 
 export type FinancialProjection = typeof financialProjections.$inferSelect;
 export type InsertFinancialProjection = typeof financialProjections.$inferInsert;
+

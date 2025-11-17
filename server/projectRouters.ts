@@ -9,6 +9,7 @@ import { generateProjectReport } from "./pdfGenerator";
 import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS } from "./financialCalculator";
 import { calcularAnaliseFinanceiraAvancada } from "./services/advancedFinancialService";
 import { generateProfessionalPDF } from "./services/professionalPdfService";
+import { generateScenarioSuggestions } from "./services/projectTemplateService";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -660,5 +661,12 @@ Responda APENAS com um JSON válido no seguinte formato:
           message: "Erro ao gerar PDF profissional",
         });
       }
+    }),
+
+  // Obter sugestões de cenários baseadas na área do terreno
+  getScenarioSuggestions: protectedProcedure
+    .input(z.object({ areaTerreno: z.number().min(1000).max(15000) }))
+    .query(({ input }) => {
+      return generateScenarioSuggestions(input.areaTerreno);
     }),
 });

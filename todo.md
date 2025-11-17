@@ -954,3 +954,57 @@
 - [x] Aplicar em todas as páginas do PDF
 - [x] Manter texto de marca d'água ao lado do logo
 - [ ] Testar com e sem logo customizado (pendente)
+
+
+## TEMPLATES DE CENÁRIOS PARA NOVOS PROJETOS
+
+### Fase 1: Definir Templates por Faixa de Área
+- [ ] Definir 5 faixas de área (Pequeno: 1.000-3.000m², Médio: 3.000-6.000m², Grande: 6.000-10.000m², Extra Grande: 10.000-15.000m²)
+- [ ] Calcular parâmetros típicos para cada faixa:
+  - Taxa de ocupação recomendada
+  - Coeficiente de aproveitamento
+  - Número de lojas sugerido
+  - Vagas de estacionamento (1 vaga / 25-30m²)
+  - Recuos típicos
+  - Altura sugerida (1-2 pavimentos)
+- [ ] Documentar premissas e referências de mercado
+
+### Fase 2: Schema e Banco de Dados
+- [ ] Criar tabela projectTemplates no schema
+- [ ] Campos: id, name, minArea, maxArea, taxaOcupacao, coeficiente, numeroLojas, vagasPorM2, recuoFrontal, recuoLateral, recuoFundos, alturaMaxima, description
+- [ ] Executar pnpm db:push para aplicar mudanças
+- [ ] Popular tabela com 5 templates iniciais via seed script
+
+### Fase 3: Serviço de Sugestão Automática
+- [ ] Criar projectTemplateService.ts
+- [ ] Função getTemplateByArea(area: number) que retorna template adequado
+- [ ] Função calculateSuggestedParams(area: number, template) que calcula todos os parâmetros
+- [ ] Criar procedure tRPC getProjectSuggestions(area: number)
+- [ ] Retornar objeto completo com todos os parâmetros sugeridos
+
+### Fase 4: Componente de Seleção de Template
+- [ ] Criar componente ProjectTemplateSelector.tsx
+- [ ] Input de área do terreno (m²)
+- [ ] Exibir template recomendado automaticamente
+- [ ] Cards com 3 opções: Conservador, Balanceado, Otimista
+- [ ] Cada card mostra: número de lojas, vagas, taxa ocupação, coeficiente
+- [ ] Botão "Usar Este Cenário" que preenche formulário
+
+### Fase 5: Integração no Formulário
+- [ ] Adicionar ProjectTemplateSelector no início do NewProject.tsx
+- [ ] Ao selecionar template, preencher automaticamente:
+  - Taxa de ocupação
+  - Coeficiente de aproveitamento
+  - Número de lojas estimado
+  - Vagas de estacionamento
+  - Recuos
+- [ ] Permitir edição manual após aplicar template
+- [ ] Adicionar tooltip explicando cada parâmetro
+
+### Fase 6: Testes e Validação
+- [ ] Testar criação de projeto com área de 2.000m² (Pequeno)
+- [ ] Testar criação de projeto com área de 5.000m² (Médio)
+- [ ] Testar criação de projeto com área de 12.000m² (Extra Grande)
+- [ ] Verificar se parâmetros sugeridos são realistas
+- [ ] Ajustar fórmulas se necessário
+- [ ] Criar checkpoint
