@@ -25,6 +25,61 @@ export default function ProjectVariationsPanel(props: ProjectVariationsPanelProp
   const [selectedVariationId, setSelectedVariationId] = useState<string | null>(null);
   const [compareMode, setCompareMode] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [generatingFloorplans, setGeneratingFloorplans] = useState<Set<string>>(new Set());
+  const [variationFloorplans, setVariationFloorplans] = useState<Map<string, string>>(new Map());
+
+  const utils = trpc.useUtils();
+
+  const generateFloorplanMutation = trpc.image.generateVariationFloorplan.useMutation({
+    onSuccess: (data, variables) => {
+      toast.success("Planta baixa gerada com sucesso!");
+      setVariationFloorplans(prev => new Map(prev).set(data.variationId, data.imageUrl));
+      setGeneratingFloorplans(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(variables.variationData.id);
+        return newSet;
+      });
+      // Invalidar query de listagem de imagens
+      utils.image.listVariationFloorplans.invalidate({ projectId: props.projectId });
+    },
+    onError: (error, variables) => {
+      toast.error("Erro ao gerar planta: " + error.message);
+      setGeneratingFloorplans(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(variables.variationData.id);
+        return newSet;
+      });
+    },
+  });
+
+  const handleGenerateFloorplan = (variation: any) => {
+    setGeneratingFloorplans(prev => new Set(prev).add(variation.id));
+    generateFloorplanMutation.mutate({
+      projectId: props.projectId,
+      variationData: variation,
+    });
+  };
+
+  const handleGenerateAllFloorplans = () => {
+    if (!result) return;
+    
+    // Filtrar apenas variações que ainda não têm planta
+    const variationsWithoutFloorplan = result.variations.filter(
+      v => !variationFloorplans.has(v.id) && !generatingFloorplans.has(v.id)
+    );
+
+    if (variationsWithoutFloorplan.length === 0) {
+      toast.info("Todas as plantas já foram geradas!");
+      return;
+    }
+
+    toast.info(`Gerando ${variationsWithoutFloorplan.length} plantas baixas...`);
+    
+    // Gerar todas as plantas sequencialmente
+    variationsWithoutFloorplan.forEach(variation => {
+      handleGenerateFloorplan(variation);
+    });
+  };
 
   const generateMutation = trpc.variations.generate.useMutation({
     onSuccess: (data) => {
@@ -225,13 +280,47 @@ export default function ProjectVariationsPanel(props: ProjectVariationsPanelProp
                           </div>
                           <Progress value={variation.scores.overall} className="h-2" />
                         </div>
+
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGenerateFloorplan(variation);
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2"
+                          disabled={generatingFloorplans.has(variation.id)}
+                        >
+                          {generatingFloorplans.has(variation.id) ? (
+                            <>
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                              Gerando Planta...
+                            </>
+                          ) : (
+                            "Gerar Planta Baixa"
+                          )}
+                        </Button>
                       </CardContent>
                     </Card>
                   );
                 })}
               </div>
 
-              <div className="flex justify-center pt-4">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
+                <Button 
+                  onClick={handleGenerateAllFloorplans}
+                  variant="default"
+                  disabled={generatingFloorplans.size > 0 || result.variations.every(v => variationFloorplans.has(v.id))}
+                >
+                  {generatingFloorplans.size > 0 ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Gerando {generatingFloorplans.size} Plantas...
+                    </>
+                  ) : (
+                    "Gerar Todas as Plantas"
+                  )}
+                </Button>
                 <Button onClick={handleGenerate} variant="outline" disabled={generateMutation.isPending}>
                   {generateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Gerar Novas Variações
@@ -388,6 +477,52 @@ export default function ProjectVariationsPanel(props: ProjectVariationsPanelProp
                           ))}
                         </ul>
                       </div>
+
+                      {/* Planta Baixa Gerada */}
+                      {variationFloorplans.has(selectedVariation.id) && (
+                        <div className="space-y-3 pt-4 border-t">
+                          <h4 className="font-semibold text-sm">Planta Baixa Gerada</h4>
+                          <div className="rounded-lg overflow-hidden border">
+                            <img
+                              src={variationFloorplans.get(selectedVariation.id)}
+                              alt={`Planta baixa - ${selectedVariation.name}`}
+                              className="w-full h-auto"
+                            />
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              const url = variationFloorplans.get(selectedVariation.id);
+                              if (url) window.open(url, '_blank');
+                            }}
+                          >
+                            Abrir Planta em Nova Aba
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Botão para gerar planta se ainda não foi gerada */}
+                      {!variationFloorplans.has(selectedVariation.id) && (
+                        <div className="pt-4 border-t">
+                          <Button
+                            onClick={() => handleGenerateFloorplan(selectedVariation)}
+                            variant="default"
+                            className="w-full"
+                            disabled={generatingFloorplans.has(selectedVariation.id)}
+                          >
+                            {generatingFloorplans.has(selectedVariation.id) ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Gerando Planta Baixa...
+                              </>
+                            ) : (
+                              "Gerar Planta Baixa desta Variação"
+                            )}
+                          </Button>
+                        </div>
+                      )}
 
                       {/* Informações Técnicas */}
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t">

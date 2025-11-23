@@ -860,4 +860,118 @@ ${layoutDescription}`;
 
       return { imageUrl };
     }),
+
+  // Gerar planta baixa de uma variação específica
+  generateVariationFloorplan: protectedProcedure
+    .input(z.object({ 
+      projectId: z.number(),
+      variationData: z.object({
+        id: z.string(),
+        name: z.string(),
+        description: z.string(),
+        numberOfStores: z.number(),
+        storeConfiguration: z.object({
+          small: z.number(),
+          medium: z.number(),
+          large: z.number(),
+        }),
+        parkingSpaces: z.number(),
+        parkingLayout: z.enum(["frontal", "lateral", "posterior", "misto"]),
+        buildingOrientation: z.enum(["norte", "sul", "leste", "oeste"]),
+        floors: z.number(),
+        totalBuiltArea: z.number(),
+        commercialArea: z.number(),
+        circulationArea: z.number(),
+        serviceArea: z.number(),
+        greenArea: z.number(),
+      })
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      // Obter DNA do projeto para manter consistência visual
+      const projectDNA = await getOrGenerateProjectDNA(input.projectId);
+
+      const { variationData } = input;
+
+      // Analisar geometria do terreno
+      let geometryInfo = "";
+      if (project.polygonCoordinates) {
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nTERRAIN GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+      }
+
+      const briefingSection = project.briefing
+        ? `\n\nPROJECT BRIEFING:\n${project.briefing}`
+        : "";
+
+      // Gerar prompt base usando DNA do projeto
+      const basePrompt = generateConsistentPrompt(projectDNA, "floorplan");
+
+      // Adicionar detalhes específicos da variação
+      const variationContext = `
+
+VARIATION DETAILS (${variationData.name}):
+${variationData.description}
+
+LAYOUT CONFIGURATION:
+- Total stores: ${variationData.numberOfStores} (${variationData.storeConfiguration.small} small <50m², ${variationData.storeConfiguration.medium} medium 50-100m², ${variationData.storeConfiguration.large} large >100m²)
+- Parking: ${variationData.parkingSpaces} spaces (${variationData.parkingLayout} layout)
+- Building orientation: ${variationData.buildingOrientation}
+- Floors: ${variationData.floors}
+
+AREA BREAKDOWN:
+- Total built area: ${variationData.totalBuiltArea.toFixed(2)}m²
+- Commercial area: ${variationData.commercialArea.toFixed(2)}m² (${((variationData.commercialArea/variationData.totalBuiltArea)*100).toFixed(1)}%)
+- Circulation area: ${variationData.circulationArea.toFixed(2)}m² (${((variationData.circulationArea/variationData.totalBuiltArea)*100).toFixed(1)}%)
+- Service area: ${variationData.serviceArea.toFixed(2)}m² (${((variationData.serviceArea/variationData.totalBuiltArea)*100).toFixed(1)}%)
+- Green area: ${variationData.greenArea.toFixed(2)}m²
+
+SITE SPECIFICATIONS:
+- Total lot area: ${project.area}m²
+${geometryInfo}
+${briefingSection}
+
+IMPORTANT: The floorplan must accurately represent this specific variation's layout with the exact number and size distribution of stores.`;
+
+      const prompt = `${basePrompt} ${variationContext}`;
+
+      try {
+        const { url: imageUrl } = await generateImage({ prompt });
+        
+        if (!imageUrl) {
+          throw new Error("Failed to generate image URL");
+        }
+        
+        // Salvar no banco com dados da variação
+        await db.createGeneratedImage({
+          projectId: input.projectId,
+          type: "variation_floorplan",
+          imageUrl,
+          prompt,
+          variationData: JSON.stringify(variationData),
+        });
+        
+        return { imageUrl, variationId: variationData.id };
+      } catch (error) {
+        console.error("[ImageRouter] Error generating variation floorplan:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao gerar planta da variação",
+        });
+      }
+    }),
+
+  // Listar plantas de variações de um projeto
+  listVariationFloorplans: publicProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const images = await db.getGeneratedImagesByProjectId(input.projectId);
+      return images.filter((img: any) => img.type === "variation_floorplan");
+    }),
 });

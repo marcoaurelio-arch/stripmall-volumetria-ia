@@ -1480,3 +1480,14 @@
 - [ ] Comparar elementos entre diferentes tipos de imagem
 - [ ] Adicionar botão de regeneração seletiva
 - [ ] Testar consistência com projeto real
+
+## Geração de Plantas para Variações de Projeto
+
+- [x] Analisar estrutura atual de variações e sistema de geração de imagens
+- [x] Criar procedure tRPC para gerar planta baixa de uma variação específica
+- [x] Integrar com DNA do projeto para manter consistência visual
+- [x] Adicionar botão "Gerar Planta" em cada card de variação
+- [x] Criar visualização de planta no modal de detalhes da variação
+- [x] Implementar cache de plantas geradas por variação
+- [x] Adicionar opção de gerar todas as plantas de uma vez
+- [x] Testar geração e visualização de plantas
