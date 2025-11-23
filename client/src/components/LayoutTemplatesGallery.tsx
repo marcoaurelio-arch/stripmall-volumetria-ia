@@ -39,7 +39,7 @@ export function LayoutTemplatesGallery({
   setbacks,
   onApplyTemplate,
 }: LayoutTemplatesGalleryProps) {
-  const [selectedCategory, setSelectedCategory] = useState<'retangular' | 'L' | 'esquina' | 'irregular'>('retangular');
+  const [selectedCategory, setSelectedCategory] = useState<'retangular' | 'L' | 'esquina' | 'irregular' | 'estreito' | 'triangular' | 'patio'>('retangular');
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -104,11 +104,14 @@ export function LayoutTemplatesGallery({
       <CardContent className="space-y-4">
         {/* Tabs de categorias */}
         <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as any)}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-7 gap-1">
             <TabsTrigger value="retangular">Retangular</TabsTrigger>
             <TabsTrigger value="L">Em L</TabsTrigger>
             <TabsTrigger value="esquina">Esquina</TabsTrigger>
             <TabsTrigger value="irregular">Irregular</TabsTrigger>
+            <TabsTrigger value="estreito">Estreito</TabsTrigger>
+            <TabsTrigger value="triangular">Triangular</TabsTrigger>
+            <TabsTrigger value="patio">Pátio</TabsTrigger>
           </TabsList>
         </Tabs>
 

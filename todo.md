@@ -1451,3 +1451,16 @@
 - [x] Permitir comparação de custos entre diferentes opções
 - [x] Integrar na página ProjectDetail
 - [ ] Testar cálculos com diferentes parâmetros
+
+## Revisão e Expansão de Templates Pré-Configurados
+
+- [x] Revisar templates existentes no layoutTemplatesService
+- [x] Identificar lacunas e casos de uso não cobertos
+- [x] Adicionar templates para terrenos estreitos e profundos (3 templates)
+- [x] Adicionar templates para terrenos de esquina dupla (esquina chanfrada)
+- [x] Adicionar templates para terrenos triangulares (2 templates)
+- [x] Adicionar templates para diferentes densidades (compacto, espaçoso)
+- [x] Adicionar templates com pátio central (3 templates)
+- [x] Melhorar descrições e tags dos templates
+- [x] Atualizar interface para suportar novas categorias
+- [x] Testar aplicação de novos templates
