@@ -5,6 +5,7 @@ import * as db from "./db";
 import { generateImage } from "./_core/imageGeneration";
 import { analyzeTerrainGeometry } from "./services/terrainGeometryService";
 import { generateStaticMapUrl, calculateAppropriateZoom } from "./mapsImageGenerator";
+import { generateLayoutDescription, generateFloorplanLayoutDescription, generateSiteplanLayoutDescription } from "./services/layoutDescriptionService";
 
 export const imageRouter = router({
   // Gerar estudo conceitual 3D
@@ -72,6 +73,14 @@ export const imageRouter = router({
         ? `\nProject briefing and requirements: ${project.briefing}` 
         : '';
       
+      // Adicionar descrição de layout personalizado
+      const layoutDescription = generateLayoutDescription({
+        offsetX: project.buildingOffsetX || 0,
+        offsetY: project.buildingOffsetY || 0,
+        rotation: project.buildingRotation || 0,
+        scale: project.buildingScale || 80,
+      });
+      
       const prompt = `Ultra-realistic architectural rendering of a contemporary Brazilian strip mall commercial center.${similarProjectsContext}
 Professional real estate marketing visualization with the following specifications:
 
@@ -134,7 +143,7 @@ TECHNICAL QUALITY:
 - Ray-traced global illumination
 - Ambient occlusion
 - Depth of field with focal point on building
-- Professional color grading${geometryInfo}${briefingContext}`;
+- Professional color grading${geometryInfo}${layoutDescription}${briefingContext}`;
 
       try {
         // Buscar imagens de referência selecionadas
@@ -243,6 +252,14 @@ TECHNICAL QUALITY:
         ? `\nProject requirements: ${project.briefing}` 
         : '';
       
+      // Adicionar descrição de layout personalizado
+      const layoutDescription = generateFloorplanLayoutDescription({
+        offsetX: project.buildingOffsetX || 0,
+        offsetY: project.buildingOffsetY || 0,
+        rotation: project.buildingRotation || 0,
+        scale: project.buildingScale || 80,
+      });
+      
       const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center following ABNT NBR 6492 standards.${similarProjectsContext}
 Technical drawing with the following specifications:
 
@@ -276,7 +293,7 @@ DRAWING STYLE:
 - Professional architectural blueprint quality
 - Technical precision with accurate proportions
 - ABNT (Brazilian standards) compliant notation
-- Top-down orthographic view${briefingContext}`;
+- Top-down orthographic view${layoutDescription}${briefingContext}`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });
@@ -420,6 +437,14 @@ Render as a clean architectural study model, similar to professional feasibility
       }
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+      
+      // Adicionar descrição de layout personalizado
+      const layoutDescription = generateLayoutDescription({
+        offsetX: project.buildingOffsetX || 0,
+        offsetY: project.buildingOffsetY || 0,
+        rotation: project.buildingRotation || 0,
+        scale: project.buildingScale || 80,
+      });
 
       const viewDescriptions = {
         front: "Main street facade view",
@@ -455,7 +480,7 @@ COMPOSITION:
 - Emphasize horizontal rhythm of the strip mall
 - Professional architectural presentation
 
-Render as a clean architectural elevation study, similar to professional feasibility presentations.`;
+Render as a clean architectural elevation study, similar to professional feasibility presentations.${layoutDescription}`;
 
       const result = await generateImage({ prompt });
       const imageUrl = result.url as string;
@@ -873,6 +898,14 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
       const briefingSection = project.briefing
         ? `\n\nPROJECT BRIEFING:\n${project.briefing}`
         : "";
+      
+      // Adicionar descrição de layout personalizado
+      const layoutDescription = generateSiteplanLayoutDescription({
+        offsetX: project.buildingOffsetX || 0,
+        offsetY: project.buildingOffsetY || 0,
+        rotation: project.buildingRotation || 0,
+        scale: project.buildingScale || 80,
+      });
 
       const sitePlanPrompt = `Create a professional architectural SITE PLAN (Planta de Implantação) for a strip mall project following Brazilian ABNT NBR 6492 standards.
 
@@ -966,7 +999,7 @@ SITE PLAN ELEMENTS:
     - Áreas Verdes: [calculated]m²
     - Calçadas: [calculated]m²
 
-Render as a professional technical site plan following ABNT NBR 6492 standards with clear hierarchy, proper line weights, and comprehensive labeling.`;
+Render as a professional technical site plan following ABNT NBR 6492 standards with clear hierarchy, proper line weights, and comprehensive labeling.${layoutDescription}`;
 
       const result = await generateImage({ prompt: sitePlanPrompt });
       const imageUrl = result.url as string;

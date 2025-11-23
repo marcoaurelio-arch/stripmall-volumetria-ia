@@ -24,6 +24,7 @@ import SavedScenariosPanel from "@/components/SavedScenariosPanel";
 import LogoUploader from "@/components/LogoUploader";
 import Terrain3DViewer from "@/components/Terrain3DViewer";
 import { BuildingLayoutAdjuster, BuildingLayout } from "@/components/BuildingLayoutAdjuster";
+import { SavedLayoutsManager } from "@/components/SavedLayoutsManager";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -560,18 +561,49 @@ export default function ProjectDetail() {
 
             {/* Ajuste Manual de Layout do Edifício */}
             {project.polygonCoordinates && (
-              <BuildingLayoutAdjuster
-                polygonCoordinates={project.polygonCoordinates}
-                onSave={(layout: BuildingLayout) => {
-                  updateProjectMutation.mutate({
-                    id: projectId,
-                    buildingOffsetX: layout.offsetX,
-                    buildingOffsetY: layout.offsetY,
-                    buildingRotation: layout.rotation,
-                    buildingScale: layout.scale,
-                  });
-                }}
-              />
+              <>
+                <BuildingLayoutAdjuster
+                  polygonCoordinates={project.polygonCoordinates}
+                  terrainDimensions={{
+                    width: project.width || 50,
+                    length: project.length || 100,
+                    area: project.area,
+                  }}
+                  setbacks={{
+                    frontal: project.recuoFrontal || 5,
+                    lateral: project.recuoLateral || 3,
+                    fundos: project.recuoFundos || 3,
+                  }}
+                  onSave={(layout: BuildingLayout) => {
+                    updateProjectMutation.mutate({
+                      id: projectId,
+                      buildingOffsetX: layout.offsetX,
+                      buildingOffsetY: layout.offsetY,
+                      buildingRotation: layout.rotation,
+                      buildingScale: layout.scale,
+                    });
+                  }}
+                />
+                
+                <SavedLayoutsManager
+                  projectId={project.id}
+                  currentLayout={{
+                    offsetX: project.buildingOffsetX || 0,
+                    offsetY: project.buildingOffsetY || 0,
+                    rotation: project.buildingRotation || 0,
+                    scale: project.buildingScale || 80,
+                  }}
+                  onLoadLayout={(layout: BuildingLayout) => {
+                    updateProjectMutation.mutate({
+                      id: projectId,
+                      buildingOffsetX: layout.offsetX,
+                      buildingOffsetY: layout.offsetY,
+                      buildingRotation: layout.rotation,
+                      buildingScale: layout.scale,
+                    });
+                  }}
+                />
+              </>
             )}
 
             {/* Gerenciador de Cenários */}

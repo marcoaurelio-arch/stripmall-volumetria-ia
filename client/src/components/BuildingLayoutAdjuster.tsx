@@ -2,12 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { RotateCcw, Save, Move } from "lucide-react";
+import { RotateCcw, Save, Move, AlertTriangle, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 
 interface BuildingLayoutAdjusterProps {
   polygonCoordinates: string; // JSON string of coordinates
   onSave: (layout: BuildingLayout) => void;
+  terrainDimensions: {
+    width: number;
+    length: number;
+    area: number;
+  };
+  setbacks: {
+    frontal: number;
+    lateral: number;
+    fundos: number;
+  };
 }
 
 export interface BuildingLayout {
@@ -19,6 +30,8 @@ export interface BuildingLayout {
 
 export function BuildingLayoutAdjuster({
   polygonCoordinates,
+  terrainDimensions,
+  setbacks,
   onSave,
 }: BuildingLayoutAdjusterProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,6 +43,13 @@ export function BuildingLayoutAdjuster({
   });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
+  // Validação de recuos
+  const { data: validation } = trpc.layoutValidation.validateSetbacks.useQuery({
+    layout,
+    terrain: terrainDimensions,
+    setbacks,
+  });
 
   useEffect(() => {
     drawLayout();
@@ -216,12 +236,62 @@ export function BuildingLayoutAdjuster({
             />
           </div>
 
+          {/* Validação de Recuos */}
+          {validation && (
+            <div className={`p-4 rounded-lg border ${
+              validation.isValid 
+                ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' 
+                : 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'
+            }`}>
+              <div className="flex items-start gap-2">
+                {validation.isValid ? (
+                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                ) : (
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1 space-y-2">
+                  <p className={`font-medium text-sm ${
+                    validation.isValid 
+                      ? 'text-green-900 dark:text-green-100' 
+                      : 'text-red-900 dark:text-red-100'
+                  }`}>
+                    {validation.isValid 
+                      ? '✅ Layout válido - Todos os recuos respeitados' 
+                      : `⚠️ ${validation.violations.length} violação(ões) de recuo detectada(s)`
+                    }
+                  </p>
+                  {!validation.isValid && (
+                    <ul className="text-sm space-y-1 text-red-800 dark:text-red-200">
+                      {validation.violations.map((v: any, i: number) => (
+                        <li key={i} className="flex items-start gap-1">
+                          <span className="text-red-600 dark:text-red-400">•</span>
+                          <span>{v.message}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {validation.warnings.length > 0 && (
+                    <div className="text-sm text-yellow-800 dark:text-yellow-200 mt-2">
+                      {validation.warnings.map((w: string, i: number) => (
+                        <p key={i}>{w}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2">
             <Button onClick={handleReset} variant="outline" className="flex-1">
               <RotateCcw className="h-4 w-4 mr-2" />
               Resetar
             </Button>
-            <Button onClick={handleSave} className="flex-1">
+            <Button 
+              onClick={handleSave} 
+              className="flex-1"
+              disabled={validation && !validation.isValid}
+            >
               <Save className="h-4 w-4 mr-2" />
               Salvar Layout
             </Button>

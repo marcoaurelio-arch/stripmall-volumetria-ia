@@ -73,6 +73,34 @@ export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;
 
 /**
+ * Tabela de layouts salvos para permitir múltiplas configurações de posicionamento do edifício
+ */
+export const savedLayouts = mysqlTable("savedLayouts", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Configurações de layout
+  offsetX: int("offsetX").notNull().default(0), // -50 a 50
+  offsetY: int("offsetY").notNull().default(0), // -50 a 50
+  rotation: int("rotation").notNull().default(0), // 0 a 360
+  scale: int("scale").notNull().default(80), // 50 a 100
+  
+  // Validação
+  isValid: int("isValid").default(1).notNull(), // 0 = inválido, 1 = válido
+  validationNotes: text("validationNotes"), // Notas sobre violações de recuos
+  
+  // Metadados
+  isActive: int("isActive").default(1).notNull(), // 0 = arquivado, 1 = ativo
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SavedLayout = typeof savedLayouts.$inferSelect;
+export type InsertSavedLayout = typeof savedLayouts.$inferInsert;
+
+/**
  * Tabela de cenários de polígonos para permitir múltiplas configurações de terreno por projeto
  */
 export const scenarios = mysqlTable("scenarios", {

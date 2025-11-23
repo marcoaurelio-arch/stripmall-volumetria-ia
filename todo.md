@@ -1265,3 +1265,37 @@
 - [x] Imagem de satélite do terreno enviada como referência para IA
 - [ ] Testar geração com terrenos de diferentes formatos (retangular, L, irregular)
 - [ ] Validar precisão das imagens geradas comparando com polígono real
+
+## Integração de Layout Personalizado nos Prompts de IA
+
+- [x] Modificar procedure generateConceptual para incluir parâmetros de layout
+- [x] Modificar procedure generateFloorplan para incluir parâmetros de layout
+- [x] Modificar procedure generateSiteplan para incluir parâmetros de layout
+- [x] Modificar procedure generateFacadeView para incluir parâmetros de layout
+- [x] Criar função para gerar descrição textual do layout (posição, rotação, escala)
+- [x] Integrar descrição de layout nos prompts de geração
+- [ ] Testar geração de imagens com layout personalizado
+
+## Validação Automática de Recuos Obrigatórios
+
+- [x] Criar função para calcular se edifício viola recuos (frontal, lateral, fundos)
+- [x] Implementar algoritmo de detecção de colisão entre edifício e limites de recuo
+- [x] Criar componente visual de overlay de validação de recuos
+- [x] Adicionar indicadores visuais de áreas problemáticas (vermelho)
+- [x] Adicionar indicadores visuais de áreas permitidas (verde)
+- [x] Exibir mensagens de alerta quando houver violações
+- [x] Integrar validação no BuildingLayoutAdjuster
+- [ ] Testar com diferentes configurações de recuos
+
+## Sistema de Histórico de Layouts
+
+- [x] Criar tabela de layouts salvos no banco de dados
+- [x] Implementar procedure para salvar layout com nome e descrição
+- [x] Implementar procedure para listar layouts de um projeto
+- [x] Implementar procedure para carregar layout salvo
+- [x] Implementar procedure para deletar layout
+- [x] Criar componente de lista de layouts salvos
+- [x] Adicionar botão "Salvar como novo layout" no BuildingLayoutAdjuster
+- [ ] Adicionar visualização comparativa de múltiplos layouts
+- [x] Implementar seleção de layout ativo
+- [ ] Testar salvamento e carregamento de layouts
