@@ -1197,3 +1197,10 @@
 - [x] Adicionar scroll automático para o formulário após seleção
 - [x] Personalização automática disponível (usuário pode editar campos)
 - [ ] Salvar template usado no projeto para referência (pendente)
+
+
+## BUG FIX - Galeria de Inspiração
+- [x] Corrigir erro "An unexpected error occurred" no SelectItem do Radix UI (substituir valor vazio "" por "all")
+- [x] Verificar uso correto dos componentes Select (SelectTrigger, SelectContent, SelectItem)
+- [x] Atualizar lógica de filtros para considerar "all" como sem filtro
+- [x] Testar filtros de categoria e região após correção (TypeScript sem erros, servidor rodando)

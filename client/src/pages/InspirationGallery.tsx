@@ -14,11 +14,11 @@ import { useLocation } from "wouter";
 
 export default function InspirationGallery() {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<string>("");
+  const [category, setCategory] = useState<string>("all");
   const [minArea, setMinArea] = useState<string>("");
   const [maxArea, setMaxArea] = useState<string>("");
   const [location, setLocation] = useState("");
-  const [region, setRegion] = useState<string>("");
+  const [region, setRegion] = useState<string>("all");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -26,11 +26,11 @@ export default function InspirationGallery() {
 
   const { data: projects, isLoading } = trpc.inspiration.list.useQuery({
     search: search || undefined,
-    category: category as any || undefined,
+    category: category !== "all" ? (category as any) : undefined,
     minArea: minArea ? parseInt(minArea) : undefined,
     maxArea: maxArea ? parseInt(maxArea) : undefined,
     location: location || undefined,
-    region: region as any || undefined,
+    region: region !== "all" ? (region as any) : undefined,
   });
 
   const { data: selectedProject } = trpc.inspiration.getById.useQuery(
@@ -40,14 +40,14 @@ export default function InspirationGallery() {
 
   const clearFilters = () => {
     setSearch("");
-    setCategory("");
+    setCategory("all");
     setMinArea("");
     setMaxArea("");
     setLocation("");
-    setRegion("");
+    setRegion("all");
   };
 
-  const hasFilters = search || category || minArea || maxArea || location || region;
+  const hasFilters = search || (category && category !== "all") || minArea || maxArea || location || (region && region !== "all");
 
   const toggleProjectSelection = (projectId: number) => {
     setSelectedForComparison(prev => 
@@ -128,7 +128,7 @@ export default function InspirationGallery() {
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas</SelectItem>
+                    <SelectItem value="all">Todas</SelectItem>
                     <SelectItem value="strip_mall">Strip Mall</SelectItem>
                     <SelectItem value="open_mall">Open Mall</SelectItem>
                     <SelectItem value="shopping_center">Shopping Center</SelectItem>
@@ -145,7 +145,7 @@ export default function InspirationGallery() {
                     <SelectValue placeholder="Todas" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas</SelectItem>
+                    <SelectItem value="all">Todas</SelectItem>
                     <SelectItem value="norte">Norte</SelectItem>
                     <SelectItem value="nordeste">Nordeste</SelectItem>
                     <SelectItem value="centro_oeste">Centro-Oeste</SelectItem>
