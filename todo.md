@@ -1228,3 +1228,19 @@
 - [x] Documentar prompts de geração por tipo de projeto
 - [x] Criar mapeamento de todos os 18 projetos (IDs 8-25)
 - [ ] Atualizar mainImageUrl via painel admin (pendente - aguardando escolha do usuário)
+
+
+## PRÓXIMOS PASSOS - Ordenação e Estatísticas
+- [x] Adicionar dropdown de ordenação na galeria (ao lado do título Filtros)
+- [x] Implementar ordenação por: mais recente, área crescente/decrescente, lojas crescente/decrescente, nome A-Z/Z-A
+- [x] Integrar ordenação com paginação e filtros
+- [x] Criar página de estatísticas da galeria (/galeria-inspiracao/estatisticas)
+- [x] Adicionar gráficos: distribuição por categoria (pizza), área média por tipo (barras), lojas médias (barras), distribuição por região (barras)
+- [x] Adicionar cards de resumo (total projetos, área média, lojas médias, vagas médias)
+- [x] Adicionar botão "Ver Estatísticas" no header da galeria
+- [x] Adicionar rota e navegação completa
+- [x] Documentar processo completo de adição de imagens (PROCESSO-ADICIONAR-IMAGENS.md)
+- [x] Criar 4 opções: painel admin, geração IA, stock images, SQL em massa
+- [x] Mapear todos os 18 projetos com sugestões de imagens
+- [x] Adicionar checklist de qualidade e ferramentas úteis
+- [ ] Adicionar imagens reais aos 18 projetos (pendente - aguardando escolha de fonte)

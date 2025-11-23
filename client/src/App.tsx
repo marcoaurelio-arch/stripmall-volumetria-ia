@@ -13,6 +13,7 @@ import InspirationDetail from "./pages/InspirationDetail";
 import InspirationGallery from "./pages/InspirationGallery";
 import Benchmarking from "./pages/Benchmarking";
 import AdminInspirationProjects from "./pages/AdminInspirationProjects";
+import GalleryStats from "./pages/GalleryStats";
 
 function Router() {
   return (
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/galeria" component={InspirationGallery} />
       <Route path="/benchmarking" component={Benchmarking} />
       <Route path={"/galeria-inspiracao"} component={InspirationGallery} />
+      <Route path={"/galeria-inspiracao/estatisticas"} component={GalleryStats} />
       <Route path={"/inspirations/:id"} component={InspirationDetail} />
       <Route path={"/admin/inspiracao"} component={AdminInspirationProjects} />
       <Route path={"/404"} component={NotFound} />

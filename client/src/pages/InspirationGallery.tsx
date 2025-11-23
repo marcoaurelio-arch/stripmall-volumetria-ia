@@ -21,6 +21,7 @@ export default function InspirationGallery() {
   const [region, setRegion] = useState<string>("all");
   const [minStores, setMinStores] = useState<string>("");
   const [maxStores, setMaxStores] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("recent");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -39,10 +40,32 @@ export default function InspirationGallery() {
   });
 
   // Filtro de lojas (client-side)
-  const projects = allProjects?.filter(project => {
+  const filteredProjects = allProjects?.filter(project => {
     if (minStores && project.storeCount && project.storeCount < parseInt(minStores)) return false;
     if (maxStores && project.storeCount && project.storeCount > parseInt(maxStores)) return false;
     return true;
+  });
+
+  // Ordenação
+  const projects = filteredProjects?.slice().sort((a, b) => {
+    switch (sortBy) {
+      case "recent":
+        return new Date(b.year || 0).getTime() - new Date(a.year || 0).getTime();
+      case "area_asc":
+        return (a.area || 0) - (b.area || 0);
+      case "area_desc":
+        return (b.area || 0) - (a.area || 0);
+      case "stores_asc":
+        return (a.storeCount || 0) - (b.storeCount || 0);
+      case "stores_desc":
+        return (b.storeCount || 0) - (a.storeCount || 0);
+      case "name_asc":
+        return a.name.localeCompare(b.name);
+      case "name_desc":
+        return b.name.localeCompare(a.name);
+      default:
+        return 0;
+    }
   });
 
   const { data: selectedProject } = trpc.inspiration.getById.useQuery(
@@ -102,9 +125,15 @@ export default function InspirationGallery() {
       {/* Header */}
       <div className="border-b bg-card">
         <div className="container py-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Building2 className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Galeria de Inspiração</h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <Building2 className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold">Galeria de Inspiração</h1>
+            </div>
+            <Button variant="outline" onClick={() => navigate("/galeria-inspiracao/estatisticas")}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Ver Estatísticas
+            </Button>
           </div>
           <p className="text-muted-foreground">
             Explore {projects?.length || 25} projetos de strip malls e open malls brasileiros para inspirar seu desenvolvimento
@@ -121,12 +150,32 @@ export default function InspirationGallery() {
                 <Filter className="h-5 w-5" />
                 <CardTitle>Filtros</CardTitle>
               </div>
-              {hasFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  <X className="h-4 w-4 mr-2" />
-                  Limpar Filtros
-                </Button>
-              )}
+              <div className="flex items-center gap-4">
+                {/* Ordenação */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Ordenar por:</label>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recent">Mais Recente</SelectItem>
+                      <SelectItem value="area_desc">Área (Maior)</SelectItem>
+                      <SelectItem value="area_asc">Área (Menor)</SelectItem>
+                      <SelectItem value="stores_desc">Lojas (Mais)</SelectItem>
+                      <SelectItem value="stores_asc">Lojas (Menos)</SelectItem>
+                      <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
+                      <SelectItem value="name_desc">Nome (Z-A)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {hasFilters && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    <X className="h-4 w-4 mr-2" />
+                    Limpar Filtros
+                  </Button>
+                )}
+              </div>
             </div>
             <CardDescription>Refine sua busca por categoria, localização ou porte</CardDescription>
           </CardHeader>
