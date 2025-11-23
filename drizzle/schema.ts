@@ -67,6 +67,18 @@ export const projects = mysqlTable("projects", {
   buildingRotation: int("buildingRotation").default(0), // Rotação em graus (0 a 360)
   buildingScale: int("buildingScale").default(80), // Escala do edifício (50 a 100%)
   
+  // DNA do Projeto (para consistência visual entre todas as visualizações)
+  dnaGenerated: int("dnaGenerated").default(0).notNull(), // 0 = não gerado, 1 = gerado
+  dnaBuildingShape: text("dnaBuildingShape"), // Forma do edifício
+  dnaStyle: text("dnaStyle"), // Estilo arquitetônico
+  dnaFeatures: text("dnaFeatures"), // Características marcantes (JSON array)
+  dnaPrimaryColor: varchar("dnaPrimaryColor", { length: 7 }), // Cor principal (#FFFFFF)
+  dnaAccentColor: varchar("dnaAccentColor", { length: 7 }), // Cor de destaque (#404040)
+  dnaMaterials: text("dnaMaterials"), // Materiais (JSON array)
+  dnaLandscaping: text("dnaLandscaping"), // Descrição do paisagismo
+  dnaLayout: text("dnaLayout"), // Organização espacial
+  dnaContext: text("dnaContext"), // Contexto urbano
+  
   status: mysqlEnum("status", ["draft", "analyzing", "completed"]).default("draft").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

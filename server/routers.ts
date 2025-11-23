@@ -23,7 +23,8 @@ import { layoutOptimizationRouter } from "./layoutOptimizationRouter";
 import { layoutPdfExportRouter } from "./layoutPdfExportRouter";
 import { shadowAnalysisRouter } from "./shadowAnalysisRouter";
 import { layoutTemplatesRouter } from './layoutTemplatesRouter';
-import { customTemplatesRouter } from './customTemplatesRouter';
+import { customTemplatesRouter } from "./customTemplatesRouter";
+import { projectDNARouter } from "./projectDNARouter";
 import { cubCostRouter } from './cubCostRouter';
 
 export const appRouter = router({
@@ -63,6 +64,7 @@ export const appRouter = router({
   shadowAnalysis: shadowAnalysisRouter,
   layoutTemplates: layoutTemplatesRouter,
   customTemplates: customTemplatesRouter,
+  projectDNA: projectDNARouter,
   cubCost: cubCostRouter,
 });
 

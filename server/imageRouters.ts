@@ -6,6 +6,8 @@ import { generateImage } from "./_core/imageGeneration";
 import { analyzeTerrainGeometry } from "./services/terrainGeometryService";
 import { generateStaticMapUrl, calculateAppropriateZoom } from "./mapsImageGenerator";
 import { generateLayoutDescription, generateFloorplanLayoutDescription, generateSiteplanLayoutDescription } from "./services/layoutDescriptionService";
+import { generateProjectDNA, generateConsistentPrompt, type ProjectDNA } from "./services/projectDNAService";
+import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
 
 export const imageRouter = router({
   // Gerar estudo conceitual 3D
@@ -20,6 +22,9 @@ export const imageRouter = router({
       if (!project || project.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
+
+      // Obter DNA do projeto (gera automaticamente se não existir)
+      const projectDNA = await getOrGenerateProjectDNA(input.projectId);
 
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);
@@ -81,69 +86,23 @@ export const imageRouter = router({
         scale: project.buildingScale || 80,
       });
       
-      const prompt = `Ultra-realistic architectural rendering of a contemporary Brazilian strip mall commercial center.${similarProjectsContext}
-Professional real estate marketing visualization with the following specifications:
+      // Gerar prompt consistente usando DNA do projeto
+      const basePrompt = generateConsistentPrompt(projectDNA, "conceptual");
+      
+      // Adicionar contexto específico do projeto
+      const additionalContext = `
+SITE SPECIFICATIONS:
+- Total lot area: ${project.area}m²
+- ${analysis ? `${analysis.numeroLojas} retail units` : '8-12 retail units'}
+- ${analysis?.vagasEstacionamento || '40-60'} parking spaces
+- Building area: ${analysis?.areaMaximaConstruida || project.area}m²
 
-BUILDING ARCHITECTURE:
-- ${analysis ? `${analysis.numeroLojas} retail units` : '8-12 retail units'} in linear strip configuration
-- Contemporary Brazilian commercial architecture style
-- Large glass storefronts (floor-to-ceiling glazing) with slim aluminum frames
-- Modern ACM (Aluminum Composite Material) facade panels in neutral tones (white, gray, beige)
-- Individual storefront signage areas with LED backlighting
-- Covered pedestrian walkway with steel structure and polycarbonate/glass canopy
-- Flat or slightly sloped roof with concealed drainage system
-- Total built area: ${analysis?.areaMaximaConstruida || project.area}m²
-- Building height: single-story (4-5 meters)
+${similarProjectsContext}
+${geometryInfo}
+${layoutDescription}
+${briefingContext}`;
 
-MATERIALS & FINISHES:
-- Facade: ACM panels, glass curtain walls, exposed concrete accents
-- Walkway: Polished concrete floor with expansion joints
-- Canopy: Powder-coated steel structure with transparent polycarbonate or tempered glass
-- Parking: Interlocking concrete pavers or asphalt with painted markings
-- Landscaping: Native Brazilian species (palm trees, ipe trees, ornamental grasses)
-
-SITE LAYOUT & CONTEXT:
-- ${analysis?.vagasEstacionamento || '40-60'} parking spaces in organized rows (90° or 45° angle)
-- Clear circulation lanes (3.5m wide) with directional arrows
-- Accessible parking spots near entrance (blue markings)
-- Pedestrian crosswalks with tactile paving
-- Perimeter landscaping with trees and shrubs
-- Modern LED street lighting poles (6-8m height)
-- Sidewalks with concrete pavers
-- Urban context: visible street, neighboring buildings in background, cars, people
-
-LIGHTING & ATMOSPHERE:
-- Time: Late afternoon (golden hour, 5-6 PM)
-- Sun angle: 30-40 degrees, casting long soft shadows
-- Sky: Clear blue with wispy cirrus clouds
-- Ambient occlusion and contact shadows for depth
-- Realistic reflections on glass and car surfaces
-- Warm sunlight on facade, cool shadows
-
-COMPOSITION & CAMERA:
-- Aerial 3/4 perspective view (bird's eye at 45° angle)
-- Camera height: 15-20 meters above ground
-- Focal length: 24mm wide-angle lens
-- Aperture: f/4 for balanced depth of field
-- Frame: Entire complex visible, including parking and surroundings
-- Rule of thirds composition
-
-REALISM DETAILS:
-- Parked cars (Brazilian models: Fiat, Chevrolet, Volkswagen, Toyota)
-- People walking, shopping (Brazilian demographics)
-- Shopping carts, store displays visible through glass
-- Realistic wear and weathering on materials
-- Proper scale and proportions
-- Accurate shadows and reflections
-- Natural color grading (not oversaturated)
-
-TECHNICAL QUALITY:
-- 8K resolution rendering
-- Physically-based rendering (PBR) materials
-- Ray-traced global illumination
-- Ambient occlusion
-- Depth of field with focal point on building
-- Professional color grading${geometryInfo}${layoutDescription}${briefingContext}`;
+      const prompt = `${basePrompt} ${additionalContext}`;
 
       try {
         // Buscar imagens de referência selecionadas
@@ -209,6 +168,9 @@ TECHNICAL QUALITY:
       if (!project || project.userId !== ctx.user.id) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
+
+      // Obter DNA do projeto (gera automaticamente se não existir)
+      const projectDNA = await getOrGenerateProjectDNA(input.projectId);
 
       // Obter última análise para usar nos prompts
       const analysis = await db.getLatestAnalysis(input.projectId);

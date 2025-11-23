@@ -1464,3 +1464,18 @@
 - [x] Melhorar descrições e tags dos templates
 - [x] Atualizar interface para suportar novas categorias
 - [x] Testar aplicação de novos templates
+
+## Consistência Visual entre Estudos
+
+- [ ] Criar sistema de "DNA do Projeto" (descrição arquitetônica unificada)
+- [ ] Adicionar campos no schema para armazenar DNA do projeto
+- [ ] Criar serviço de geração de DNA baseado em parâmetros do projeto
+- [ ] Refatorar generateConceptual para usar DNA unificado
+- [ ] Refatorar generateFloorplan para usar DNA unificado
+- [ ] Refatorar generateSitePlan para usar DNA unificado
+- [ ] Refatorar generateFacadeView para usar DNA unificado
+- [ ] Criar sistema de validação de consistência visual
+- [ ] Implementar extração de elementos-chave das imagens
+- [ ] Comparar elementos entre diferentes tipos de imagem
+- [ ] Adicionar botão de regeneração seletiva
+- [ ] Testar consistência com projeto real
