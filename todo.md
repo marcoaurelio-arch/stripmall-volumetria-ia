@@ -1375,3 +1375,79 @@
 - [x] Exibir contribuição de cada critério no score final
 - [ ] Salvar preferências de pesos do usuário
 - [ ] Testar com diferentes combinações de pesos
+
+## Animação de Trajetória Solar
+
+- [ ] Criar componente de animação de trajetória solar
+- [ ] Implementar cálculo de posições solares ao longo do dia (6h-18h)
+- [ ] Criar animação suave de movimento do sol
+- [ ] Atualizar sombra em tempo real durante animação
+- [ ] Adicionar controles de play/pause/velocidade
+- [ ] Mostrar horário atual durante animação
+- [ ] Adicionar indicadores de nascer e pôr do sol
+- [ ] Integrar no componente ShadowVisualization
+- [ ] Testar performance da animação
+
+## Editor de Templates Personalizados
+
+- [ ] Criar tabela de templates personalizados no banco de dados
+- [ ] Implementar procedure para salvar template personalizado
+- [ ] Implementar procedure para listar templates do usuário
+- [ ] Implementar procedure para compartilhar template
+- [ ] Criar componente de editor de templates
+- [ ] Adicionar preview visual do template sendo criado
+- [ ] Permitir nomear e descrever template
+- [ ] Adicionar tags e categorização
+- [ ] Criar galeria de templates comunitários
+- [ ] Implementar sistema de avaliação de templates
+- [ ] Testar criação e compartilhamento
+
+## Integração com Custos Reais
+
+- [ ] Pesquisar e integrar API de tabelas CUB
+- [ ] Criar serviço de cálculo de custos baseado em CUB
+- [ ] Adicionar campos de região e padrão construtivo no projeto
+- [ ] Implementar cálculo de custo por m² baseado em CUB
+- [ ] Criar componente de estimativa de custos
+- [ ] Mostrar breakdown de custos (estrutura, acabamento, etc)
+- [ ] Integrar custos na otimização multi-objetivo
+- [ ] Adicionar comparação de custos entre layouts
+- [ ] Gerar relatório de viabilidade econômica
+- [ ] Testar cálculos com diferentes regiões e padrões
+
+## Animação de Trajetória Solar
+
+- [x] Criar componente de animação de trajetória solar
+- [x] Implementar cálculo de posição do sol ao longo do dia
+- [x] Animar movimento de sombra em tempo real no canvas
+- [x] Adicionar controles de velocidade de animação (1x, 2x, 4x)
+- [x] Implementar seleção de data para simulação
+- [x] Exibir métricas de horas de sol e sombreamento
+- [x] Integrar na página ProjectDetail
+- [ ] Testar animação em diferentes datas e localizações
+
+## Editor de Templates Personalizados
+
+- [x] Criar tabela de templates personalizados no banco de dados
+- [x] Implementar procedure para criar template a partir de layout atual
+- [x] Implementar procedure para listar templates do usuário
+- [x] Implementar procedure para listar templates públicos da comunidade
+- [x] Criar componente de editor de templates
+- [x] Adicionar sistema de tags e categorização
+- [x] Implementar sistema de avaliação (rating) de templates
+- [x] Criar galeria de templates da comunidade
+- [x] Permitir compartilhamento público de templates
+- [ ] Testar criação e compartilhamento de templates
+
+## Integração com Custos Reais (CUB)
+
+- [x] Criar serviço de integração com tabelas CUB regionais
+- [x] Implementar cálculo de custo por m² baseado em UF e tipo de construção
+- [x] Adicionar fatores de ajuste (qualidade, complexidade, pavimentos)
+- [x] Calcular custos diretos e indiretos
+- [x] Integrar cálculo de custos no serviço de otimização
+- [x] Criar componente de calculadora de custos
+- [x] Exibir breakdown detalhado de custos
+- [x] Permitir comparação de custos entre diferentes opções
+- [x] Integrar na página ProjectDetail
+- [ ] Testar cálculos com diferentes parâmetros

@@ -13,7 +13,15 @@ import {
 import { RotateCcw, Save, Move, RotateCw, Maximize2, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { OptimizationWeightsConfig, OptimizationWeights } from "@/components/OptimizationWeightsConfig";
+import { OptimizationWeightsConfig } from "@/components/OptimizationWeightsConfig";
+import { CustomTemplateEditor } from "@/components/CustomTemplateEditor";
+
+type OptimizationWeights = {
+  occupancy: number;
+  solar: number;
+  aesthetics: number;
+  cost: number;
+};
 
 interface BuildingLayoutAdjusterProps {
   polygonCoordinates: string; // JSON string of coordinates
@@ -335,14 +343,17 @@ export function BuildingLayoutAdjuster({
               <Sparkles className="h-4 w-4 mr-2" />
               {optimizeMutation.isPending ? "Otimizando..." : "Otimizar"}
             </Button>
-            <Button 
-              onClick={handleSave} 
-              className="flex-1"
+            <Button
+              onClick={handleSave}
               disabled={validation && !validation.isValid}
             >
               <Save className="h-4 w-4 mr-2" />
               Salvar Layout
             </Button>
+            <CustomTemplateEditor
+              currentLayout={layout}
+              terrain={terrainDimensions}
+            />
           </div>
         </div>
 

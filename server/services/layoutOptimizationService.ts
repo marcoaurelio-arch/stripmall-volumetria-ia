@@ -24,6 +24,13 @@ export interface OptimizationInput {
     minimizeWaste?: boolean; // Minimizar áreas mortas
   };
   weights?: OptimizationWeights; // Pesos personalizados para cada critério
+  costParams?: {
+    state: string;
+    buildingType: 'comercial_padrao' | 'comercial_alto' | 'industrial_padrao' | 'shopping_center';
+    floors: number;
+    qualityFactor?: number;
+    complexityFactor?: number;
+  };
 }
 
 export interface OptimizedLayout {
@@ -40,6 +47,8 @@ export interface OptimizedLayout {
     solarOrientation: string;
   };
 }
+
+import { calculateConstructionCost } from './cubCostService';
 
 /**
  * Otimiza o layout do edifício considerando múltiplos fatores
@@ -95,7 +104,8 @@ export function optimizeLayout(input: OptimizationInput): OptimizedLayout {
       footprintArea,
       wastedArea,
     },
-    finalWeights
+    finalWeights,
+    input.costParams
   );
 
   // Gerar justificativa
@@ -271,7 +281,14 @@ function generateReasoning(
 function calculateMultiObjectiveScore(
   layout: { offsetX: number; offsetY: number; rotation: number; scale: number },
   metrics: { occupancyRate: number; footprintArea: number; wastedArea: number },
-  weights: OptimizationWeights
+  weights: OptimizationWeights,
+  costParams?: {
+    state: string;
+    buildingType: 'comercial_padrao' | 'comercial_alto' | 'industrial_padrao' | 'shopping_center';
+    floors: number;
+    qualityFactor?: number;
+    complexityFactor?: number;
+  }
 ): number {
   // Normalizar pesos para somar 100
   const totalWeight = weights.occupancy + weights.solar + weights.aesthetics + weights.cost;
@@ -309,9 +326,34 @@ function calculateMultiObjectiveScore(
   aestheticsScore += proportionScore;
   aestheticsScore = Math.min(100, aestheticsScore);
 
-  // Critério 4: Custo Estimado (0-100)
-  // Menor escala = menor custo = maior score
-  const costScore = 100 - layout.scale;
+  // Critério 4: Custo (0-100)
+  // Se costParams fornecido, usar cálculo real do CUB
+  let costScore = 100 - layout.scale; // Fallback: Menor escala = menor custo
+  
+  if (costParams) {
+    try {
+      // Calcular custo real usando CUB
+      const totalArea = metrics.footprintArea * costParams.floors;
+      const costBreakdown = calculateConstructionCost({
+        state: costParams.state,
+        buildingType: costParams.buildingType,
+        totalArea,
+        floors: costParams.floors,
+        qualityFactor: costParams.qualityFactor,
+        complexityFactor: costParams.complexityFactor,
+      });
+      
+      // Normalizar custo: quanto menor o custo/m², maior o score
+      // Assumir faixa de R$ 2.000 a R$ 5.000/m²
+      const minCost = 2000;
+      const maxCost = 5000;
+      const normalizedCost = Math.max(0, Math.min(1, (maxCost - costBreakdown.costPerSqm) / (maxCost - minCost)));
+      costScore = normalizedCost * 100;
+    } catch (error) {
+      // Em caso de erro, usar fallback
+      console.warn('Erro ao calcular custo CUB:', error);
+    }
+  }
 
   // Combinar scores com pesos
   const finalScore =

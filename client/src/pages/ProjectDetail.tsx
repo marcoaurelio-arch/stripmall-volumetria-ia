@@ -27,7 +27,10 @@ import { BuildingLayoutAdjuster, BuildingLayout } from "@/components/BuildingLay
 import { SavedLayoutsManager } from "@/components/SavedLayoutsManager";
 import { LayoutComparison } from "@/components/LayoutComparison";
 import { ShadowVisualization } from "@/components/ShadowVisualization";
+import { SolarPathAnimation } from "@/components/SolarPathAnimation";
 import { LayoutTemplatesGallery } from "@/components/LayoutTemplatesGallery";
+import { CommunityTemplatesGallery } from "@/components/CommunityTemplatesGallery";
+import { CostCalculator } from "@/components/CostCalculator";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -640,6 +643,43 @@ export default function ProjectDetail() {
                     latitude: parseFloat(project.latitude || '-23.55'),
                     longitude: parseFloat(project.longitude || '-46.63'),
                   }}
+                />
+                
+                <SolarPathAnimation
+                  projectId={project.id}
+                  buildingLayout={{
+                    offsetX: project.buildingOffsetX || 0,
+                    offsetY: project.buildingOffsetY || 0,
+                    rotation: project.buildingRotation || 0,
+                    scale: project.buildingScale || 80,
+                  }}
+                  buildingHeight={project.buildingHeight || 8}
+                  terrain={{
+                    width: project.width || 50,
+                    length: project.length || 100,
+                    area: project.area,
+                  }}
+                  location={{
+                    latitude: parseFloat(project.latitude || '-23.55'),
+                    longitude: parseFloat(project.longitude || '-46.63'),
+                  }}
+                />
+                
+                <CommunityTemplatesGallery
+                  onApplyTemplate={(layout) => {
+                    updateProjectMutation.mutate({
+                      id: project.id,
+                      buildingOffsetX: layout.offsetX,
+                      buildingOffsetY: layout.offsetY,
+                      buildingRotation: layout.rotation,
+                      buildingScale: layout.scale,
+                    });
+                  }}
+                />
+                
+                <CostCalculator
+                  defaultArea={project.area}
+                  defaultFloors={1}
                 />
                 
                 <LayoutTemplatesGallery

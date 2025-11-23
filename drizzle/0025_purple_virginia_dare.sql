@@ -1,0 +1,22 @@
+CREATE TABLE `customTemplates` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`description` text,
+	`category` enum('retangular','L','esquina','irregular','outro') NOT NULL,
+	`offsetX` int NOT NULL DEFAULT 0,
+	`offsetY` int NOT NULL DEFAULT 0,
+	`rotation` int NOT NULL DEFAULT 0,
+	`scale` int NOT NULL DEFAULT 80,
+	`tags` text,
+	`isPublic` int NOT NULL DEFAULT 0,
+	`usageCount` int NOT NULL DEFAULT 0,
+	`rating` int DEFAULT 0,
+	`ratingCount` int DEFAULT 0,
+	`recommendedMinArea` int,
+	`recommendedMaxArea` int,
+	`recommendedAspectRatio` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `customTemplates_id` PRIMARY KEY(`id`)
+);

@@ -176,6 +176,13 @@
       "when": 1763918521347,
       "tag": "0024_long_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1763922796685,
+      "tag": "0025_purple_virginia_dare",
+      "breakpoints": true
     }
   ]
 }

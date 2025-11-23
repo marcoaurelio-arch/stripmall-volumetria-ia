@@ -104,6 +104,41 @@ export type SavedLayout = typeof savedLayouts.$inferSelect;
 export type InsertSavedLayout = typeof savedLayouts.$inferInsert;
 
 /**
+ * Templates de layout personalizados criados pelos usuários
+ */
+export const customTemplates = mysqlTable("customTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // Criador do template
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: mysqlEnum("category", ["retangular", "L", "esquina", "irregular", "outro"]).notNull(),
+  
+  // Layout do template
+  offsetX: int("offsetX").notNull().default(0),
+  offsetY: int("offsetY").notNull().default(0),
+  rotation: int("rotation").notNull().default(0),
+  scale: int("scale").notNull().default(80),
+  
+  // Metadados
+  tags: text("tags"), // JSON array de tags
+  isPublic: int("isPublic").notNull().default(0), // 0 = privado, 1 = público
+  usageCount: int("usageCount").notNull().default(0), // Contador de usos
+  rating: int("rating").default(0), // Avaliação média * 100
+  ratingCount: int("ratingCount").default(0), // Número de avaliações
+  
+  // Características recomendadas do terreno
+  recommendedMinArea: int("recommendedMinArea"),
+  recommendedMaxArea: int("recommendedMaxArea"),
+  recommendedAspectRatio: int("recommendedAspectRatio"), // Proporção largura/comprimento * 100
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CustomTemplate = typeof customTemplates.$inferSelect;
+export type InsertCustomTemplate = typeof customTemplates.$inferInsert;
+
+/**
  * Tabela de cenários de polígonos para permitir múltiplas configurações de terreno por projeto
  */
 export const scenarios = mysqlTable("scenarios", {
