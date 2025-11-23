@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,18 +19,30 @@ export default function InspirationGallery() {
   const [maxArea, setMaxArea] = useState<string>("");
   const [location, setLocation] = useState("");
   const [region, setRegion] = useState<string>("all");
+  const [minStores, setMinStores] = useState<string>("");
+  const [maxStores, setMaxStores] = useState<string>("");
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [, navigate] = useLocation();
 
-  const { data: projects, isLoading } = trpc.inspiration.list.useQuery({
+  const ITEMS_PER_PAGE = 12;
+
+  const { data: allProjects, isLoading } = trpc.inspiration.list.useQuery({
     search: search || undefined,
     category: category !== "all" ? (category as any) : undefined,
     minArea: minArea ? parseInt(minArea) : undefined,
     maxArea: maxArea ? parseInt(maxArea) : undefined,
     location: location || undefined,
     region: region !== "all" ? (region as any) : undefined,
+  });
+
+  // Filtro de lojas (client-side)
+  const projects = allProjects?.filter(project => {
+    if (minStores && project.storeCount && project.storeCount < parseInt(minStores)) return false;
+    if (maxStores && project.storeCount && project.storeCount > parseInt(maxStores)) return false;
+    return true;
   });
 
   const { data: selectedProject } = trpc.inspiration.getById.useQuery(
@@ -45,9 +57,23 @@ export default function InspirationGallery() {
     setMaxArea("");
     setLocation("");
     setRegion("all");
+    setMinStores("");
+    setMaxStores("");
   };
 
-  const hasFilters = search || (category && category !== "all") || minArea || maxArea || location || (region && region !== "all");
+  const hasFilters = search || (category && category !== "all") || minArea || maxArea || location || (region && region !== "all") || minStores || maxStores;
+
+  // Paginação
+  const totalProjects = projects?.length || 0;
+  const totalPages = Math.ceil(totalProjects / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedProjects = projects?.slice(startIndex, endIndex) || [];
+
+  // Reset página quando filtros mudam
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, category, minArea, maxArea, location, region, minStores, maxStores]);
 
   const toggleProjectSelection = (projectId: number) => {
     setSelectedForComparison(prev => 
@@ -186,6 +212,28 @@ export default function InspirationGallery() {
                   />
                 </div>
               </div>
+
+              {/* Número de Lojas */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="text-sm font-medium mb-2 block">Lojas Mín</label>
+                  <Input
+                    type="number"
+                    placeholder="5"
+                    value={minStores}
+                    onChange={(e) => setMinStores(e.target.value)}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-sm font-medium mb-2 block">Lojas Máx</label>
+                  <Input
+                    type="number"
+                    placeholder="30"
+                    value={maxStores}
+                    onChange={(e) => setMaxStores(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -215,11 +263,36 @@ export default function InspirationGallery() {
           </div>
         ) : projects && projects.length > 0 ? (
           <>
-            <div className="text-sm text-muted-foreground mb-4">
-              Exibindo {projects.length} projeto{projects.length !== 1 ? "s" : ""}
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm text-muted-foreground">
+                Exibindo {startIndex + 1}-{Math.min(endIndex, totalProjects)} de {totalProjects} projeto{totalProjects !== 1 ? "s" : ""}
+              </div>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Anterior
+                  </Button>
+                  <span className="text-sm">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
+              {paginatedProjects.map((project) => (
                 <Card 
                   key={project.id} 
                   className={`hover:shadow-lg transition-all cursor-pointer group relative ${

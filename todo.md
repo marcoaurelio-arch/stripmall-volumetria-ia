@@ -1212,3 +1212,19 @@
 - [x] Testar filtros de categoria e região (servidor respondendo HTTP 200)
 - [x] Testar busca por nome e localização (funcionalidade implementada)
 - [x] Testar seleção múltipla e comparação de projetos (implementado e funcional)
+
+
+## PRÓXIMOS PASSOS - Melhorias da Galeria
+- [x] Implementar paginação na galeria (12 projetos por página)
+- [x] Adicionar controles de navegação (anterior/próxima página)
+- [x] Adicionar contador de projetos ("Exibindo 1-12 de 25 projetos")
+- [x] Reset automático para página 1 quando filtros mudam
+- [x] Adicionar filtro de faixa de lojas (campos min-max)
+- [x] Implementar filtragem client-side por número de lojas
+- [x] Integrar filtro de lojas com reset de página
+- [x] Documentar opções para imagens dos 18 novos projetos
+- [x] Criar guia completo (GUIA-IMAGENS-NOVOS-PROJETOS.md)
+- [x] Sugerir 3 abordagens: stock images, geração IA, placeholders
+- [x] Documentar prompts de geração por tipo de projeto
+- [x] Criar mapeamento de todos os 18 projetos (IDs 8-25)
+- [ ] Atualizar mainImageUrl via painel admin (pendente - aguardando escolha do usuário)
