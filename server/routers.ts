@@ -19,6 +19,8 @@ import { bimRouter } from "./routers/bimRouter";
 import { financialProjectionRouter } from "./financialProjectionRouter";
 import { layoutValidationRouter } from "./layoutValidationRouter";
 import { savedLayoutRouter } from "./savedLayoutRouter";
+import { layoutOptimizationRouter } from "./layoutOptimizationRouter";
+import { layoutPdfExportRouter } from "./layoutPdfExportRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -52,6 +54,8 @@ export const appRouter = router({
   financialProjection: financialProjectionRouter,
   layoutValidation: layoutValidationRouter,
   savedLayout: savedLayoutRouter,
+  layoutOptimization: layoutOptimizationRouter,
+  layoutPdfExport: layoutPdfExportRouter,
 });
 
 export type AppRouter = typeof appRouter;

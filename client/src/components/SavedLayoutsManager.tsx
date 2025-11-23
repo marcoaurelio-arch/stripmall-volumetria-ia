@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Save, Trash2, Download, CheckCircle, AlertTriangle, Layers } from "lucide-react";
+import { Save, Trash2, Download, CheckCircle, AlertTriangle, Layers, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { BuildingLayout } from "./BuildingLayoutAdjuster";
@@ -59,6 +59,26 @@ export function SavedLayoutsManager({
     },
     onError: (error) => {
       toast.error(`Erro ao remover layout: ${error.message}`);
+    },
+  });
+
+  const exportPdfMutation = trpc.layoutPdfExport.exportPdf.useMutation({
+    onSuccess: (data) => {
+      // Converter base64 para blob e fazer download
+      const blob = new Blob(
+        [Uint8Array.from(atob(data.pdfBase64), c => c.charCodeAt(0))],
+        { type: 'application/pdf' }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("PDF exportado com sucesso!");
+    },
+    onError: (error) => {
+      toast.error(`Erro ao exportar PDF: ${error.message}`);
     },
   });
 
@@ -113,14 +133,15 @@ export function SavedLayoutsManager({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Botão para salvar layout atual */}
-        <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full">
-              <Save className="h-4 w-4 mr-2" />
-              Salvar Layout Atual
-            </Button>
-          </DialogTrigger>
+        {/* Botões de ação */}
+        <div className="grid grid-cols-2 gap-2">
+          <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full">
+                <Save className="h-4 w-4 mr-2" />
+                Salvar Layout Atual
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Salvar Layout</DialogTitle>
@@ -166,7 +187,18 @@ export function SavedLayoutsManager({
           </DialogContent>
         </Dialog>
 
-        {/* Lista de layouts salvos */}
+        <Button
+          onClick={() => exportPdfMutation.mutate({ projectId })}
+          variant="outline"
+          className="w-full"
+          disabled={exportPdfMutation.isPending || !layouts || layouts.length === 0}
+        >
+          <FileDown className="h-4 w-4 mr-2" />
+          {exportPdfMutation.isPending ? "Exportando..." : "Exportar Comparação PDF"}
+        </Button>
+      </div>
+
+      {/* Lista de layouts salvos */}
         {isLoading ? (
           <div className="text-center text-muted-foreground py-8">Carregando layouts...</div>
         ) : layouts && layouts.length > 0 ? (

@@ -1,10 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { RotateCcw, Save, Move, AlertTriangle, CheckCircle } from "lucide-react";
-import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { RotateCcw, Save, Move, RotateCw, Maximize2, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 interface BuildingLayoutAdjusterProps {
   polygonCoordinates: string; // JSON string of coordinates
@@ -35,12 +43,25 @@ export function BuildingLayoutAdjuster({
   onSave,
 }: BuildingLayoutAdjusterProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Mutation de otimização
+  const optimizeMutation = trpc.layoutOptimization.optimize.useMutation({
+    onSuccess: (data) => {
+      setOptimizedLayout(data);
+      setOptimizationDialogOpen(true);
+    },
+    onError: (error) => {
+      toast.error(`Erro ao otimizar layout: ${error.message}`);
+    },
+  });
   const [layout, setLayout] = useState<BuildingLayout>({
     offsetX: 0,
     offsetY: 0,
     rotation: 0,
     scale: 80,
   });
+  const [optimizationDialogOpen, setOptimizationDialogOpen] = useState(false);
+  const [optimizedLayout, setOptimizedLayout] = useState<any>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   
@@ -245,7 +266,7 @@ export function BuildingLayoutAdjuster({
             }`}>
               <div className="flex items-start gap-2">
                 {validation.isValid ? (
-                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                 ) : (
                   <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                 )}
@@ -288,6 +309,24 @@ export function BuildingLayoutAdjuster({
               Resetar
             </Button>
             <Button 
+              onClick={() => {
+                optimizeMutation.mutate({
+                  terrain: terrainDimensions,
+                  setbacks,
+                  preferences: {
+                    prioritizeOccupancy: true,
+                    prioritizeSolar: true,
+                  },
+                });
+              }}
+              variant="outline"
+              className="flex-1"
+              disabled={optimizeMutation.isPending}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {optimizeMutation.isPending ? "Otimizando..." : "Otimizar"}
+            </Button>
+            <Button 
               onClick={handleSave} 
               className="flex-1"
               disabled={validation && !validation.isValid}
@@ -306,6 +345,105 @@ export function BuildingLayoutAdjuster({
           </p>
         </div>
       </CardContent>
+
+      {/* Dialog de Resultado da Otimização */}
+      <Dialog open={optimizationDialogOpen} onOpenChange={setOptimizationDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Layout Otimizado
+            </DialogTitle>
+            <DialogDescription>
+              O algoritmo analisou seu terreno e recuos para sugerir o melhor layout
+            </DialogDescription>
+          </DialogHeader>
+
+          {optimizedLayout && (
+            <div className="space-y-4">
+              {/* Score e Justificativa */}
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Score Geral</span>
+                  <span className={`text-2xl font-bold ${
+                    optimizedLayout.score >= 80 ? 'text-green-600' :
+                    optimizedLayout.score >= 60 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {optimizedLayout.score.toFixed(0)}/100
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {optimizedLayout.reasoning}
+                </p>
+              </div>
+
+              {/* Métricas */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Taxa de Ocupação</p>
+                  <p className="text-lg font-semibold">{optimizedLayout.metrics.occupancyRate.toFixed(1)}%</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Área do Edifício</p>
+                  <p className="text-lg font-semibold">{optimizedLayout.metrics.footprintArea.toFixed(2)} m²</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Área Desperdício</p>
+                  <p className="text-lg font-semibold">{optimizedLayout.metrics.wastedArea.toFixed(2)} m²</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Orientação Solar</p>
+                  <p className="text-lg font-semibold">{optimizedLayout.metrics.solarOrientation}</p>
+                </div>
+              </div>
+
+              {/* Parâmetros */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium">Parâmetros Sugeridos:</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Posição X:</span>
+                    <span className="ml-2 font-medium">{optimizedLayout.offsetX}%</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Posição Y:</span>
+                    <span className="ml-2 font-medium">{optimizedLayout.offsetY}%</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Rotação:</span>
+                    <span className="ml-2 font-medium">{optimizedLayout.rotation}°</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Escala:</span>
+                    <span className="ml-2 font-medium">{optimizedLayout.scale}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOptimizationDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => {
+              if (optimizedLayout) {
+                setLayout({
+                  offsetX: optimizedLayout.offsetX,
+                  offsetY: optimizedLayout.offsetY,
+                  rotation: optimizedLayout.rotation,
+                  scale: optimizedLayout.scale,
+                });
+                setOptimizationDialogOpen(false);
+                toast.success("Layout otimizado aplicado!");
+              }
+            }}>
+              Aplicar Layout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -1299,3 +1299,40 @@
 - [ ] Adicionar visualização comparativa de múltiplos layouts
 - [x] Implementar seleção de layout ativo
 - [ ] Testar salvamento e carregamento de layouts
+
+## Visualização Comparativa de Layouts
+
+- [x] Criar componente LayoutComparison para exibir múltiplos layouts lado a lado
+- [x] Implementar seleção de layouts para comparação (2-3 layouts)
+- [x] Exibir canvas visual de cada layout
+- [x] Calcular e exibir métricas comparativas (aproveitamento, recuos, taxa de ocupação)
+- [x] Adicionar indicadores visuais de diferenças entre layouts
+- [x] Implementar destaque do layout recomendado
+- [x] Integrar na página ProjectDetail
+- [ ] Testar com diferentes combinações de layouts
+
+## Otimização Automática de Layout com IA
+
+- [x] Criar serviço de otimização automática (layoutOptimizationService)
+- [x] Implementar algoritmo de maximização de aproveitamento
+- [x] Considerar restrições de recuos obrigatórios
+- [x] Calcular orientação solar ideal
+- [x] Minimizar áreas mortas e desperdício
+- [x] Criar procedure tRPC para otimização
+- [x] Adicionar botão "Otimizar Automaticamente" no BuildingLayoutAdjuster
+- [x] Exibir resultado da otimização com justificativa
+- [x] Permitir aceitar ou rejeitar sugestão
+- [ ] Testar com diferentes tipos de terrenos
+
+## Exportação de Layouts para PDF
+
+- [x] Criar serviço de geração de PDF comparativo
+- [x] Incluir canvas visual de cada layout (via markdown)
+- [x] Adicionar tabela de parâmetros técnicos
+- [x] Incluir validação de recuos e avisos
+- [x] Adicionar métricas de aproveitamento
+- [x] Incluir justificativa da escolha recomendada
+- [x] Criar procedure tRPC para exportação
+- [x] Adicionar botão "Exportar Comparação PDF" no SavedLayoutsManager
+- [x] Implementar download automático do PDF
+- [ ] Testar geração com diferentes quantidades de layouts

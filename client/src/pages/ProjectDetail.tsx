@@ -25,6 +25,7 @@ import LogoUploader from "@/components/LogoUploader";
 import Terrain3DViewer from "@/components/Terrain3DViewer";
 import { BuildingLayoutAdjuster, BuildingLayout } from "@/components/BuildingLayoutAdjuster";
 import { SavedLayoutsManager } from "@/components/SavedLayoutsManager";
+import { LayoutComparison } from "@/components/LayoutComparison";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -601,6 +602,21 @@ export default function ProjectDetail() {
                       buildingRotation: layout.rotation,
                       buildingScale: layout.scale,
                     });
+                  }}
+                />
+                
+                <LayoutComparison
+                  projectId={project.id}
+                  polygonCoordinates={project.polygonCoordinates}
+                  terrainDimensions={{
+                    width: project.width || 50,
+                    length: project.length || 100,
+                    area: project.area,
+                  }}
+                  setbacks={{
+                    frontal: project.recuoFrontal || 5,
+                    lateral: project.recuoLateral || 3,
+                    fundos: project.recuoFundos || 3,
                   }}
                 />
               </>
