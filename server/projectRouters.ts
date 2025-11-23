@@ -86,6 +86,10 @@ export const projectRouter = router({
         latitude: z.string().optional(),
         longitude: z.string().optional(),
         pricePerSqm: z.number().optional(), // Preço por m² em centavos
+        buildingOffsetX: z.number().optional(),
+        buildingOffsetY: z.number().optional(),
+        buildingRotation: z.number().optional(),
+        buildingScale: z.number().optional(),
         status: z.enum(["draft", "analyzing", "completed"]).optional(),
       })
     )

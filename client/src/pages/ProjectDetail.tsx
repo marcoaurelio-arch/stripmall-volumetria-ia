@@ -23,6 +23,7 @@ import AdvancedFinancialDashboard from "@/components/AdvancedFinancialDashboard"
 import SavedScenariosPanel from "@/components/SavedScenariosPanel";
 import LogoUploader from "@/components/LogoUploader";
 import Terrain3DViewer from "@/components/Terrain3DViewer";
+import { BuildingLayoutAdjuster, BuildingLayout } from "@/components/BuildingLayoutAdjuster";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -47,6 +48,16 @@ export default function ProjectDetail() {
     { projectId },
     { enabled: isAuthenticated && !isNaN(projectId) }
   );
+
+  const updateProjectMutation = trpc.project.update.useMutation({
+    onSuccess: () => {
+      toast.success("Projeto atualizado com sucesso!");
+      utils.project.get.invalidate({ id: projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao atualizar projeto");
+    },
+  });
 
   const analyzeMutation = trpc.project.analyze.useMutation({
     onSuccess: () => {
@@ -546,6 +557,22 @@ export default function ProjectDetail() {
                 />
               </CardContent>
             </Card>
+
+            {/* Ajuste Manual de Layout do Edifício */}
+            {project.polygonCoordinates && (
+              <BuildingLayoutAdjuster
+                polygonCoordinates={project.polygonCoordinates}
+                onSave={(layout: BuildingLayout) => {
+                  updateProjectMutation.mutate({
+                    id: projectId,
+                    buildingOffsetX: layout.offsetX,
+                    buildingOffsetY: layout.offsetY,
+                    buildingRotation: layout.rotation,
+                    buildingScale: layout.scale,
+                  });
+                }}
+              />
+            )}
 
             {/* Gerenciador de Cenários */}
             <ScenarioManager

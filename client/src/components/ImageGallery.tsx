@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import ReferenceImageGallery from "@/components/ReferenceImageGallery";
 import VirtualTour360Viewer from "@/components/VirtualTour360Viewer";
+import { ImagePolygonOverlay } from "@/components/ImagePolygonOverlay";
 
 interface ImageGalleryProps {
   projectId: number;
@@ -17,9 +18,11 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedReferenceImages, setSelectedReferenceImages] = useState<number[]>([]);
   const [showVirtualTour, setShowVirtualTour] = useState(false);
+  const [showValidationOverlay, setShowValidationOverlay] = useState(false);
   const utils = trpc.useUtils();
 
   const { data: images, isLoading } = trpc.image.list.useQuery({ projectId });
+  const { data: project } = trpc.project.get.useQuery({ id: projectId });
 
   const generateConceptualMutation = trpc.image.generateConceptual.useMutation({
     onSuccess: () => {
@@ -937,18 +940,30 @@ export default function ImageGallery({ projectId }: ImageGalleryProps) {
         </CardContent>
       </Card>
 
-      {/* Dialog para visualizar imagem em tamanho completo */}
+      {/* Dialog para visualizar imagem em tamanho completo com overlay de validação */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Visualização</DialogTitle>
+            <DialogTitle>Visualização com Validação de Polígono</DialogTitle>
           </DialogHeader>
-          {selectedImage && (
-            <img
-              src={selectedImage}
-              alt="Visualização completa"
-              className="w-full h-auto rounded-lg"
+          {selectedImage && project?.polygonCoordinates && (
+            <ImagePolygonOverlay
+              imageUrl={selectedImage}
+              polygonCoordinates={project.polygonCoordinates}
+              projectName={project.name}
             />
+          )}
+          {selectedImage && !project?.polygonCoordinates && (
+            <div className="space-y-4">
+              <img
+                src={selectedImage}
+                alt="Visualização completa"
+                className="w-full h-auto rounded-lg"
+              />
+              <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                <p>⚠️ Polígono do terreno não disponível. Importe um arquivo KMZ para habilitar a validação visual.</p>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

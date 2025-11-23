@@ -58,6 +58,12 @@ export const projects = mysqlTable("projects", {
   logoUrl: text("logoUrl"), // URL do logo customizado do projeto
   brandColor: varchar("brandColor", { length: 7 }), // Cor da marca em hex (#RRGGBB)
   
+  // Layout personalizado do edifício
+  buildingOffsetX: int("buildingOffsetX").default(0), // Deslocamento horizontal (-50 a 50)
+  buildingOffsetY: int("buildingOffsetY").default(0), // Deslocamento vertical (-50 a 50)
+  buildingRotation: int("buildingRotation").default(0), // Rotação em graus (0 a 360)
+  buildingScale: int("buildingScale").default(80), // Escala do edifício (50 a 100%)
+  
   status: mysqlEnum("status", ["draft", "analyzing", "completed"]).default("draft").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

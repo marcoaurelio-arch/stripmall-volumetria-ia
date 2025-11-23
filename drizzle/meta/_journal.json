@@ -155,6 +155,13 @@
       "when": 1763373793523,
       "tag": "0021_lazy_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1763915880665,
+      "tag": "0022_right_shooting_star",
+      "breakpoints": true
     }
   ]
 }
