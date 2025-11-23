@@ -3,7 +3,7 @@ import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { generateImage } from "./_core/imageGeneration";
-import { analyzePolygonGeometry } from "./geometryAnalyzer";
+import { analyzeTerrainGeometry } from "./services/terrainGeometryService";
 import { generateStaticMapUrl, calculateAppropriateZoom } from "./mapsImageGenerator";
 
 export const imageRouter = router({
@@ -54,8 +54,9 @@ export const imageRouter = router({
       let siteImageUrl = "";
       
       if (project.polygonCoordinates && project.latitude && project.longitude) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Orientation: ${geometry.orientation}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m\n- The building MUST fit within this ${geometry.shape} lot shape, respecting the exact site boundaries`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nSITE GEOMETRY (CRITICAL - MUST MATCH EXACTLY):\n${geometry.promptDescription}\n- Exact lot dimensions: ${geometry.dimensions.width}m (width) x ${geometry.dimensions.length}m (length)\n- Lot shape type: ${geometry.shape.type} (${geometry.vertices} vertices)\n- Main orientation: ${geometry.orientation.cardinalDirection} (${geometry.orientation.mainAxis}°)\n- ${geometry.orientation.solarOrientation}\n- The building layout MUST respect this exact ${geometry.shape.type} lot geometry, not a generic rectangular shape\n- Parking and circulation must fit within the ${geometry.dimensions.perimeter}m perimeter`;
         
         // Gerar URL da imagem de satélite do terreno
         const zoom = calculateAppropriateZoom(project.area);
@@ -232,8 +233,9 @@ TECHNICAL QUALITY:
       // Analisar geometria do terreno se houver polígono
       let geometryInfo = "";
       if (project.polygonCoordinates) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n- Lot shape: ${geometry.description}\n- Site dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m\n- Building footprint MUST match the ${geometry.shape} lot boundaries`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nLOT GEOMETRY (CRITICAL FOR FLOOR PLAN):\n${geometry.promptDescription}\n- Exact lot: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m (${geometry.shape.type})\n- ${geometry.vertices} vertices defining the lot boundary\n- Building footprint MUST fit within this exact ${geometry.shape.type} shape\n- Parking layout must adapt to ${geometry.orientation.cardinalDirection} orientation\n- Total site perimeter: ${geometry.dimensions.perimeter}m`;
       }
       
       // Criar prompt técnico para planta baixa
@@ -344,8 +346,9 @@ DRAWING STYLE:
       
       let geometryInfo = "";
       if (project.polygonCoordinates && project.latitude && project.longitude) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Orientation: ${geometry.orientation}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m\n- Orientation: ${geometry.orientation.cardinalDirection}`;
       }
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
@@ -411,8 +414,9 @@ Render as a clean architectural study model, similar to professional feasibility
       
       let geometryInfo = "";
       if (project.polygonCoordinates) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
       }
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
@@ -482,8 +486,9 @@ Render as a clean architectural elevation study, similar to professional feasibi
       for (const viewAngle of views) {
         let geometryInfo = "";
         if (project.polygonCoordinates) {
-          const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-          geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+          const coordinates = JSON.parse(project.polygonCoordinates);
+          const geometry = analyzeTerrainGeometry(coordinates);
+          geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
         }
 
         const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
@@ -578,8 +583,9 @@ Render as a clean architectural elevation study, similar to professional feasibi
       
       let geometryInfo = "";
       if (project.polygonCoordinates) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
       }
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
@@ -670,8 +676,9 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
       
       let geometryInfo = "";
       if (project.polygonCoordinates) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
       }
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
@@ -741,8 +748,9 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
       // Gerar corte longitudinal
       let geometryInfo = "";
       if (project.polygonCoordinates) {
-        const geometry = analyzePolygonGeometry(project.polygonCoordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n- Lot shape: ${geometry.description}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
+        const coordinates = JSON.parse(project.polygonCoordinates);
+        const geometry = analyzeTerrainGeometry(coordinates);
+        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
       }
 
       const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
@@ -859,7 +867,7 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
       }
 
       const geometryInfo = project.polygonCoordinates
-        ? `\n- Terrain shape: ${analyzePolygonGeometry(project.polygonCoordinates).description}`
+        ? `\n- Terrain shape: ${analyzeTerrainGeometry(JSON.parse(project.polygonCoordinates)).promptDescription}`
         : "";
 
       const briefingSection = project.briefing

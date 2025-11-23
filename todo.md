@@ -1244,3 +1244,24 @@
 - [x] Mapear todos os 18 projetos com sugestões de imagens
 - [x] Adicionar checklist de qualidade e ferramentas úteis
 - [ ] Adicionar imagens reais aos 18 projetos (pendente - aguardando escolha de fonte)
+
+
+## MELHORIA DE REALISMO DOS ESTUDOS VISUAIS
+- [x] Analisar processamento atual de KMZ e extração de polígono
+- [x] Criar serviço de análise de geometria do terreno (terrainGeometryService.ts)
+- [x] Calcular dimensões exatas do terreno (largura, comprimento, perímetro, proporção)
+- [x] Detectar formato do terreno (retangular, irregular, em L, trapezoidal, triangular)
+- [x] Extrair orientação solar baseada em coordenadas GPS (Norte, Sul, Leste, Oeste)
+- [x] Gerar descrição completa para prompts (formato, dimensões, orientação, recomendações)
+- [x] Enriquecer prompts de estudos conceituais com dados completos do polígono
+- [x] Enriquecer prompts de plantas baixas com formato exato do terreno
+- [x] Enriquecer prompts de cortes longitudinais e transversais com dimensões reais
+- [x] Enriquecer prompts de fachadas com orientação solar
+- [x] Enriquecer prompts de maquetes com geometria do terreno
+- [x] Substituir analyzePolygonGeometry por analyzeTerrainGeometry em todos os procedures
+- [x] Adicionar imagem de satélite do terreno como referência para geração IA
+- [x] Criar visualização 3D do projeto sobre terreno (Terrain3DViewer.tsx)
+- [x] Componente já renderiza polígono do terreno, edifício e estacionamento
+- [x] Imagem de satélite do terreno enviada como referência para IA
+- [ ] Testar geração com terrenos de diferentes formatos (retangular, L, irregular)
+- [ ] Validar precisão das imagens geradas comparando com polígono real
