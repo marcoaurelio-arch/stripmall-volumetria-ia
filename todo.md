@@ -1491,3 +1491,54 @@
 - [x] Implementar cache de plantas geradas por variação
 - [x] Adicionar opção de gerar todas as plantas de uma vez
 - [x] Testar geração e visualização de plantas
+
+## Correção de Consistência entre Imagens Geradas e Briefing/Escopo
+
+### Problema Reportado
+- [ ] Estudos visuais divergentes do briefing e escopo do projeto
+- [ ] Cortes arquitetônicos totalmente divergentes da realidade
+- [ ] Plantas e visualizações não refletem dados reais do projeto
+
+### Diagnóstico
+- [x] Analisar onde DNA não está sendo aplicado (cortes, seções, site plan)
+- [x] Identificar prompts que não usam dados reais do projeto
+- [x] Verificar se análise volumétrica está sendo considerada
+- [x] Checar se dimensões reais estão nos prompts
+
+### Soluções Backend
+- [x] Garantir que TODOS os tipos de imagem usem getOrGenerateProjectDNA
+- [x] Adicionar dados da análise volumétrica em TODOS os prompts
+- [x] Incluir dimensões reais (largura, comprimento, altura) explicitamente
+- [x] Adicionar número exato de lojas calculado pela análise
+- [x] Reforçar geometria do terreno em cortes e seções
+- [x] Criar helper centralizado para construir contexto de projeto (buildProjectContext)
+- [ ] Adicionar validação: imagem gerada vs dados do projeto
+
+### Melhorias de Prompt
+- [x] Cortes: adicionar número exato de lojas visíveis no corte (via context.criticalRequirements)
+- [x] Cortes: incluir dimensões reais de cada loja (via context.analysis)
+- [x] Cortes: aplicar DNA para consistência visual (generateLongitudinalSection, generateTransversalSection, generateBothSections)
+- [ ] Plantas: reforçar área total e distribuição de lojas
+- [ ] Estudos conceituais: vincular ao número de lojas da análise (já usa DNA, precisa usar buildProjectContext)
+- [x] Todos: adicionar "CRITICAL - MUST MATCH PROJECT DATA" em seções importantes
+- [x] Criar template de prompt base com dados obrigatórios (buildProjectContext)
+
+### Sistema de Validação
+- [ ] Criar função validateImageConsistency que compara prompt vs projeto
+- [ ] Adicionar warning se dados críticos estão faltando no prompt
+- [ ] Implementar retry automático se validação falhar
+- [ ] Exibir alertas no frontend quando inconsistência for detectada
+
+### Testes
+- [ ] Testar geração de corte com projeto real
+- [ ] Verificar se número de lojas no corte corresponde à análise
+- [ ] Validar dimensões em todas as imagens técnicas
+- [ ] Confirmar que briefing está sendo respeitado
+
+## Correção do Google Maps
+
+- [x] Diagnosticar problema do Google Maps não funcionando
+- [x] Verificar se API key está configurada corretamente
+- [ ] Usuário deve configurar VITE_GOOGLE_MAPS_API_KEY nas Settings → Secrets
+- [ ] Testar integração com seleção de terreno após configurar key
+- [ ] Validar coordenadas e polígonos

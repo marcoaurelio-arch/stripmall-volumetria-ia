@@ -504,7 +504,11 @@ ${briefingSection}`;
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
-      // Buscar projetos similares
+      // Obter contexto completo do projeto (DNA + dados reais)
+      const { buildProjectContext } = await import("./services/projectContextHelper");
+      const context = await buildProjectContext(input.projectId);
+
+      // Buscar projetos similares para referência
       const dbInstance = await db.getDb();
       let similarProjectsContext = "";
       if (dbInstance && project.area) {
@@ -529,17 +533,12 @@ ${briefingSection}`;
           similarProjectsContext = `\n\nREFERENCE PROJECTS (similar Brazilian strip malls):\n${projectDescriptions}`;
         }
       }
-      
-      let geometryInfo = "";
-      if (project.polygonCoordinates) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
-      }
 
-      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+      // Gerar prompt base usando DNA do projeto para consistência visual
+      const { generateConsistentPrompt } = await import("./services/projectDNAService");
+      const dnaPromptBase = generateConsistentPrompt(context.dna, "section");
 
-      const prompt = `Create a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
+      const prompt = `${dnaPromptBase}\n\nCreate a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
 
 ABNT TECHNICAL REQUIREMENTS:
 - Clean black and white technical drawing
@@ -553,14 +552,14 @@ ABNT TECHNICAL REQUIREMENTS:
 - North arrow and scale (1:100 or 1:200)
 - Title block with: project name, drawing title "CORTE LONGITUDINAL AA", scale, date
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+${context.criticalRequirements}
+${context.geometryInfo}
+${context.briefingSection}
 
 SECTION CONTENT:
 - Cut through the longest dimension showing all stores in sequence
 - Show foundation, floor slab, walls, roof structure
-- Include ceiling height variations (pharmacy 3.5m, retail 4.0m, supermarket 5.0m)
+- Include ceiling height variations based on store types
 - Show mezzanine if applicable
 - Indicate drainage slopes on roof
 - Show parking lot level and building floor level difference
@@ -597,7 +596,11 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
-      // Buscar projetos similares
+      // Obter contexto completo do projeto (DNA + dados reais)
+      const { buildProjectContext } = await import("./services/projectContextHelper");
+      const context = await buildProjectContext(input.projectId);
+
+      // Buscar projetos similares para referência
       const dbInstance = await db.getDb();
       let similarProjectsContext = "";
       if (dbInstance && project.area) {
@@ -622,17 +625,14 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
           similarProjectsContext = `\n\nREFERENCE PROJECTS (similar Brazilian strip malls):\n${projectDescriptions}`;
         }
       }
-      
-      let geometryInfo = "";
-      if (project.polygonCoordinates) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
-      }
 
-      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+      // Gerar prompt base usando DNA do projeto para consistência visual
+      const { generateConsistentPrompt } = await import("./services/projectDNAService");
+      const dnaPromptBase = generateConsistentPrompt(context.dna, "section");
 
-      const prompt = `Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
+      const prompt = `${dnaPromptBase}
+
+Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
 
 ABNT TECHNICAL REQUIREMENTS:
 - Clean black and white technical drawing
@@ -646,9 +646,9 @@ ABNT TECHNICAL REQUIREMENTS:
 - North arrow and scale (1:100 or 1:200)
 - Title block with: project name, drawing title "CORTE TRANSVERSAL BB", scale, date
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+${context.criticalRequirements}
+${context.geometryInfo}
+${context.briefingSection}
 
 SECTION CONTENT:
 - Cut through the width showing typical store depth
@@ -692,20 +692,18 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Obter contexto completo do projeto (DNA + dados reais)
+      const { buildProjectContext } = await import("./services/projectContextHelper");
+      const context = await buildProjectContext(input.projectId);
+
+      // Gerar prompt base usando DNA do projeto
+      const { generateConsistentPrompt } = await import("./services/projectDNAService");
+      const dnaPromptBase = generateConsistentPrompt(context.dna, "section");
+
       const results = [];
 
-      // Gerar corte longitudinal
-      let geometryInfo = "";
-      if (project.polygonCoordinates) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
-      }
-
-      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
-
       // Corte Longitudinal
-      const longitudinalPrompt = `Create a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.
+      const longitudinalPrompt = `${dnaPromptBase}\n\nCreate a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.
 
 ABNT TECHNICAL REQUIREMENTS:
 - Clean black and white technical drawing
@@ -719,14 +717,14 @@ ABNT TECHNICAL REQUIREMENTS:
 - North arrow and scale (1:100 or 1:200)
 - Title block with: project name, drawing title "CORTE LONGITUDINAL AA", scale, date
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+${context.criticalRequirements}
+${context.geometryInfo}
+${context.briefingSection}
 
 SECTION CONTENT:
 - Cut through the longest dimension showing all stores in sequence
 - Show foundation, floor slab, walls, roof structure
-- Include ceiling height variations (pharmacy 3.5m, retail 4.0m, supermarket 5.0m)
+- Include ceiling height variations based on store types
 - Show mezzanine if applicable
 - Indicate drainage slopes on roof
 - Show parking lot level and building floor level difference
@@ -753,7 +751,7 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
       results.push({ type: "longitudinal", imageUrl: longitudinalUrl });
 
       // Corte Transversal
-      const transversalPrompt = `Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.
+      const transversalPrompt = `${dnaPromptBase}\n\nCreate a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.
 
 ABNT TECHNICAL REQUIREMENTS:
 - Clean black and white technical drawing
@@ -767,9 +765,9 @@ ABNT TECHNICAL REQUIREMENTS:
 - North arrow and scale (1:100 or 1:200)
 - Title block with: project name, drawing title "CORTE TRANSVERSAL BB", scale, date
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building dimensions: ${project.width}m (width) x ${project.length}m (length)${geometryInfo}${briefingSection}
+${context.criticalRequirements}
+${context.geometryInfo}
+${context.briefingSection}
 
 SECTION CONTENT:
 - Cut through the width showing typical store depth
