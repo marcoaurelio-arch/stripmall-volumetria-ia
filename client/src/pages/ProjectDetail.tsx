@@ -26,6 +26,8 @@ import Terrain3DViewer from "@/components/Terrain3DViewer";
 import { BuildingLayoutAdjuster, BuildingLayout } from "@/components/BuildingLayoutAdjuster";
 import { SavedLayoutsManager } from "@/components/SavedLayoutsManager";
 import { LayoutComparison } from "@/components/LayoutComparison";
+import { ShadowVisualization } from "@/components/ShadowVisualization";
+import { LayoutTemplatesGallery } from "@/components/LayoutTemplatesGallery";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -617,6 +619,48 @@ export default function ProjectDetail() {
                     frontal: project.recuoFrontal || 5,
                     lateral: project.recuoLateral || 3,
                     fundos: project.recuoFundos || 3,
+                  }}
+                />
+                
+                <ShadowVisualization
+                  projectId={project.id}
+                  buildingLayout={{
+                    offsetX: project.buildingOffsetX || 0,
+                    offsetY: project.buildingOffsetY || 0,
+                    rotation: project.buildingRotation || 0,
+                    scale: project.buildingScale || 80,
+                  }}
+                  buildingHeight={project.buildingHeight || 8}
+                  terrain={{
+                    width: project.width || 50,
+                    length: project.length || 100,
+                    area: project.area,
+                  }}
+                  location={{
+                    latitude: parseFloat(project.latitude || '-23.55'),
+                    longitude: parseFloat(project.longitude || '-46.63'),
+                  }}
+                />
+                
+                <LayoutTemplatesGallery
+                  terrain={{
+                    width: project.width || 50,
+                    length: project.length || 100,
+                    area: project.area,
+                  }}
+                  setbacks={{
+                    frontal: project.recuoFrontal || 5,
+                    lateral: project.recuoLateral || 3,
+                    fundos: project.recuoFundos || 3,
+                  }}
+                  onApplyTemplate={(layout) => {
+                    updateProjectMutation.mutate({
+                      id: project.id,
+                      buildingOffsetX: layout.offsetX,
+                      buildingOffsetY: layout.offsetY,
+                      buildingRotation: layout.rotation,
+                      buildingScale: layout.scale,
+                    });
                   }}
                 />
               </>

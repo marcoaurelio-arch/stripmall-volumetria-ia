@@ -1336,3 +1336,42 @@
 - [x] Adicionar botão "Exportar Comparação PDF" no SavedLayoutsManager
 - [x] Implementar download automático do PDF
 - [ ] Testar geração com diferentes quantidades de layouts
+
+## Análise de Sombreamento
+
+- [x] Criar serviço de cálculo de posição solar (azimute e elevação)
+- [x] Implementar algoritmo de projeção de sombras baseado em altura do edifício
+- [x] Calcular sombreamento em diferentes horários (8h, 12h, 16h)
+- [x] Calcular sombreamento em diferentes estações (verão, inverno, equinócios)
+- [x] Criar componente de visualização 3D de sombras
+- [x] Adicionar controles de horário e data
+- [x] Integrar visualização na página de detalhes do projeto
+- [x] Gerar relatório de horas de sol por área do terreno
+- [ ] Testar com diferentes latitudes e orientações
+
+## Templates de Layout
+
+- [x] Definir estrutura de dados para templates
+- [x] Criar template para terreno retangular padrão
+- [x] Criar template para terreno em L
+- [x] Criar template para terreno de esquina
+- [x] Criar template para terreno irregular
+- [x] Implementar procedure tRPC para listar templates
+- [x] Implementar procedure tRPC para aplicar template
+- [x] Criar componente de galeria de templates
+- [x] Adicionar preview visual de cada template
+- [x] Permitir personalização após aplicação
+- [ ] Testar aplicação em diferentes tipos de terreno
+
+## Otimização Multi-Objetivo
+
+- [x] Adicionar parâmetro de pesos configuráveis ao serviço de otimização
+- [x] Implementar critério de orientação solar com peso
+- [x] Implementar critério de estética (simetria, proporções) com peso
+- [x] Implementar critério de custo estimado com peso
+- [x] Criar interface de configuração de pesos
+- [x] Adicionar sliders para ajuste de prioridades
+- [x] Recalcular score baseado em pesos personalizados
+- [x] Exibir contribuição de cada critério no score final
+- [ ] Salvar preferências de pesos do usuário
+- [ ] Testar com diferentes combinações de pesos

@@ -13,6 +13,7 @@ import {
 import { RotateCcw, Save, Move, RotateCw, Maximize2, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { OptimizationWeightsConfig, OptimizationWeights } from "@/components/OptimizationWeightsConfig";
 
 interface BuildingLayoutAdjusterProps {
   polygonCoordinates: string; // JSON string of coordinates
@@ -54,6 +55,13 @@ export function BuildingLayoutAdjuster({
       toast.error(`Erro ao otimizar layout: ${error.message}`);
     },
   });
+  const [optimizationWeights, setOptimizationWeights] = useState<OptimizationWeights>({
+    occupancy: 40,
+    solar: 30,
+    aesthetics: 20,
+    cost: 10,
+  });
+  
   const [layout, setLayout] = useState<BuildingLayout>({
     offsetX: 0,
     offsetY: 0,
@@ -317,6 +325,7 @@ export function BuildingLayoutAdjuster({
                     prioritizeOccupancy: true,
                     prioritizeSolar: true,
                   },
+                  weights: optimizationWeights,
                 });
               }}
               variant="outline"

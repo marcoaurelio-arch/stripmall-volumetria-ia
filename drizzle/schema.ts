@@ -54,6 +54,9 @@ export const projects = mysqlTable("projects", {
   polygonCoordinates: text("polygonCoordinates"),
   pricePerSqm: int("pricePerSqm"), // Preço por metro quadrado em centavos
   
+  // Parâmetros do edifício
+  buildingHeight: int("buildingHeight").default(8), // Altura do edifício em metros (padrão: 8m = térreo)
+  
   // Branding personalizado
   logoUrl: text("logoUrl"), // URL do logo customizado do projeto
   brandColor: varchar("brandColor", { length: 7 }), // Cor da marca em hex (#RRGGBB)

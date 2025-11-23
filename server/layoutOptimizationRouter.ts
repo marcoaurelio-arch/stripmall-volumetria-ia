@@ -26,6 +26,14 @@ export const layoutOptimizationRouter = router({
             minimizeWaste: z.boolean().optional(),
           })
           .optional(),
+        weights: z
+          .object({
+            occupancy: z.number().min(0).max(100),
+            solar: z.number().min(0).max(100),
+            aesthetics: z.number().min(0).max(100),
+            cost: z.number().min(0).max(100),
+          })
+          .optional(),
       })
     )
     .mutation(async ({ input }) => {

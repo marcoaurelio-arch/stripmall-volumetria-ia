@@ -169,6 +169,13 @@
       "when": 1763916622259,
       "tag": "0023_strong_stingray",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1763918521347,
+      "tag": "0024_long_bastion",
+      "breakpoints": true
     }
   ]
 }

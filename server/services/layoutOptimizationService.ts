@@ -1,5 +1,12 @@
 import { validateSetbacks } from './setbackValidationService';
 
+export interface OptimizationWeights {
+  occupancy: number; // Peso para aproveitamento (0-100)
+  solar: number; // Peso para orientação solar (0-100)
+  aesthetics: number; // Peso para estética/simetria (0-100)
+  cost: number; // Peso para custo estimado (0-100)
+}
+
 export interface OptimizationInput {
   terrain: {
     width: number;
@@ -16,6 +23,7 @@ export interface OptimizationInput {
     prioritizeSolar?: boolean; // Otimizar orientação solar
     minimizeWaste?: boolean; // Minimizar áreas mortas
   };
+  weights?: OptimizationWeights; // Pesos personalizados para cada critério
 }
 
 export interface OptimizedLayout {
@@ -37,7 +45,15 @@ export interface OptimizedLayout {
  * Otimiza o layout do edifício considerando múltiplos fatores
  */
 export function optimizeLayout(input: OptimizationInput): OptimizedLayout {
-  const { terrain, setbacks, preferences = {} } = input;
+  const { terrain, setbacks, preferences = {}, weights } = input;
+  
+  // Pesos padrão se não especificados
+  const finalWeights: OptimizationWeights = weights || {
+    occupancy: 40,
+    solar: 30,
+    aesthetics: 20,
+    cost: 10,
+  };
 
   // Calcular escala máxima permitida considerando recuos
   const maxScale = calculateMaxScale(terrain, setbacks);
@@ -71,12 +87,16 @@ export function optimizeLayout(input: OptimizationInput): OptimizedLayout {
   const occupancyRate = (footprintArea / terrain.area) * 100;
   const wastedArea = terrain.area - footprintArea;
 
-  // Calcular score
-  let score = 100;
-  score += (occupancyRate - 50) * 0.5; // Bonus por aproveitamento
-  score -= wastedArea * 0.01; // Penalidade por desperdício
-  if (finalLayout.rotation % 90 === 0) score += 10; // Bonus por rotação ortogonal
-  score = Math.max(0, Math.min(100, score));
+  // Calcular score multi-objetivo com pesos
+  const score = calculateMultiObjectiveScore(
+    finalLayout,
+    {
+      occupancyRate,
+      footprintArea,
+      wastedArea,
+    },
+    finalWeights
+  );
 
   // Gerar justificativa
   const reasoning = generateReasoning(finalLayout, validation, {
@@ -243,6 +263,64 @@ function generateReasoning(
   }
 
   return parts.join(', ') + '.';
+}
+
+/**
+ * Calcula score multi-objetivo baseado em pesos configuráveis
+ */
+function calculateMultiObjectiveScore(
+  layout: { offsetX: number; offsetY: number; rotation: number; scale: number },
+  metrics: { occupancyRate: number; footprintArea: number; wastedArea: number },
+  weights: OptimizationWeights
+): number {
+  // Normalizar pesos para somar 100
+  const totalWeight = weights.occupancy + weights.solar + weights.aesthetics + weights.cost;
+  const normalizedWeights = {
+    occupancy: (weights.occupancy / totalWeight) * 100,
+    solar: (weights.solar / totalWeight) * 100,
+    aesthetics: (weights.aesthetics / totalWeight) * 100,
+    cost: (weights.cost / totalWeight) * 100,
+  };
+
+  // Critério 1: Aproveitamento (0-100)
+  const occupancyScore = Math.min(100, metrics.occupancyRate);
+
+  // Critério 2: Orientação Solar (0-100)
+  // Norte = 100, Sul = 0, Leste/Oeste = 50
+  let solarScore = 50;
+  const normalized = layout.rotation % 360;
+  if (normalized >= 337.5 || normalized < 22.5) solarScore = 100; // Norte
+  else if (normalized >= 157.5 && normalized < 202.5) solarScore = 0; // Sul
+  else if ((normalized >= 67.5 && normalized < 112.5) || (normalized >= 247.5 && normalized < 292.5)) {
+    solarScore = 50; // Leste/Oeste
+  } else {
+    solarScore = 75; // Nordeste/Noroeste/Sudeste/Sudoeste
+  }
+
+  // Critério 3: Estética/Simetria (0-100)
+  let aestheticsScore = 50;
+  // Centralização (0-30 pontos)
+  const centralization = 30 - (Math.abs(layout.offsetX) + Math.abs(layout.offsetY)) / 100 * 30;
+  aestheticsScore += Math.max(0, centralization);
+  // Rotação ortogonal (0-20 pontos)
+  if (layout.rotation % 90 === 0) aestheticsScore += 20;
+  // Proporção (0-30 pontos)
+  const proportionScore = layout.scale >= 70 && layout.scale <= 85 ? 30 : 15;
+  aestheticsScore += proportionScore;
+  aestheticsScore = Math.min(100, aestheticsScore);
+
+  // Critério 4: Custo Estimado (0-100)
+  // Menor escala = menor custo = maior score
+  const costScore = 100 - layout.scale;
+
+  // Combinar scores com pesos
+  const finalScore =
+    (occupancyScore * normalizedWeights.occupancy) / 100 +
+    (solarScore * normalizedWeights.solar) / 100 +
+    (aestheticsScore * normalizedWeights.aesthetics) / 100 +
+    (costScore * normalizedWeights.cost) / 100;
+
+  return Math.max(0, Math.min(100, finalScore));
 }
 
 /**

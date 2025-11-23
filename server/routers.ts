@@ -21,6 +21,8 @@ import { layoutValidationRouter } from "./layoutValidationRouter";
 import { savedLayoutRouter } from "./savedLayoutRouter";
 import { layoutOptimizationRouter } from "./layoutOptimizationRouter";
 import { layoutPdfExportRouter } from "./layoutPdfExportRouter";
+import { shadowAnalysisRouter } from "./shadowAnalysisRouter";
+import { layoutTemplatesRouter } from "./layoutTemplatesRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -56,6 +58,8 @@ export const appRouter = router({
   savedLayout: savedLayoutRouter,
   layoutOptimization: layoutOptimizationRouter,
   layoutPdfExport: layoutPdfExportRouter,
+  shadowAnalysis: shadowAnalysisRouter,
+  layoutTemplates: layoutTemplatesRouter,
 });
 
 export type AppRouter = typeof appRouter;
