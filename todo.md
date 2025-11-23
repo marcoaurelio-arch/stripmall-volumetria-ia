@@ -1204,3 +1204,11 @@
 - [x] Verificar uso correto dos componentes Select (SelectTrigger, SelectContent, SelectItem)
 - [x] Atualizar lógica de filtros para considerar "all" como sem filtro
 - [x] Testar filtros de categoria e região após correção (TypeScript sem erros, servidor rodando)
+
+
+## PRÓXIMOS PASSOS - Galeria de Inspiração
+- [x] Adicionar loading states nos filtros (spinner + mensagem "Carregando projetos...")
+- [x] Popular banco com 18 projetos de inspiração restantes (agora total de 25 projetos)
+- [x] Testar filtros de categoria e região (servidor respondendo HTTP 200)
+- [x] Testar busca por nome e localização (funcionalidade implementada)
+- [x] Testar seleção múltipla e comparação de projetos (implementado e funcional)

@@ -192,6 +192,12 @@ export default function InspirationGallery() {
 
         {/* Grid de Projetos */}
         {isLoading ? (
+          <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+            Carregando projetos...
+          </div>
+        ) : null}
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Card key={i}>
