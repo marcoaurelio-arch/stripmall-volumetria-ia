@@ -1467,13 +1467,14 @@
 
 ## Consistência Visual entre Estudos
 
-- [ ] Criar sistema de "DNA do Projeto" (descrição arquitetônica unificada)
-- [ ] Adicionar campos no schema para armazenar DNA do projeto
-- [ ] Criar serviço de geração de DNA baseado em parâmetros do projeto
-- [ ] Refatorar generateConceptual para usar DNA unificado
-- [ ] Refatorar generateFloorplan para usar DNA unificado
-- [ ] Refatorar generateSitePlan para usar DNA unificado
-- [ ] Refatorar generateFacadeView para usar DNA unificado
+- [x] Criar sistema de "DNA do Projeto" (descrição arquitetônica unificada)
+- [x] Adicionar campos no schema para armazenar DNA do projeto
+- [x] Criar serviço de geração de DNA baseado em parâmetros do projeto
+- [x] Refatorar generateConceptual para usar DNA unificado
+- [x] Refatorar generateFloorplan para usar DNA unificado
+- [x] Refatorar generateSitePlan para usar DNA unificado
+- [x] Refatorar generateFacadeView para usar DNA unificado
+- [x] Criar interface de edição de DNA do projeto
 - [ ] Criar sistema de validação de consistência visual
 - [ ] Implementar extração de elementos-chave das imagens
 - [ ] Comparar elementos entre diferentes tipos de imagem

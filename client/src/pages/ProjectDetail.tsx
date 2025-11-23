@@ -24,6 +24,7 @@ import SavedScenariosPanel from "@/components/SavedScenariosPanel";
 import LogoUploader from "@/components/LogoUploader";
 import Terrain3DViewer from "@/components/Terrain3DViewer";
 import { BuildingLayoutAdjuster, BuildingLayout } from "@/components/BuildingLayoutAdjuster";
+import ProjectDNAEditor from "@/components/ProjectDNAEditor";
 import { SavedLayoutsManager } from "@/components/SavedLayoutsManager";
 import { LayoutComparison } from "@/components/LayoutComparison";
 import { ShadowVisualization } from "@/components/ShadowVisualization";
@@ -568,6 +569,8 @@ export default function ProjectDetail() {
             {/* Ajuste Manual de Layout do Edifício */}
             {project.polygonCoordinates && (
               <>
+                <ProjectDNAEditor projectId={projectId} />
+
                 <BuildingLayoutAdjuster
                   polygonCoordinates={project.polygonCoordinates}
                   terrainDimensions={{

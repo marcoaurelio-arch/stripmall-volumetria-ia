@@ -222,40 +222,23 @@ ${briefingContext}`;
         scale: project.buildingScale || 80,
       });
       
-      const prompt = `Professional architectural floor plan (planta baixa) of a Brazilian strip mall commercial center following ABNT NBR 6492 standards.${similarProjectsContext}
-Technical drawing with the following specifications:
+      // Gerar prompt consistente usando DNA do projeto
+      const basePrompt = generateConsistentPrompt(projectDNA, "floorplan");
+      
+      // Adicionar contexto específico do projeto
+      const additionalContext = `
+SITE SPECIFICATIONS:
+- Total lot area: ${project.area}m²
+- ${analysis?.numeroLojas || '8-12'} retail units
+- ${analysis?.vagasEstacionamento || 'multiple'} parking spaces
+- Building area: ${analysis?.areaMaximaConstruida || project.area * 0.6}m²
 
-BUILDING LAYOUT:
-- ${analysis?.numeroLojas || '8-12'} retail units in linear strip configuration
-- Each unit typical composition:
-  * Glass storefront entrance (3-4m wide)
-  * Sales floor area (60-120m² per unit)
-  * Storage/stock room (15-25% of sales area)
-  * Employee restroom (ADA compliant)
-  * Service entrance/loading area (rear access)
-- Covered pedestrian walkway (3-4m wide) along storefront
-- Common areas: central plaza, seating areas
-- Total built area: ${analysis?.areaMaximaConstruida || project.area}m²
-- Site area: ${project.area}m²
-- Built area: ${analysis?.areaMaximaConstruida || project.area * 0.6}m²
-- Parking: ${analysis?.vagasEstacionamento || 'multiple'} spaces with marked dimensions${geometryInfo}
+${similarProjectsContext}
+${geometryInfo}
+${layoutDescription}
+${briefingContext}`;
 
-TECHNICAL ELEMENTS:
-- Dimension lines and measurements in meters
-- North arrow indicator
-- Scale notation (1:200 or 1:500)
-- Room labels in Portuguese (Loja, Depósito, Banheiro, Circulação)
-- Architectural symbols: doors (swing direction), windows, columns
-- Parking space dimensions and circulation aisles
-- Loading zone and service access
-- Landscaping areas with tree symbols
-
-DRAWING STYLE:
-- Clean black line drawing on white background
-- Professional architectural blueprint quality
-- Technical precision with accurate proportions
-- ABNT (Brazilian standards) compliant notation
-- Top-down orthographic view${layoutDescription}${briefingContext}`;
+      const prompt = `${basePrompt} ${additionalContext}`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });
@@ -389,6 +372,9 @@ Render as a clean architectural study model, similar to professional feasibility
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Obter DNA do projeto (gera automaticamente se não existir)
+      const projectDNA = await getOrGenerateProjectDNA(input.projectId);
+
       const analysis = await db.getLatestAnalysis(input.projectId);
       
       let geometryInfo = "";
@@ -415,34 +401,21 @@ Render as a clean architectural study model, similar to professional feasibility
         right: "Right side elevation"
       };
 
-      const prompt = `Create an ELECTRONIC MODEL FACADE VIEW (${viewDescriptions[input.viewAngle]}) of a strip mall in clean architectural style.
+      // Gerar prompt consistente usando DNA do projeto
+      const basePrompt = generateConsistentPrompt(projectDNA, "facade");
+      
+      // Adicionar contexto específico do projeto
+      const additionalContext = `
+VIEW: ${viewDescriptions[input.viewAngle]}
 
-STYLE REQUIREMENTS:
-- Simple geometric volumes with flat, vibrant colors
-- NO photorealistic materials
-- Color-code by function: Pharmacy (yellow/gold), Retail (blue/cyan), Supermarket (red/pink)
-- Add text labels identifying each store/area
-- Clean white background
-- Soft shadows for depth
-- Straight-on elevation view with slight perspective
+SITE SPECIFICATIONS:
+- Total lot area: ${project.area}m²
+- Building dimensions: ${project.width}m x ${project.length}m
+${geometryInfo}
+${briefingSection}
+${layoutDescription}`;
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building dimensions: ${project.width}m x ${project.length}m${geometryInfo}${briefingSection}
-
-CONTEXT:
-- Show parking lot in foreground (gray with white markings)
-- Include simple trees and landscaping
-- Add simple cars and people for scale
-- Show signage areas
-
-COMPOSITION:
-- Clear view of facade composition
-- Show height variations between different store types
-- Emphasize horizontal rhythm of the strip mall
-- Professional architectural presentation
-
-Render as a clean architectural elevation study, similar to professional feasibility presentations.${layoutDescription}`;
+      const prompt = `${basePrompt} ${additionalContext}`;
 
       const result = await generateImage({ prompt });
       const imageUrl = result.url as string;
@@ -467,6 +440,9 @@ Render as a clean architectural elevation study, similar to professional feasibi
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Obter DNA do projeto (gera automaticamente se não existir)
+      const projectDNA = await getOrGenerateProjectDNA(input.projectId);
+
       const views: Array<"front" | "back" | "left" | "right"> = ["front", "back", "left", "right"];
       const results = [];
 
@@ -487,34 +463,20 @@ Render as a clean architectural elevation study, similar to professional feasibi
           right: "Right side elevation"
         };
 
-        const prompt = `Create an ELECTRONIC MODEL FACADE VIEW (${viewDescriptions[viewAngle]}) of a strip mall in clean architectural style.
+        // Gerar prompt consistente usando DNA do projeto
+        const basePrompt = generateConsistentPrompt(projectDNA, "facade");
+        
+        // Adicionar contexto específico do projeto
+        const additionalContext = `
+VIEW: ${viewDescriptions[viewAngle]}
 
-STYLE REQUIREMENTS:
-- Simple geometric volumes with flat, vibrant colors
-- NO photorealistic materials
-- Color-code by function: Pharmacy (yellow/gold), Retail (blue/cyan), Supermarket (red/pink)
-- Add text labels identifying each store/area
-- Clean white background
-- Soft shadows for depth
-- Straight-on elevation view with slight perspective
+SITE SPECIFICATIONS:
+- Total lot area: ${project.area}m²
+- Building dimensions: ${project.width}m x ${project.length}m
+${geometryInfo}
+${briefingSection}`;
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building dimensions: ${project.width}m x ${project.length}m${geometryInfo}${briefingSection}
-
-CONTEXT:
-- Show parking lot in foreground (gray with white markings)
-- Include simple trees and landscaping
-- Add simple cars and people for scale
-- Show signage areas
-
-COMPOSITION:
-- Clear view of facade composition
-- Show height variations between different store types
-- Emphasize horizontal rhythm of the strip mall
-- Professional architectural presentation
-
-Render as a clean architectural elevation study, similar to professional feasibility presentations.`;
+        const prompt = `${basePrompt} ${additionalContext}`;
 
         const result = await generateImage({ prompt });
         const imageUrl = result.url as string;
@@ -853,6 +815,9 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Obter DNA do projeto (gera automaticamente se não existir)
+      const projectDNA = await getOrGenerateProjectDNA(input.projectId);
+
       const geometryInfo = project.polygonCoordinates
         ? `\n- Terrain shape: ${analyzeTerrainGeometry(JSON.parse(project.polygonCoordinates)).promptDescription}`
         : "";
@@ -869,99 +834,19 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         scale: project.buildingScale || 80,
       });
 
-      const sitePlanPrompt = `Create a professional architectural SITE PLAN (Planta de Implantação) for a strip mall project following Brazilian ABNT NBR 6492 standards.
+      // Gerar prompt consistente usando DNA do projeto
+      const basePrompt = generateConsistentPrompt(projectDNA, "siteplan");
+      
+      // Adicionar contexto específico do projeto
+      const additionalContext = `
+SITE SPECIFICATIONS:
+- Total lot area: ${project.area}m²
+- Building footprint: ${project.width}m x ${project.length}m
+${geometryInfo}
+${briefingSection}
+${layoutDescription}`;
 
-STYLE AND FORMAT:
-- Top view (plan view) technical drawing
-- Clean black and white with selective color for areas (green for landscaping, gray for pavement)
-- Thick continuous lines (0.7mm) for building perimeter
-- Medium lines (0.5mm) for paving edges, curbs, walkways
-- Thin lines (0.3mm) for parking stripes, landscaping
-- Dashed lines for property boundaries and setbacks
-- North arrow prominently displayed
-- Graphic scale (1:200 or 1:500)
-- Title block with: project name, "PLANTA DE IMPLANTAÇÃO", scale, date
-
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Building footprint: ${project.width}m x ${project.length}m${geometryInfo}${briefingSection}
-
-SITE PLAN ELEMENTS:
-
-1. BUILDING:
-   - Strip mall building footprint with store divisions
-   - Label main anchor stores and smaller retail units
-   - Show entrances with door swing symbols
-   - Indicate covered walkway/arcade in front of stores
-   - Show loading/service area at rear
-
-2. PARKING LAYOUT:
-   - 90° angle parking stalls (2.5m x 5.0m each)
-   - Some 45° angle parking for better circulation
-   - Accessible parking spaces (3.5m x 5.5m) near entrances - marked with wheelchair symbol
-   - Clear circulation aisles (minimum 5.0m width)
-   - Parking count label: "TOTAL: XX VAGAS"
-   - Show parking stripes and directional arrows
-
-3. VEHICULAR ACCESS:
-   - Main entrance from street with curb cut
-   - Secondary exit for circulation
-   - Clear traffic flow arrows
-   - Speed bumps at strategic points
-   - Delivery truck access to service area
-   - Label: "ACESSO PRINCIPAL", "SAÍDA"
-
-4. PEDESTRIAN WALKWAYS:
-   - Perimeter sidewalks (minimum 1.5m width)
-   - Pedestrian crossings with zebra stripes
-   - Accessible ramps at curb transitions
-   - Covered walkway in front of stores
-   - Tactile paving for visually impaired
-
-5. LANDSCAPING AND GREEN AREAS:
-   - Tree symbols (circles with cross) along perimeter
-   - Green buffer zones between parking and property line
-   - Planter islands in parking area
-   - Grass areas shaded in light green
-   - Label tree species if specified in briefing
-
-6. SITE BOUNDARIES AND SETBACKS:
-   - Property line (dashed line)
-   - Front setback dimension
-   - Side setbacks dimensions
-   - Rear setback dimension
-   - Adjacent street names
-
-7. UTILITIES AND INFRASTRUCTURE:
-   - Water meter location
-   - Electrical transformer pad
-   - Drainage direction arrows
-   - Trash/recycling enclosure
-   - Bike rack area
-
-8. DIMENSIONS AND ANNOTATIONS:
-   - Overall site dimensions
-   - Building setbacks from property lines
-   - Parking aisle widths
-   - Sidewalk widths
-   - Distance from building to parking
-   - All dimensions in meters with 2 decimal places
-
-9. LEGEND (LEGENDA):
-   - Building footprint (solid black)
-   - Paved areas (light gray)
-   - Green areas (light green)
-   - Accessible parking (wheelchair symbol)
-   - Trees (circle with cross)
-
-10. AREA SUMMARY TABLE:
-    - Terreno: ${project.area}m²
-    - Área Construída: [calculated]m²
-    - Estacionamento: [calculated]m²
-    - Áreas Verdes: [calculated]m²
-    - Calçadas: [calculated]m²
-
-Render as a professional technical site plan following ABNT NBR 6492 standards with clear hierarchy, proper line weights, and comprehensive labeling.${layoutDescription}`;
+      const sitePlanPrompt = `${basePrompt} ${additionalContext}`;
 
       const result = await generateImage({ prompt: sitePlanPrompt });
       const imageUrl = result.url as string;
