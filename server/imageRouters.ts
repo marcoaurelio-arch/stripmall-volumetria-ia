@@ -8,6 +8,7 @@ import { generateStaticMapUrl, calculateAppropriateZoom } from "./mapsImageGener
 import { generateLayoutDescription, generateFloorplanLayoutDescription, generateSiteplanLayoutDescription } from "./services/layoutDescriptionService";
 import { generateProjectDNA, generateConsistentPrompt, type ProjectDNA } from "./services/projectDNAService";
 import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
+import { buildProjectContext } from "./services/projectContextHelper";
 
 export const imageRouter = router({
   // Gerar estudo conceitual 3D
@@ -23,11 +24,11 @@ export const imageRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
+      
       // Obter DNA do projeto (gera automaticamente se não existir)
       const projectDNA = await getOrGenerateProjectDNA(input.projectId);
-
-      // Obter última análise para usar nos prompts
-      const analysis = await db.getLatestAnalysis(input.projectId);
       
       // Buscar projetos similares para enriquecer o prompt
       const dbInstance = await db.getDb();
@@ -55,16 +56,9 @@ export const imageRouter = router({
         }
       }
       
-      // Analisar geometria do terreno e gerar imagem de referência
-      let geometryInfo = "";
+      // Gerar imagem de satélite do terreno para referência
       let siteImageUrl = "";
-      
       if (project.polygonCoordinates && project.latitude && project.longitude) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nSITE GEOMETRY (CRITICAL - MUST MATCH EXACTLY):\n${geometry.promptDescription}\n- Exact lot dimensions: ${geometry.dimensions.width}m (width) x ${geometry.dimensions.length}m (length)\n- Lot shape type: ${geometry.shape.type} (${geometry.vertices} vertices)\n- Main orientation: ${geometry.orientation.cardinalDirection} (${geometry.orientation.mainAxis}°)\n- ${geometry.orientation.solarOrientation}\n- The building layout MUST respect this exact ${geometry.shape.type} lot geometry, not a generic rectangular shape\n- Parking and circulation must fit within the ${geometry.dimensions.perimeter}m perimeter`;
-        
-        // Gerar URL da imagem de satélite do terreno
         const zoom = calculateAppropriateZoom(project.area);
         siteImageUrl = generateStaticMapUrl(
           { lat: parseFloat(project.latitude), lng: parseFloat(project.longitude) },
@@ -72,11 +66,6 @@ export const imageRouter = router({
           zoom
         );
       }
-      
-      // Criar prompt fotorrealista para estudo conceitual
-      const briefingContext = project.briefing 
-        ? `\nProject briefing and requirements: ${project.briefing}` 
-        : '';
       
       // Adicionar descrição de layout personalizado
       const layoutDescription = generateLayoutDescription({
@@ -88,21 +77,22 @@ export const imageRouter = router({
       
       // Gerar prompt consistente usando DNA do projeto
       const basePrompt = generateConsistentPrompt(projectDNA, "conceptual");
-      
-      // Adicionar contexto específico do projeto
-      const additionalContext = `
-SITE SPECIFICATIONS:
-- Total lot area: ${project.area}m²
-- ${analysis ? `${analysis.numeroLojas} retail units` : '8-12 retail units'}
-- ${analysis?.vagasEstacionamento || '40-60'} parking spaces
-- Building area: ${analysis?.areaMaximaConstruida || project.area}m²
 
+      const prompt = `${basePrompt}
+
+${context.briefingSection}
+${context.geometryInfo}
+${context.criticalRequirements}
 ${similarProjectsContext}
-${geometryInfo}
 ${layoutDescription}
-${briefingContext}`;
 
-      const prompt = `${basePrompt} ${additionalContext}`;
+VISUALIZATION REQUIREMENTS:
+- Photorealistic 3D rendering (aerial perspective)
+- Show complete building with ${context.analysis?.numeroLojas || 'all'} retail units
+- Include parking area with ${context.analysis?.vagasEstacionamento || 'all'} spaces
+- Add landscaping, lighting, and urban context
+- Professional architectural visualization quality
+- Daytime lighting with clear shadows`;
 
       try {
         // Buscar imagens de referência selecionadas
@@ -201,18 +191,8 @@ ${briefingContext}`;
         }
       }
       
-      // Analisar geometria do terreno se houver polígono
-      let geometryInfo = "";
-      if (project.polygonCoordinates) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nLOT GEOMETRY (CRITICAL FOR FLOOR PLAN):\n${geometry.promptDescription}\n- Exact lot: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m (${geometry.shape.type})\n- ${geometry.vertices} vertices defining the lot boundary\n- Building footprint MUST fit within this exact ${geometry.shape.type} shape\n- Parking layout must adapt to ${geometry.orientation.cardinalDirection} orientation\n- Total site perimeter: ${geometry.dimensions.perimeter}m`;
-      }
-      
-      // Criar prompt técnico para planta baixa
-      const briefingContext = project.briefing 
-        ? `\nProject requirements: ${project.briefing}` 
-        : '';
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
       
       // Adicionar descrição de layout personalizado
       const layoutDescription = generateFloorplanLayoutDescription({
@@ -225,20 +205,22 @@ ${briefingContext}`;
       // Gerar prompt consistente usando DNA do projeto
       const basePrompt = generateConsistentPrompt(projectDNA, "floorplan");
       
-      // Adicionar contexto específico do projeto
-      const additionalContext = `
-SITE SPECIFICATIONS:
-- Total lot area: ${project.area}m²
-- ${analysis?.numeroLojas || '8-12'} retail units
-- ${analysis?.vagasEstacionamento || 'multiple'} parking spaces
-- Building area: ${analysis?.areaMaximaConstruida || project.area * 0.6}m²
+      // Construir prompt final com contexto completo
+      const prompt = `${basePrompt}
 
+${context.briefingSection}
+${context.geometryInfo}
+${context.criticalRequirements}
 ${similarProjectsContext}
-${geometryInfo}
 ${layoutDescription}
-${briefingContext}`;
 
-      const prompt = `${basePrompt} ${additionalContext}`;
+TECHNICAL DRAWING REQUIREMENTS:
+- Architectural floor plan view (top-down orthogonal projection)
+- Show exact layout of ${context.analysis?.numeroLojas || 'all'} retail units
+- Include parking layout with ${context.analysis?.vagasEstacionamento || 'all'} spaces
+- Add dimensions, room labels, and circulation paths
+- Include legend with area breakdown
+- Scale: 1:200 or 1:100`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });
@@ -304,16 +286,8 @@ ${briefingContext}`;
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
-      const analysis = await db.getLatestAnalysis(input.projectId);
-      
-      let geometryInfo = "";
-      if (project.polygonCoordinates && project.latitude && project.longitude) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m\n- Orientation: ${geometry.orientation.cardinalDirection}`;
-      }
-
-      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
 
       const prompt = `Create an ELECTRONIC ARCHITECTURAL MODEL (maquete eletrônica) of a strip mall development in clean, simplified 3D style.
 
@@ -327,16 +301,17 @@ STYLE REQUIREMENTS:
 - Soft ambient shadows for depth
 - Isometric or aerial 3/4 view
 
-PROJECT DATA:
-- Site area: ${project.area}m²
-- Width: ${project.width}m, Length: ${project.length}m${geometryInfo}${briefingSection}
+${context.briefingSection}
+${context.geometryInfo}
+${context.criticalRequirements}
 
 CONTEXT:
-- Show simplified parking lot with marked spaces (gray asphalt, white lines)
+- Show simplified parking lot with ${context.analysis?.vagasEstacionamento || 'all'} marked spaces (gray asphalt, white lines)
 - Include simple trees/vegetation (green spheres or simple shapes)
 - Show access roads and circulation paths
 - Add simple cars for scale (basic shapes)
 - Show building footprints clearly
+- Display ${context.analysis?.numeroLojas || 'all'} retail units as colored volumes
 
 COMPOSITION:
 - Clear view of the entire development
@@ -372,19 +347,11 @@ Render as a clean architectural study model, similar to professional feasibility
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
+      
       // Obter DNA do projeto (gera automaticamente se não existir)
       const projectDNA = await getOrGenerateProjectDNA(input.projectId);
-
-      const analysis = await db.getLatestAnalysis(input.projectId);
-      
-      let geometryInfo = "";
-      if (project.polygonCoordinates) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
-      }
-
-      const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
       
       // Adicionar descrição de layout personalizado
       const layoutDescription = generateLayoutDescription({
@@ -403,19 +370,22 @@ Render as a clean architectural study model, similar to professional feasibility
 
       // Gerar prompt consistente usando DNA do projeto
       const basePrompt = generateConsistentPrompt(projectDNA, "facade");
-      
-      // Adicionar contexto específico do projeto
-      const additionalContext = `
+
+      const prompt = `${basePrompt}
+
 VIEW: ${viewDescriptions[input.viewAngle]}
 
-SITE SPECIFICATIONS:
-- Total lot area: ${project.area}m²
-- Building dimensions: ${project.width}m x ${project.length}m
-${geometryInfo}
-${briefingSection}
-${layoutDescription}`;
+${context.briefingSection}
+${context.geometryInfo}
+${context.criticalRequirements}
+${layoutDescription}
 
-      const prompt = `${basePrompt} ${additionalContext}`;
+FACADE REQUIREMENTS:
+- Architectural elevation drawing
+- Show ${context.analysis?.numeroLojas || 'all'} retail units
+- Include storefront details, signage, and materials
+- Add human scale figures
+- Professional architectural presentation`;
 
       const result = await generateImage({ prompt });
       const imageUrl = result.url as string;
@@ -440,6 +410,9 @@ ${layoutDescription}`;
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
+      
       // Obter DNA do projeto (gera automaticamente se não existir)
       const projectDNA = await getOrGenerateProjectDNA(input.projectId);
 
@@ -447,15 +420,6 @@ ${layoutDescription}`;
       const results = [];
 
       for (const viewAngle of views) {
-        let geometryInfo = "";
-        if (project.polygonCoordinates) {
-          const coordinates = JSON.parse(project.polygonCoordinates);
-          const geometry = analyzeTerrainGeometry(coordinates);
-          geometryInfo = `\n\nSITE GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
-        }
-
-        const briefingSection = project.briefing ? `\n\nPROJECT BRIEFING:\n${project.briefing}` : "";
-
         const viewDescriptions = {
           front: "Main street facade view",
           back: "Rear facade with loading areas",
@@ -465,18 +429,21 @@ ${layoutDescription}`;
 
         // Gerar prompt consistente usando DNA do projeto
         const basePrompt = generateConsistentPrompt(projectDNA, "facade");
-        
-        // Adicionar contexto específico do projeto
-        const additionalContext = `
+
+        const prompt = `${basePrompt}
+
 VIEW: ${viewDescriptions[viewAngle]}
 
-SITE SPECIFICATIONS:
-- Total lot area: ${project.area}m²
-- Building dimensions: ${project.width}m x ${project.length}m
-${geometryInfo}
-${briefingSection}`;
+${context.briefingSection}
+${context.geometryInfo}
+${context.criticalRequirements}
 
-        const prompt = `${basePrompt} ${additionalContext}`;
+FACADE REQUIREMENTS:
+- Architectural elevation drawing
+- Show ${context.analysis?.numeroLojas || 'all'} retail units
+- Include storefront details, signage, and materials
+- Add human scale figures
+- Professional architectural presentation`;
 
         const result = await generateImage({ prompt });
         const imageUrl = result.url as string;
@@ -813,16 +780,11 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
+      
       // Obter DNA do projeto (gera automaticamente se não existir)
       const projectDNA = await getOrGenerateProjectDNA(input.projectId);
-
-      const geometryInfo = project.polygonCoordinates
-        ? `\n- Terrain shape: ${analyzeTerrainGeometry(JSON.parse(project.polygonCoordinates)).promptDescription}`
-        : "";
-
-      const briefingSection = project.briefing
-        ? `\n\nPROJECT BRIEFING:\n${project.briefing}`
-        : "";
       
       // Adicionar descrição de layout personalizado
       const layoutDescription = generateSiteplanLayoutDescription({
@@ -834,17 +796,25 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
 
       // Gerar prompt consistente usando DNA do projeto
       const basePrompt = generateConsistentPrompt(projectDNA, "siteplan");
-      
-      // Adicionar contexto específico do projeto
-      const additionalContext = `
-SITE SPECIFICATIONS:
-- Total lot area: ${project.area}m²
-- Building footprint: ${project.width}m x ${project.length}m
-${geometryInfo}
-${briefingSection}
-${layoutDescription}`;
 
-      const sitePlanPrompt = `${basePrompt} ${additionalContext}`;
+      const sitePlanPrompt = `${basePrompt}
+
+${context.briefingSection}
+${context.geometryInfo}
+${context.criticalRequirements}
+${layoutDescription}
+
+SITE PLAN REQUIREMENTS:
+- Top-down architectural site plan (implantação)
+- Show building footprint with exact dimensions
+- Include all ${context.analysis?.vagasEstacionamento || 'parking'} spaces with layout (90°, 45°, parallel)
+- Add vehicular and pedestrian access points
+- Include perimeter sidewalks and walkways
+- Show green areas and landscaping
+- Add dimension lines for setbacks and distances
+- Include north arrow and graphic scale
+- Add legend for paving materials
+- Scale: 1:500 or 1:200`;
 
       const result = await generateImage({ prompt: sitePlanPrompt });
       const imageUrl = result.url as string;
@@ -891,22 +861,13 @@ ${layoutDescription}`;
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
 
+      // Construir contexto completo usando helper centralizado
+      const context = await buildProjectContext(input.projectId);
+      
       // Obter DNA do projeto para manter consistência visual
       const projectDNA = await getOrGenerateProjectDNA(input.projectId);
 
       const { variationData } = input;
-
-      // Analisar geometria do terreno
-      let geometryInfo = "";
-      if (project.polygonCoordinates) {
-        const coordinates = JSON.parse(project.polygonCoordinates);
-        const geometry = analyzeTerrainGeometry(coordinates);
-        geometryInfo = `\n\nTERRAIN GEOMETRY:\n${geometry.promptDescription}\n- Dimensions: ${geometry.dimensions.width}m x ${geometry.dimensions.length}m`;
-      }
-
-      const briefingSection = project.briefing
-        ? `\n\nPROJECT BRIEFING:\n${project.briefing}`
-        : "";
 
       // Gerar prompt base usando DNA do projeto
       const basePrompt = generateConsistentPrompt(projectDNA, "floorplan");
@@ -930,14 +891,21 @@ AREA BREAKDOWN:
 - Service area: ${variationData.serviceArea.toFixed(2)}m² (${((variationData.serviceArea/variationData.totalBuiltArea)*100).toFixed(1)}%)
 - Green area: ${variationData.greenArea.toFixed(2)}m²
 
-SITE SPECIFICATIONS:
-- Total lot area: ${project.area}m²
-${geometryInfo}
-${briefingSection}
-
 IMPORTANT: The floorplan must accurately represent this specific variation's layout with the exact number and size distribution of stores.`;
 
-      const prompt = `${basePrompt} ${variationContext}`;
+      const prompt = `${basePrompt}
+
+${context.briefingSection}
+${context.geometryInfo}
+${variationContext}
+
+TECHNICAL DRAWING REQUIREMENTS:
+- Architectural floor plan view (top-down orthogonal projection)
+- Show exact layout of ${variationData.numberOfStores} retail units
+- Include parking layout with ${variationData.parkingSpaces} spaces
+- Add dimensions, room labels, and circulation paths
+- Include legend with area breakdown
+- Scale: 1:200 or 1:100`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });

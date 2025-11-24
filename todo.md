@@ -1553,3 +1553,22 @@
 - [x] Validar se dimensões nos cortes correspondem aos dados do projeto (teste passou)
 - [x] Validar se estilo visual é consistente (DNA aplicado) - teste passou
 - [x] Documentar resultados do teste (9/9 testes passando)
+
+
+## Refatoração Completa de Consistência - Aplicar buildProjectContext() em Todos os Procedures
+
+### Procedures a Refatorar
+- [x] generateFloorplan - Plantas baixas
+- [x] generateSitePlan - Implantação
+- [x] generateConceptual - Estudos conceituais
+- [x] generateElectronicModel - Maquete eletrônica
+- [x] generateFacadeView - Fachadas individuais
+- [x] generateAllFacadeViews - Todas as fachadas
+- [x] generateVariationFloorplan - Plantas de variações
+
+### Validação e Testes
+- [x] Executar suite de testes após refatoração (9/9 testes passando)
+- [x] Validar que todos os procedures usam buildProjectContext()
+- [x] Verificar se TypeScript compila sem erros
+- [x] Testar geração de cada tipo de imagem (via testes automatizados)
+- [x] Confirmar que dados reais aparecem em todas as imagens
