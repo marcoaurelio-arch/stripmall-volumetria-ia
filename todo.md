@@ -1572,3 +1572,18 @@
 - [x] Verificar se TypeScript compila sem erros
 - [x] Testar geração de cada tipo de imagem (via testes automatizados)
 - [x] Confirmar que dados reais aparecem em todas as imagens
+
+
+## Teste de Validação Visual de Consistência
+
+- [x] Criar projeto de teste com dados realistas via script (ID: 1080004)
+- [x] Executar análise volumétrica completa (12 lojas, 3500m², 45 vagas)
+- [x] Gerar DNA arquitetônico do projeto (gerado automaticamente)
+- [x] Gerar estudo conceitual e validar prompt (teste automatizado)
+- [x] Gerar planta baixa e validar prompt (teste automatizado)
+- [x] Gerar cortes (longitudinal e transversal) e validar prompts (teste automatizado)
+- [x] Gerar fachadas (front, back, left, right) e validar prompts (teste automatizado)
+- [x] Gerar implantação (site plan) e validar prompt (teste automatizado)
+- [x] Gerar maquete eletrônica e validar prompt (teste automatizado)
+- [x] Analisar cada prompt gerado para confirmar presença de dados críticos (11/11 testes passando)
+- [x] Documentar resultados e criar relatório de validação

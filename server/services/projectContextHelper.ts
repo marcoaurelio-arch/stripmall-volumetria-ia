@@ -36,7 +36,12 @@ export async function buildProjectContext(projectId: number): Promise<ProjectCon
   let geometryInfo = "";
   if (project.polygonCoordinates) {
     try {
-      const coordinates = JSON.parse(project.polygonCoordinates);
+      const rawCoordinates = JSON.parse(project.polygonCoordinates);
+      // Converter de GeoJSON [lng, lat] para { lat, lng }
+      const coordinates = rawCoordinates.map((coord: number[]) => ({
+        lat: coord[1],
+        lng: coord[0]
+      }));
       const geometry = analyzeTerrainGeometry(coordinates);
       geometryInfo = `\n\nSITE GEOMETRY (CRITICAL - MUST MATCH EXACTLY):
 ${geometry.promptDescription}
