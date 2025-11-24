@@ -85,6 +85,75 @@ IMPORTANT: All dimensions, quantities, and specifications above are MANDATORY an
 }
 
 /**
+ * Versão helper para testes - constrói contexto a partir de objetos mock
+ * (não acessa banco de dados)
+ */
+export function buildProjectContextFromData(
+  project: any,
+  analysis: any | null,
+  dna: ProjectDNA | null
+): {
+  briefing: string;
+  terrain: string;
+  analysis: string;
+  dna: string;
+  criticalRequirements: string;
+} {
+  // Dados do terreno
+  const terrain = `
+TERRAIN DATA:
+- Total area: ${project.totalArea?.toLocaleString('pt-BR') || project.area?.toLocaleString('pt-BR')} m²
+- Dimensions: ${project.width}m × ${project.length}m
+- Occupancy rate: ${project.occupancyRate || project.taxaOcupacao}%
+- Building coefficient: ${(project.buildingCoefficient || project.coeficienteAproveitamento) / 100}
+- Setbacks: Front ${project.frontSetback || project.recuoFrontal}m, Side ${project.sideSetback || project.recuoLateral}m, Rear ${project.backSetback || project.recuoFundos}m`;
+
+  // Dados da análise volumétrica
+  const analysisText = analysis
+    ? `
+VOLUMETRIC ANALYSIS (REAL DATA - MUST MATCH):
+- Total stores: ${analysis.totalStores || analysis.numeroLojas} lojas
+- Anchor store area: ${analysis.anchorStoreArea?.toLocaleString('pt-BR')} m²
+- Satellite stores area: ${analysis.satelliteStoresArea?.toLocaleString('pt-BR')} m²
+- Total built area: ${(analysis.totalBuiltArea || analysis.areaMaximaConstruida)?.toLocaleString('pt-BR')} m²
+- Parking spaces: ${analysis.parkingSpaces || analysis.vagasEstacionamento} vagas
+- Circulation area: ${analysis.circulationArea?.toLocaleString('pt-BR')} m²`
+    : "\nAnálise volumétrica não disponível ainda.";
+
+  // DNA arquitetônico
+  const dnaText = dna
+    ? `
+ARCHITECTURAL DNA (VISUAL IDENTITY - MUST MAINTAIN):
+- Building form: ${dna.buildingShape}
+- Architectural style: ${dna.style}
+- Primary color: ${dna.primaryColor}
+- Accent color: ${dna.accentColor}
+- Materials: ${Array.isArray(dna.materials) ? dna.materials.join(', ') : dna.materials}
+- Landscaping: ${dna.landscaping}
+- Layout: ${dna.layout}`
+    : "\nDNA arquitetônico não definido ainda.";
+
+  // Requisitos críticos
+  const criticalRequirements = analysis
+    ? `
+CRITICAL REQUIREMENTS (MUST MATCH EXACTLY - NOT APPROXIMATE):
+- EXATAMENTE ${analysis.totalStores || analysis.numeroLojas} lojas (não mais, não menos)
+- Loja âncora (supermercado) de ${analysis.anchorStoreArea} m²
+- Área total construída de ${analysis.totalBuiltArea || analysis.areaMaximaConstruida?.toLocaleString('pt-BR')} m²
+- ${analysis.parkingSpaces || analysis.vagasEstacionamento} vagas de estacionamento
+- Respeitar recuos: frontal ${project.frontSetback || project.recuoFrontal}m, lateral ${project.sideSetback || project.recuoLateral}m, fundos ${project.backSetback || project.recuoFundos}m`
+    : "";
+
+  return {
+    briefing: project.briefing || "",
+    terrain,
+    analysis: analysisText,
+    dna: dnaText,
+    criticalRequirements,
+  };
+}
+
+/**
  * Valida se o prompt contém todos os dados críticos do projeto
  */
 export function validatePromptCompleteness(prompt: string, context: ProjectContext): {
