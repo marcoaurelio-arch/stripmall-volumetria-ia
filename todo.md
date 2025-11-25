@@ -1587,3 +1587,18 @@
 - [x] Gerar maquete eletrônica e validar prompt (teste automatizado)
 - [x] Analisar cada prompt gerado para confirmar presença de dados críticos (11/11 testes passando)
 - [x] Documentar resultados e criar relatório de validação
+
+
+## Análise de Timeout no Deployment
+
+- [x] Analisar tamanho total do projeto (1.2GB total, 1.1GB node_modules)
+- [x] Verificar tamanho de node_modules (1.1GB antes, 854MB depois)
+- [x] Listar dependências do package.json (101 dependências)
+- [x] Identificar dependências pesadas ou desnecessárias (mermaid 65MB, tesseract 30MB, web-ifc 22MB)
+- [x] Verificar arquivos grandes no projeto (dist/public/assets 4.7MB)
+- [x] Analisar scripts de build (vite build + esbuild)
+- [x] Propor otimizações para reduzir tempo de build
+- [x] Documentar recomendações (deployment-analysis.md)
+- [x] Executar limpeza (removidos tesseract.js, web-ifc)
+- [x] Limpar cache (removido .vite e dist)
+- [x] Redução final: 1.1GB → 854MB (246MB economizados, 22%)
