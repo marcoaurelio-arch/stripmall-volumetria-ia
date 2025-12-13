@@ -1616,10 +1616,13 @@
 - [x] Adicionar considerações de 1 ou 2 pavimentos
 - [x] Incluir melhores práticas comerciais (visibilidade, acesso, estacionamento)
 - [x] Integrar prompts especializados em generateConceptual
-- [ ] Integrar prompts especializados em generateFloorplan
-- [ ] Integrar prompts especializados em generateTransversalSection
-- [ ] Integrar prompts especializados em generateLongitudinalSection
-- [ ] Integrar prompts especializados em generateFacadeView
-- [ ] Integrar prompts especializados em generateSitePlan
-- [ ] Testar prompts com projeto real
+- [x] Integrar prompts especializados em generateFloorplan
+- [x] Integrar prompts especializados em generateTransversalSection
+- [x] Integrar prompts especializados em generateLongitudinalSection
+- [x] Integrar prompts especializados em generateFacadeView
+- [x] Integrar prompts especializados em generateSitePlan
+- [x] Adicionar campo de tipologia (Linear/L/U) no schema de projects
+- [x] Adicionar seleção de tipologia no formulário de criação de projeto
+- [ ] Criar projeto de teste com tipologia definida
+- [ ] Gerar todas as visualizações e validar consistência
 - [ ] Documentar guia de uso dos novos prompts

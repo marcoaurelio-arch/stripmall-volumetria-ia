@@ -197,6 +197,13 @@
       "when": 1763926686508,
       "tag": "0027_violet_gamora",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1765666296933,
+      "tag": "0028_broad_catseye",
+      "breakpoints": true
     }
   ]
 }

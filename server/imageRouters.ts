@@ -221,25 +221,41 @@ ${context.briefingSection}`;
         scale: project.buildingScale || 80,
       });
       
-      // Gerar prompt consistente usando DNA do projeto
-      const basePrompt = generateConsistentPrompt(projectDNA, "floorplan");
+      // Gerar contexto especializado de strip mall
+      let terrainShape = 'rectangular';
+      if (project.polygonCoordinates) {
+        try {
+          const rawCoords = JSON.parse(project.polygonCoordinates);
+          const coords = rawCoords.map((c: number[]) => ({ lat: c[1], lng: c[0] }));
+          const geom = analyzeTerrainGeometry(coords);
+          terrainShape = geom.shape.type.toLowerCase();
+        } catch (e) {
+          console.warn('Failed to analyze terrain geometry:', e);
+        }
+      }
       
-      // Construir prompt final com contexto completo
-      const prompt = `${basePrompt}
-
-${context.briefingSection}
-${context.geometryInfo}
-${context.criticalRequirements}
+      const floors = context.project?.buildingHeight ? Math.ceil(context.project.buildingHeight / 4) : 1;
+      const stripMallContext = generateStripMallContext(
+        terrainShape,
+        floors,
+        context.analysis?.areaMaximaConstruida || context.project?.area || 0,
+        context.analysis?.numeroLojas || 12,
+        undefined
+      );
+      
+      // Gerar prompt especializado para plantas baixas
+      const specializedPrompt = generateSpecializedPrompt(
+        'floorplan',
+        projectDNA,
+        stripMallContext
+      );
+      
+      const prompt = `${specializedPrompt}
 ${similarProjectsContext}
 ${layoutDescription}
 
-TECHNICAL DRAWING REQUIREMENTS:
-- Architectural floor plan view (top-down orthogonal projection)
-- Show exact layout of ${context.analysis?.numeroLojas || 'all'} retail units
-- Include parking layout with ${context.analysis?.vagasEstacionamento || 'all'} spaces
-- Add dimensions, room labels, and circulation paths
-- Include legend with area breakdown
-- Scale: 1:200 or 1:100`;
+ADDITIONAL CONTEXT:
+${context.briefingSection}`;
 
       try {
         const { url: imageUrl } = await generateImage({ prompt });
@@ -387,24 +403,42 @@ Render as a clean architectural study model, similar to professional feasibility
         right: "Right side elevation"
       };
 
-      // Gerar prompt consistente usando DNA do projeto
-      const basePrompt = generateConsistentPrompt(projectDNA, "facade");
+      // Gerar contexto especializado de strip mall
+      let terrainShape = 'rectangular';
+      if (project.polygonCoordinates) {
+        try {
+          const rawCoords = JSON.parse(project.polygonCoordinates);
+          const coords = rawCoords.map((c: number[]) => ({ lat: c[1], lng: c[0] }));
+          const geom = analyzeTerrainGeometry(coords);
+          terrainShape = geom.shape.type.toLowerCase();
+        } catch (e) {
+          console.warn('Failed to analyze terrain geometry:', e);
+        }
+      }
+      
+      const floors = context.project?.buildingHeight ? Math.ceil(context.project.buildingHeight / 4) : 1;
+      const stripMallContext = generateStripMallContext(
+        terrainShape,
+        floors,
+        context.analysis?.areaMaximaConstruida || context.project?.area || 0,
+        context.analysis?.numeroLojas || 12,
+        undefined
+      );
+      
+      // Gerar prompt especializado para fachadas
+      const specializedPrompt = generateSpecializedPrompt(
+        'facade',
+        projectDNA,
+        stripMallContext
+      );
+      
+      const prompt = `${specializedPrompt}
 
-      const prompt = `${basePrompt}
-
-VIEW: ${viewDescriptions[input.viewAngle]}
-
-${context.briefingSection}
-${context.geometryInfo}
-${context.criticalRequirements}
+VIEW ANGLE: ${viewDescriptions[input.viewAngle]}
 ${layoutDescription}
 
-FACADE REQUIREMENTS:
-- Architectural elevation drawing
-- Show ${context.analysis?.numeroLojas || 'all'} retail units
-- Include storefront details, signage, and materials
-- Add human scale figures
-- Professional architectural presentation`;
+ADDITIONAL CONTEXT:
+${context.briefingSection}`;
 
       const result = await generateImage({ prompt });
       const imageUrl = result.url as string;
@@ -520,44 +554,42 @@ FACADE REQUIREMENTS:
         }
       }
 
-      // Gerar prompt base usando DNA do projeto para consistência visual
-      const { generateConsistentPrompt } = await import("./services/projectDNAService");
-      const dnaPromptBase = generateConsistentPrompt(context.dna, "section");
+      // Gerar contexto especializado de strip mall
+      let terrainShape = 'rectangular';
+      if (project.polygonCoordinates) {
+        try {
+          const rawCoords = JSON.parse(project.polygonCoordinates);
+          const coords = rawCoords.map((c: number[]) => ({ lat: c[1], lng: c[0] }));
+          const geom = analyzeTerrainGeometry(coords);
+          terrainShape = geom.shape.type.toLowerCase();
+        } catch (e) {
+          console.warn('Failed to analyze terrain geometry:', e);
+        }
+      }
+      
+      const floors = context.project?.buildingHeight ? Math.ceil(context.project.buildingHeight / 4) : 1;
+      const stripMallContext = generateStripMallContext(
+        terrainShape,
+        floors,
+        context.analysis?.areaMaximaConstruida || context.project?.area || 0,
+        context.analysis?.numeroLojas || 12,
+        undefined
+      );
+      
+      // Gerar prompt especializado para cortes
+      const specializedPrompt = generateSpecializedPrompt(
+        'section_longitudinal',
+        context.dna,
+        stripMallContext
+      );
+      
+      const prompt = `${specializedPrompt}
 
-      const prompt = `${dnaPromptBase}\n\nCreate a LONGITUDINAL ARCHITECTURAL SECTION (Corte Longitudinal AA) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
+SECTION TYPE: LONGITUDINAL (Corte Longitudinal AA)
+${similarProjectsContext}
 
-ABNT TECHNICAL REQUIREMENTS:
-- Clean black and white technical drawing
-- Continuous thick lines (0.7mm) for cut elements
-- Thin lines (0.3mm) for visible elements beyond cut
-- Dashed lines for hidden elements
-- Level indicators: ±0.00 (ground floor), +3.50 (slab), +5.00 (roof)
-- Vertical dimensions with extension lines and arrows
-- Horizontal dimensions showing total length
-- Material hatching: concrete (45° diagonal lines), masonry (cross-hatch)
-- North arrow and scale (1:100 or 1:200)
-- Title block with: project name, drawing title "CORTE LONGITUDINAL AA", scale, date
-
-${context.criticalRequirements}
-${context.geometryInfo}
-${context.briefingSection}
-
-SECTION CONTENT:
-- Cut through the longest dimension showing all stores in sequence
-- Show foundation, floor slab, walls, roof structure
-- Include ceiling height variations based on store types
-- Show mezzanine if applicable
-- Indicate drainage slopes on roof
-- Show parking lot level and building floor level difference
-- Add human figures for scale (1.75m)
-
-LABELS AND ANNOTATIONS:
-- Room names: "FARMÁCIA", "LOJA 1", "LOJA 2", "SUPERMERCADO"
-- Level marks: "PISO ACABADO ±0.00", "LAJE +3.50", "COBERTURA +5.00"
-- Structural elements: "VIGA", "PILAR", "FUNDAÇÃO"
-- Dimensions in meters with 2 decimal places
-
-Render as a professional technical drawing following NBR 6492 (Architectural Drawing) standards.`;
+ADDITIONAL CONTEXT:
+${context.briefingSection}`;
 
       const result = await generateImage({ prompt });
       const imageUrl = result.url as string;
@@ -612,48 +644,42 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         }
       }
 
-      // Gerar prompt base usando DNA do projeto para consistência visual
-      const { generateConsistentPrompt } = await import("./services/projectDNAService");
-      const dnaPromptBase = generateConsistentPrompt(context.dna, "section");
+      // Gerar contexto especializado de strip mall
+      let terrainShape = 'rectangular';
+      if (project.polygonCoordinates) {
+        try {
+          const rawCoords = JSON.parse(project.polygonCoordinates);
+          const coords = rawCoords.map((c: number[]) => ({ lat: c[1], lng: c[0] }));
+          const geom = analyzeTerrainGeometry(coords);
+          terrainShape = geom.shape.type.toLowerCase();
+        } catch (e) {
+          console.warn('Failed to analyze terrain geometry:', e);
+        }
+      }
+      
+      const floors = context.project?.buildingHeight ? Math.ceil(context.project.buildingHeight / 4) : 1;
+      const stripMallContext = generateStripMallContext(
+        terrainShape,
+        floors,
+        context.analysis?.areaMaximaConstruida || context.project?.area || 0,
+        context.analysis?.numeroLojas || 12,
+        undefined
+      );
+      
+      // Gerar prompt especializado para cortes
+      const specializedPrompt = generateSpecializedPrompt(
+        'section_transversal',
+        context.dna,
+        stripMallContext
+      );
+      
+      const prompt = `${specializedPrompt}
 
-      const prompt = `${dnaPromptBase}
+SECTION TYPE: TRANSVERSAL (Corte Transversal BB)
+${similarProjectsContext}
 
-Create a TRANSVERSAL ARCHITECTURAL SECTION (Corte Transversal BB) of a strip mall following ABNT Brazilian technical drawing standards.${similarProjectsContext}
-
-ABNT TECHNICAL REQUIREMENTS:
-- Clean black and white technical drawing
-- Continuous thick lines (0.7mm) for cut elements
-- Thin lines (0.3mm) for visible elements beyond cut
-- Dashed lines for hidden elements
-- Level indicators: ±0.00 (ground floor), +3.50 (slab), +5.00 (roof)
-- Vertical dimensions with extension lines and arrows
-- Horizontal dimensions showing width
-- Material hatching: concrete (45° diagonal lines), masonry (cross-hatch)
-- North arrow and scale (1:100 or 1:200)
-- Title block with: project name, drawing title "CORTE TRANSVERSAL BB", scale, date
-
-${context.criticalRequirements}
-${context.geometryInfo}
-${context.briefingSection}
-
-SECTION CONTENT:
-- Cut through the width showing typical store depth
-- Show foundation, floor slab, side walls, roof structure
-- Include ceiling height (3.5m to 5.0m depending on store type)
-- Show roof drainage slope
-- Indicate parking area on one side, loading area on other
-- Show lateral setbacks if applicable
-- Add human figures for scale (1.75m)
-- Show typical store depth (15m to 20m)
-
-LABELS AND ANNOTATIONS:
-- Space labels: "ÁREA DE VENDAS", "DEPÓSITO", "ESTACIONAMENTO"
-- Level marks: "PISO ACABADO ±0.00", "LAJE +3.50", "COBERTURA +5.00"
-- Structural elements: "VIGA", "PILAR", "FUNDAÇÃO"
-- Dimensions in meters with 2 decimal places
-- Ceiling height indication
-
-Render as a professional technical drawing following NBR 6492 (Architectural Drawing) standards.`;
+ADDITIONAL CONTEXT:
+${context.briefingSection}`;
 
       const result = await generateImage({ prompt });
       const imageUrl = result.url as string;
@@ -813,27 +839,40 @@ Render as a professional technical drawing following NBR 6492 (Architectural Dra
         scale: project.buildingScale || 80,
       });
 
-      // Gerar prompt consistente usando DNA do projeto
-      const basePrompt = generateConsistentPrompt(projectDNA, "siteplan");
-
-      const sitePlanPrompt = `${basePrompt}
-
-${context.briefingSection}
-${context.geometryInfo}
-${context.criticalRequirements}
+      // Gerar contexto especializado de strip mall
+      let terrainShape = 'rectangular';
+      if (project.polygonCoordinates) {
+        try {
+          const rawCoords = JSON.parse(project.polygonCoordinates);
+          const coords = rawCoords.map((c: number[]) => ({ lat: c[1], lng: c[0] }));
+          const geom = analyzeTerrainGeometry(coords);
+          terrainShape = geom.shape.type.toLowerCase();
+        } catch (e) {
+          console.warn('Failed to analyze terrain geometry:', e);
+        }
+      }
+      
+      const floors = context.project?.buildingHeight ? Math.ceil(context.project.buildingHeight / 4) : 1;
+      const stripMallContext = generateStripMallContext(
+        terrainShape,
+        floors,
+        context.analysis?.areaMaximaConstruida || context.project?.area || 0,
+        context.analysis?.numeroLojas || 12,
+        undefined
+      );
+      
+      // Gerar prompt especializado para implantação
+      const specializedPrompt = generateSpecializedPrompt(
+        'siteplan',
+        projectDNA,
+        stripMallContext
+      );
+      
+      const sitePlanPrompt = `${specializedPrompt}
 ${layoutDescription}
 
-SITE PLAN REQUIREMENTS:
-- Top-down architectural site plan (implantação)
-- Show building footprint with exact dimensions
-- Include all ${context.analysis?.vagasEstacionamento || 'parking'} spaces with layout (90°, 45°, parallel)
-- Add vehicular and pedestrian access points
-- Include perimeter sidewalks and walkways
-- Show green areas and landscaping
-- Add dimension lines for setbacks and distances
-- Include north arrow and graphic scale
-- Add legend for paving materials
-- Scale: 1:500 or 1:200`;
+ADDITIONAL CONTEXT:
+${context.briefingSection}`;
 
       const result = await generateImage({ prompt: sitePlanPrompt });
       const imageUrl = result.url as string;

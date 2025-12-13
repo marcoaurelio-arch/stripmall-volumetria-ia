@@ -56,6 +56,7 @@ export const projects = mysqlTable("projects", {
   
   // Parâmetros do edifício
   buildingHeight: int("buildingHeight").default(8), // Altura do edifício em metros (padrão: 8m = térreo)
+  buildingTypology: mysqlEnum("buildingTypology", ["linear", "l_shape", "u_shape"]), // Tipologia do strip mall
   
   // Branding personalizado
   logoUrl: text("logoUrl"), // URL do logo customizado do projeto

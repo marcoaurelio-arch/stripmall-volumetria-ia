@@ -38,6 +38,7 @@ export default function NewProject() {
     longitude: "",
     polygonCoordinates: "",
     pricePerSqm: "",
+    buildingTypology: "" as "" | "linear" | "l_shape" | "u_shape",
   });
 
   const [tempPolygon, setTempPolygon] = useState("");
@@ -199,7 +200,7 @@ export default function NewProject() {
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
@@ -473,6 +474,34 @@ export default function NewProject() {
                       placeholder="Ex: 100"
                     />
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tipologia do Edifício */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Tipologia do Strip Mall</CardTitle>
+                <CardDescription>Escolha o formato do edifício comercial</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="buildingTypology">Formato do Edifício</Label>
+                  <select
+                    id="buildingTypology"
+                    name="buildingTypology"
+                    value={formData.buildingTypology}
+                    onChange={handleChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">Detectar automaticamente</option>
+                    <option value="linear">Linear (Retangular)</option>
+                    <option value="l_shape">Formato em L</option>
+                    <option value="u_shape">Formato em U</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    Se não selecionado, a tipologia será detectada automaticamente pela geometria do terreno
+                  </p>
                 </div>
               </CardContent>
             </Card>
