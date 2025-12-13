@@ -1602,3 +1602,24 @@
 - [x] Executar limpeza (removidos tesseract.js, web-ifc)
 - [x] Limpar cache (removido .vite e dist)
 - [x] Redução final: 1.1GB → 854MB (246MB economizados, 22%)
+
+
+## Prompts Especializados de Arquitetura para Strip Malls
+
+- [x] Analisar prompts atuais de geração de imagens
+- [x] Criar biblioteca de conhecimento sobre strip malls (tipologias, melhores práticas) - STRIP-MALL-KNOWLEDGE-BASE.md
+- [x] Definir características arquitetônicas por tipologia (L, U, retangular)
+- [x] Criar prompts especializados para estudos conceituais (stripMallPromptService.ts)
+- [x] Criar prompts especializados para plantas baixas
+- [x] Criar prompts especializados para cortes arquitetônicos
+- [x] Criar prompts especializados para fachadas
+- [x] Adicionar considerações de 1 ou 2 pavimentos
+- [x] Incluir melhores práticas comerciais (visibilidade, acesso, estacionamento)
+- [x] Integrar prompts especializados em generateConceptual
+- [ ] Integrar prompts especializados em generateFloorplan
+- [ ] Integrar prompts especializados em generateTransversalSection
+- [ ] Integrar prompts especializados em generateLongitudinalSection
+- [ ] Integrar prompts especializados em generateFacadeView
+- [ ] Integrar prompts especializados em generateSitePlan
+- [ ] Testar prompts com projeto real
+- [ ] Documentar guia de uso dos novos prompts

@@ -9,6 +9,7 @@ import { generateLayoutDescription, generateFloorplanLayoutDescription, generate
 import { generateProjectDNA, generateConsistentPrompt, type ProjectDNA } from "./services/projectDNAService";
 import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
 import { buildProjectContext } from "./services/projectContextHelper";
+import { generateStripMallContext, generateSpecializedPrompt } from "./services/stripMallPromptService";
 
 export const imageRouter = router({
   // Gerar estudo conceitual 3D
@@ -75,24 +76,42 @@ export const imageRouter = router({
         scale: project.buildingScale || 80,
       });
       
-      // Gerar prompt consistente usando DNA do projeto
-      const basePrompt = generateConsistentPrompt(projectDNA, "conceptual");
-
-      const prompt = `${basePrompt}
-
-${context.briefingSection}
-${context.geometryInfo}
-${context.criticalRequirements}
+      // Gerar contexto especializado de strip mall
+      // Determinar forma do terreno a partir da geometria
+      let terrainShape = 'rectangular';
+      if (project.polygonCoordinates) {
+        try {
+          const rawCoords = JSON.parse(project.polygonCoordinates);
+          const coords = rawCoords.map((c: number[]) => ({ lat: c[1], lng: c[0] }));
+          const geom = analyzeTerrainGeometry(coords);
+          terrainShape = geom.shape.type.toLowerCase();
+        } catch (e) {
+          console.warn('Failed to analyze terrain geometry:', e);
+        }
+      }
+      
+      const floors = context.project?.buildingHeight ? Math.ceil(context.project.buildingHeight / 4) : 1;
+      const stripMallContext = generateStripMallContext(
+        terrainShape,
+        floors,
+        context.analysis?.areaMaximaConstruida || context.project?.area || 0,
+        context.analysis?.numeroLojas || 12,
+        undefined // anchorStoreArea - não disponível no schema atual
+      );
+      
+      // Gerar prompt especializado para estudos conceituais
+      const specializedPrompt = generateSpecializedPrompt(
+        'conceptual',
+        projectDNA,
+        stripMallContext
+      );
+      
+      const prompt = `${specializedPrompt}
 ${similarProjectsContext}
 ${layoutDescription}
 
-VISUALIZATION REQUIREMENTS:
-- Photorealistic 3D rendering (aerial perspective)
-- Show complete building with ${context.analysis?.numeroLojas || 'all'} retail units
-- Include parking area with ${context.analysis?.vagasEstacionamento || 'all'} spaces
-- Add landscaping, lighting, and urban context
-- Professional architectural visualization quality
-- Daytime lighting with clear shadows`;
+ADDITIONAL CONTEXT:
+${context.briefingSection}`;
 
       try {
         // Buscar imagens de referência selecionadas
