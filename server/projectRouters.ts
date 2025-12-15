@@ -11,6 +11,9 @@ import { calcularAnaliseFinanceiraAvancada } from "./services/advancedFinancialS
 import { generateProfessionalPDF } from "./services/professionalPdfService";
 import { generateScenarioSuggestions } from "./services/projectTemplateService";
 import { generateProjectExcel } from "./excelService";
+import { analysisVersions, analyses } from "../drizzle/schema";
+import { drizzle } from "drizzle-orm/mysql2";
+import { eq, desc } from "drizzle-orm";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -321,6 +324,123 @@ Responda APENAS com um JSON válido no seguinte formato:
           projectId: input.projectId,
           ...analysisData,
         });
+        
+        // Salvar versão automaticamente
+        console.log(`[ANALYZE] Salvando versão automática`);
+        try {
+          const dbConn = drizzle(process.env.DATABASE_URL!);
+          
+          // Buscar última análise recém criada
+          const latestAnalysis = await dbConn
+            .select()
+            .from(analyses)
+            .where(eq(analyses.projectId, input.projectId))
+            .orderBy(desc(analyses.createdAt))
+            .limit(1);
+          
+          // Buscar última versão para determinar número
+          const lastVersion = await dbConn
+            .select()
+            .from(analysisVersions)
+            .where(eq(analysisVersions.projectId, input.projectId))
+            .orderBy(desc(analysisVersions.versionNumber))
+            .limit(1);
+          
+          const nextVersionNumber = (lastVersion[0]?.versionNumber || 0) + 1;
+          
+          // Calcular dados financeiros
+          let custoEstimado = 0;
+          let roiEstimado = 0;
+          let paybackMeses = 0;
+          
+          try {
+            const financialInputs = {
+              landCost: project.area * 1000,
+              constructionCostPerSqm: DEFAULT_FINANCIAL_PARAMS.constructionCostPerSqm,
+              buildableArea: analysisData.areaMaximaConstruida || 0,
+              numberOfStores: analysisData.numeroLojas || 0,
+              parkingSpaces: analysisData.vagasEstacionamento || 0,
+              averageRentPerSqm: DEFAULT_FINANCIAL_PARAMS.averageRentPerSqm,
+              vacancyRate: DEFAULT_FINANCIAL_PARAMS.vacancyRate,
+              annualRentIncrease: DEFAULT_FINANCIAL_PARAMS.annualRentIncrease,
+              operationalCostRate: DEFAULT_FINANCIAL_PARAMS.operationalCostRate,
+              propertyTaxRate: DEFAULT_FINANCIAL_PARAMS.propertyTaxRate,
+              maintenanceRate: DEFAULT_FINANCIAL_PARAMS.maintenanceRate,
+              discountRate: DEFAULT_FINANCIAL_PARAMS.discountRate,
+              projectionYears: DEFAULT_FINANCIAL_PARAMS.projectionYears,
+            };
+            const financial = calculateFinancialAnalysis(financialInputs);
+            custoEstimado = financial.totalInvestment;
+            roiEstimado = Math.round(financial.annualYield * 100);
+            paybackMeses = Math.round(financial.paybackYears * 12);
+          } catch (e) {
+            console.warn("[ANALYZE] Não foi possível calcular dados financeiros para versão");
+          }
+          
+          // Criar snapshot do projeto
+          const projectSnapshot = JSON.stringify({
+            name: project.name,
+            area: project.area,
+            width: project.width,
+            length: project.length,
+            address: project.address,
+            taxaOcupacao: project.taxaOcupacao,
+            coeficienteAproveitamento: project.coeficienteAproveitamento,
+            recuoFrontal: project.recuoFrontal,
+            recuoLateral: project.recuoLateral,
+            recuoFundos: project.recuoFundos,
+          });
+          
+          // Determinar mudanças em relação à versão anterior
+          let changesFromPrevious = "";
+          if (lastVersion[0]) {
+            const changes: string[] = [];
+            if (analysisData.areaMaximaConstruida !== lastVersion[0].areaMaximaConstruida) {
+              changes.push(`Área construída: ${lastVersion[0].areaMaximaConstruida} → ${analysisData.areaMaximaConstruida} m²`);
+            }
+            if (analysisData.numeroLojas !== lastVersion[0].numeroLojas) {
+              changes.push(`Lojas: ${lastVersion[0].numeroLojas} → ${analysisData.numeroLojas}`);
+            }
+            if (analysisData.vagasEstacionamento !== lastVersion[0].vagasEstacionamento) {
+              changes.push(`Vagas: ${lastVersion[0].vagasEstacionamento} → ${analysisData.vagasEstacionamento}`);
+            }
+            changesFromPrevious = changes.join("; ");
+          }
+          
+          // Inserir versão
+          await dbConn.insert(analysisVersions).values({
+            projectId: input.projectId,
+            analysisId: latestAnalysis[0]?.id || 0,
+            versionNumber: nextVersionNumber,
+            versionLabel: `Versão ${nextVersionNumber}`,
+            projectSnapshot,
+            areaMaximaConstruida: analysisData.areaMaximaConstruida,
+            areaOcupada: analysisData.areaOcupada,
+            numeroLojas: analysisData.numeroLojas,
+            vagasEstacionamento: analysisData.vagasEstacionamento,
+            volumetriaWidth: analysisData.volumetriaWidth,
+            volumetriaLength: analysisData.volumetriaLength,
+            volumetriaHeight: analysisData.volumetriaHeight,
+            aiSuggestions: analysisData.aiSuggestions,
+            layoutDescription: analysisData.layoutDescription,
+            custoEstimado,
+            roiEstimado,
+            paybackMeses,
+            taxaOcupacao: project.taxaOcupacao,
+            coeficienteAproveitamento: project.coeficienteAproveitamento,
+            recuoFrontal: project.recuoFrontal,
+            recuoLateral: project.recuoLateral,
+            recuoFundos: project.recuoFundos,
+            notes: null,
+            changesFromPrevious,
+            createdBy: ctx.user.id,
+          });
+          
+          console.log(`[ANALYZE] Versão ${nextVersionNumber} salva automaticamente`);
+        } catch (versionError) {
+          console.error(`[ANALYZE] Erro ao salvar versão (não crítico):`, versionError);
+          // Não lançar erro - versionamento é opcional
+        }
         
         // Atualizar status para "completed"
         await db.updateProject(input.projectId, { status: "completed" });

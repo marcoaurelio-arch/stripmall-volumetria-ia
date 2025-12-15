@@ -26,6 +26,7 @@ import { layoutTemplatesRouter } from './layoutTemplatesRouter';
 import { customTemplatesRouter } from "./customTemplatesRouter";
 import { projectDNARouter } from "./projectDNARouter";
 import { cubCostRouter } from './cubCostRouter';
+import { versionRouter } from './versionRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -66,6 +67,7 @@ export const appRouter = router({
   customTemplates: customTemplatesRouter,
   projectDNA: projectDNARouter,
   cubCost: cubCostRouter,
+  version: versionRouter,
 });
 
 export type AppRouter = typeof appRouter;

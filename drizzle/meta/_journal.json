@@ -218,6 +218,13 @@
       "when": 1765758941605,
       "tag": "0030_flat_rictor",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1765796775908,
+      "tag": "0031_slow_jubilee",
+      "breakpoints": true
     }
   ]
 }

@@ -82,3 +82,16 @@
 - [x] Incluir breakdown de áreas na planilha
 - [x] Adicionar botão "Exportar Excel" na página do projeto
 - [x] Testar download e formatação
+
+
+## 📜 Sistema de Versionamento de Análises
+
+- [x] Criar tabela analysisVersions no schema
+- [x] Migrar schema para o banco de dados
+- [x] Criar endpoints: listVersions, getVersion, compareVersions
+- [x] Criar endpoint saveVersion para salvar manualmente
+- [x] Modificar analyze para salvar versão automaticamente
+- [x] Criar componente AnalysisHistory no frontend
+- [x] Criar componente VersionComparison para comparar versões (integrado no AnalysisHistory)
+- [x] Adicionar aba "Histórico" na página do projeto
+- [x] Testar fluxo completo de versionamento

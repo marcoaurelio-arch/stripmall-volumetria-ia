@@ -553,3 +553,54 @@ export const financialProjections = mysqlTable("financialProjections", {
 export type FinancialProjection = typeof financialProjections.$inferSelect;
 export type InsertFinancialProjection = typeof financialProjections.$inferInsert;
 
+
+/**
+ * Tabela de versões de análises volumétricas
+ * Permite salvar histórico de análises e comparar evolução ao longo do tempo
+ */
+export const analysisVersions = mysqlTable("analysisVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  analysisId: int("analysisId").notNull(), // Referência à análise original
+  
+  // Número da versão (auto-incrementado por projeto)
+  versionNumber: int("versionNumber").notNull(),
+  versionLabel: varchar("versionLabel", { length: 100 }), // Label opcional (ex: "Versão Final", "Aprovada")
+  
+  // Snapshot dos dados do projeto no momento da análise
+  projectSnapshot: text("projectSnapshot").notNull(), // JSON com dados do projeto
+  
+  // Snapshot dos resultados da análise
+  areaMaximaConstruida: int("areaMaximaConstruida"),
+  areaOcupada: int("areaOcupada"),
+  numeroLojas: int("numeroLojas"),
+  vagasEstacionamento: int("vagasEstacionamento"),
+  volumetriaWidth: int("volumetriaWidth"),
+  volumetriaLength: int("volumetriaLength"),
+  volumetriaHeight: int("volumetriaHeight"),
+  aiSuggestions: text("aiSuggestions"),
+  layoutDescription: text("layoutDescription"),
+  
+  // Dados financeiros no momento da versão
+  custoEstimado: int("custoEstimado"), // Custo total estimado
+  roiEstimado: int("roiEstimado"), // ROI * 100
+  paybackMeses: int("paybackMeses"),
+  
+  // Parâmetros urbanísticos usados
+  taxaOcupacao: int("taxaOcupacao"),
+  coeficienteAproveitamento: int("coeficienteAproveitamento"),
+  recuoFrontal: int("recuoFrontal"),
+  recuoLateral: int("recuoLateral"),
+  recuoFundos: int("recuoFundos"),
+  
+  // Notas e observações
+  notes: text("notes"), // Notas do usuário sobre esta versão
+  changesFromPrevious: text("changesFromPrevious"), // Descrição das mudanças
+  
+  // Metadados
+  createdBy: int("createdBy").notNull(), // userId
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AnalysisVersion = typeof analysisVersions.$inferSelect;
+export type InsertAnalysisVersion = typeof analysisVersions.$inferInsert;
