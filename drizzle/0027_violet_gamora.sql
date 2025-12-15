@@ -1,0 +1,2 @@
+ALTER TABLE `generatedImages` MODIFY COLUMN `type` enum('conceptual','floorplan','electronic_model','facade_view','longitudinal_section','transversal_section','site_plan','variation_floorplan') NOT NULL;--> statement-breakpoint
+ALTER TABLE `generatedImages` ADD `variationData` text;

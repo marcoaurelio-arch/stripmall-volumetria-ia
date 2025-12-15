@@ -1,0 +1,23 @@
+CREATE TABLE `projectTemplates` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`description` text NOT NULL,
+	`category` enum('gastronomia','saude','conveniencia','varejo','servicos') NOT NULL,
+	`briefingTemplate` text NOT NULL,
+	`typicalArea` int,
+	`typicalStoreCount` int,
+	`defaultTaxaOcupacao` int,
+	`defaultCoeficiente` int,
+	`defaultRecuoFrontal` int,
+	`defaultRecuoLateral` int,
+	`defaultRecuoFundos` int,
+	`anchorStores` text,
+	`complementaryStores` text,
+	`features` text,
+	`targetAudience` text,
+	`imageUrl` text,
+	`isActive` int NOT NULL DEFAULT 1,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `projectTemplates_id` PRIMARY KEY(`id`)
+);

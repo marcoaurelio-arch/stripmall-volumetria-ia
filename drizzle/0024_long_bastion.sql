@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `buildingHeight` int DEFAULT 8;
