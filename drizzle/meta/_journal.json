@@ -204,6 +204,20 @@
       "when": 1765666296933,
       "tag": "0028_broad_catseye",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1765758686064,
+      "tag": "0029_white_lady_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1765758941605,
+      "tag": "0030_flat_rictor",
+      "breakpoints": true
     }
   ]
 }
