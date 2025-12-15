@@ -271,43 +271,40 @@ Responda APENAS com um JSON válido no seguinte formato:
             },
           ],
           response_format: {
-            type: "json_schema",
-            json_schema: {
-              name: "volumetric_analysis",
-              strict: true,
-              schema: {
-                type: "object",
-                properties: {
-                  areaMaximaConstruida: { type: "integer", description: "Área máxima construída em m²" },
-                  areaOcupada: { type: "integer", description: "Área ocupada no térreo em m²" },
-                  numeroLojas: { type: "integer", description: "Número recomendado de lojas" },
-                  vagasEstacionamento: { type: "integer", description: "Número de vagas de estacionamento" },
-                  volumetriaWidth: { type: "integer", description: "Largura da volumetria em metros" },
-                  volumetriaLength: { type: "integer", description: "Comprimento da volumetria em metros" },
-                  volumetriaHeight: { type: "integer", description: "Altura da volumetria em metros" },
-                  layoutDescription: { type: "string", description: "Descrição detalhada do layout" },
-                  aiSuggestions: { type: "string", description: "Sugestões e recomendações" },
-                },
-                required: [
-                  "areaMaximaConstruida",
-                  "areaOcupada",
-                  "numeroLojas",
-                  "vagasEstacionamento",
-                  "volumetriaWidth",
-                  "volumetriaLength",
-                  "volumetriaHeight",
-                  "layoutDescription",
-                  "aiSuggestions",
-                ],
-                additionalProperties: false,
-              },
-            },
+            type: "json_object"
           },
         });
         
         console.log(`[ANALYZE] Resposta recebida da IA`);
+        console.log(`[ANALYZE] Response completo:`, JSON.stringify(response, null, 2));
         
-        const content = response.choices[0].message.content;
+        // Validar estrutura da resposta
+        if (!response) {
+          throw new Error("Resposta da IA está vazia ou undefined");
+        }
+        
+        if (!response.choices || !Array.isArray(response.choices)) {
+          console.error(`[ANALYZE] Response.choices inválido:`, response);
+          throw new Error("Resposta da IA não contém array 'choices'");
+        }
+        
+        if (response.choices.length === 0) {
+          console.error(`[ANALYZE] Response.choices está vazio`);
+          throw new Error("Resposta da IA não contém opções de resposta");
+        }
+        
+        const firstChoice = response.choices[0];
+        if (!firstChoice || !firstChoice.message) {
+          console.error(`[ANALYZE] Primeira escolha inválida:`, firstChoice);
+          throw new Error("Resposta da IA não contém mensagem válida");
+        }
+        
+        const content = firstChoice.message.content;
+        if (!content) {
+          console.error(`[ANALYZE] Conteúdo da mensagem está vazio`);
+          throw new Error("Resposta da IA não contém conteúdo");
+        }
+        
         console.log(`[ANALYZE] Conteúdo da resposta: ${typeof content === 'string' ? content.substring(0, 200) : 'objeto'}...`);
         
         const analysisData = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));

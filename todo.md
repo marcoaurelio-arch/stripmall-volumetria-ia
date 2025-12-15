@@ -46,3 +46,27 @@
 - [x] Adicionar tratamento de erro no frontend com mensagens amigáveis
 - [x] Testar fluxo completo de análise
 - [x] Validar logs no console do servidor
+
+
+## 🚨 ERRO CRÍTICO - Cannot read properties of undefined (reading '0')
+
+- [x] Investigar linha exata do erro no código
+- [x] Adicionar validação de response.choices antes de acessar [0]
+- [x] Adicionar tratamento para resposta vazia da IA
+- [x] Adicionar fallback caso IA não retorne dados
+- [x] Testar com projeto real (Area 6.900m disponivel)
+- [x] Validar logs detalhados no console
+- [x] Corrigir schema JSON (mudado de json_schema para json_object)
+- [x] Validar que API retorna choices corretamente
+
+## 📋 Templates Pré-configurados
+
+- [x] Investigar onde templates são definidos
+- [x] Criar template "Strip Mall Compacto de Conveniência" (1.000-2.000m²)
+- [x] Criar template "Strip Mall Médio de Varejo" (2.000-5.000m²)
+- [x] Criar template "Strip Mall Grande Premium" (5.000-10.000m²)
+- [x] Criar template "Strip Mall Gastronômico" (1.500-4.000m²)
+- [x] Criar template "Strip Mall de Saúde e Bem-Estar" (1.200-3.000m²)
+- [x] Criar template "Strip Mall de Serviços" (1.000-2.500m²)
+- [x] Popular templates no banco de dados
+- [x] Testar seleção e aplicação de templates
