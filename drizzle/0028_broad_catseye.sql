@@ -1,1 +1,0 @@
-ALTER TABLE `projects` ADD `buildingTypology` enum('linear','l_shape','u_shape');

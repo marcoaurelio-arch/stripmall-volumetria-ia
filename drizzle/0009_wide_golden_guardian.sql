@@ -1,1 +1,0 @@
-ALTER TABLE `generatedImages` MODIFY COLUMN `type` enum('conceptual','floorplan','electronic_model','facade_view','longitudinal_section','transversal_section') NOT NULL;
