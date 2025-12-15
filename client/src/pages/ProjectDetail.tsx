@@ -33,7 +33,7 @@ import { LayoutTemplatesGallery } from "@/components/LayoutTemplatesGallery";
 import { CommunityTemplatesGallery } from "@/components/CommunityTemplatesGallery";
 import { CostCalculator } from "@/components/CostCalculator";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Download, Eye, FileSpreadsheet, FileText, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -137,6 +137,26 @@ export default function ProjectDetail() {
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao gerar relatório PDF");
+    },
+  });
+
+  const exportExcelMutation = trpc.project.exportToExcel.useMutation({
+    onMutate: () => {
+      toast.info("📊 Gerando planilha Excel...", {
+        description: "Aguarde enquanto preparamos os dados.",
+        duration: 2000,
+      });
+    },
+    onSuccess: (data) => {
+      toast.success("✅ Planilha Excel gerada com sucesso!", {
+        description: "O download irá iniciar automaticamente.",
+      });
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error("❌ Erro ao gerar Excel", {
+        description: error.message || "Tente novamente em alguns instantes.",
+      });
     },
   });
 
@@ -402,6 +422,25 @@ export default function ProjectDetail() {
                 <>
                   <Building2 className="h-4 w-4 mr-2" />
                   Exportar IFC
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={() => exportExcelMutation.mutate({ projectId })}
+              disabled={exportExcelMutation.isPending}
+              variant="outline"
+              size="lg"
+              title="Exportar análise para planilha Excel"
+            >
+              {exportExcelMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando Excel...
+                </>
+              ) : (
+                <>
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Exportar Excel
                 </>
               )}
             </Button>

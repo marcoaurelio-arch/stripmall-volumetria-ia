@@ -10,6 +10,7 @@ import { calculateFinancialAnalysis, DEFAULT_FINANCIAL_PARAMS } from "./financia
 import { calcularAnaliseFinanceiraAvancada } from "./services/advancedFinancialService";
 import { generateProfessionalPDF } from "./services/professionalPdfService";
 import { generateScenarioSuggestions } from "./services/projectTemplateService";
+import { generateProjectExcel } from "./excelService";
 
 export const projectRouter = router({
   // Listar todos os projetos do usuário
@@ -724,5 +725,93 @@ Responda APENAS com um JSON válido no seguinte formato:
     .input(z.object({ areaTerreno: z.number().min(1000).max(15000) }))
     .query(({ input }) => {
       return generateScenarioSuggestions(input.areaTerreno);
+    }),
+
+  // Exportar análise para Excel
+  exportToExcel: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      console.log(`[EXCEL] Iniciando exportação para projeto ${input.projectId}`);
+      
+      const project = await db.getProjectById(input.projectId);
+      
+      if (!project) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+      
+      if (project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      // Buscar análise
+      const analysis = await db.getLatestAnalysis(input.projectId);
+      console.log(`[EXCEL] Análise encontrada:`, !!analysis);
+
+      // Buscar dados financeiros (se houver)
+      let financial = null;
+      if (analysis) {
+        try {
+          const financialInputs = {
+            landCost: project.area * 1000,
+            constructionCostPerSqm: DEFAULT_FINANCIAL_PARAMS.constructionCostPerSqm,
+            buildableArea: analysis.areaMaximaConstruida || 0,
+            numberOfStores: analysis.numeroLojas || 0,
+            parkingSpaces: analysis.vagasEstacionamento || 0,
+            averageRentPerSqm: DEFAULT_FINANCIAL_PARAMS.averageRentPerSqm,
+            vacancyRate: DEFAULT_FINANCIAL_PARAMS.vacancyRate,
+            annualRentIncrease: DEFAULT_FINANCIAL_PARAMS.annualRentIncrease,
+            operationalCostRate: DEFAULT_FINANCIAL_PARAMS.operationalCostRate,
+            propertyTaxRate: DEFAULT_FINANCIAL_PARAMS.propertyTaxRate,
+            maintenanceRate: DEFAULT_FINANCIAL_PARAMS.maintenanceRate,
+            discountRate: DEFAULT_FINANCIAL_PARAMS.discountRate,
+            projectionYears: DEFAULT_FINANCIAL_PARAMS.projectionYears,
+          };
+          financial = calculateFinancialAnalysis(financialInputs);
+          console.log(`[EXCEL] Dados financeiros calculados`);
+        } catch (e) {
+          console.warn(`[EXCEL] Não foi possível calcular dados financeiros:`, e);
+        }
+      }
+
+      try {
+        // Gerar Excel
+        const excelBuffer = await generateProjectExcel(
+          project,
+          analysis,
+          financial ? {
+            custoTerreno: financial.landCost,
+            custoConstrucao: financial.constructionCost,
+            custoTotal: financial.totalInvestment,
+            valorVenda: financial.totalInvestment * 1.3, // Estimativa
+            valorAluguel: financial.annualGrossRevenue / 12,
+            roi: financial.annualYield,
+            tir: financial.irr,
+            payback: financial.paybackYears * 12, // Converter para meses
+            vpl: financial.npv,
+          } : null
+        );
+        console.log(`[EXCEL] Excel gerado com sucesso, tamanho: ${excelBuffer.length} bytes`);
+
+        // Upload para S3
+        const fileName = `analise-${project.id}-${Date.now()}.xlsx`;
+        const { url } = await storagePut(
+          `exports/${fileName}`,
+          excelBuffer,
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        console.log(`[EXCEL] Arquivo salvo em: ${url}`);
+
+        return {
+          success: true,
+          url,
+          fileName,
+        };
+      } catch (error) {
+        console.error(`[EXCEL] Erro ao gerar Excel:`, error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao gerar arquivo Excel",
+        });
+      }
     }),
 });

@@ -70,3 +70,15 @@
 - [x] Criar template "Strip Mall de Serviços" (1.000-2.500m²)
 - [x] Popular templates no banco de dados
 - [x] Testar seleção e aplicação de templates
+
+
+## 📊 Exportação para Excel
+
+- [x] Instalar biblioteca exceljs no backend
+- [x] Criar procedure exportToExcel no projectRouters
+- [x] Formatar planilha com dados do projeto
+- [x] Incluir análise volumétrica na planilha
+- [x] Incluir viabilidade financeira na planilha
+- [x] Incluir breakdown de áreas na planilha
+- [x] Adicionar botão "Exportar Excel" na página do projeto
+- [x] Testar download e formatação
