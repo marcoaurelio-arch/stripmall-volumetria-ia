@@ -68,13 +68,42 @@ export default function ProjectDetail() {
   });
 
   const analyzeMutation = trpc.project.analyze.useMutation({
+    onMutate: () => {
+      toast.info("🤖 Iniciando análise com IA...", {
+        description: "Isso pode levar alguns segundos. Por favor, aguarde.",
+        duration: 3000,
+      });
+    },
     onSuccess: () => {
-      toast.success("Análise concluída com sucesso!");
+      toast.success("✅ Análise concluída com sucesso!", {
+        description: "Os resultados já estão disponíveis nas abas abaixo.",
+      });
       utils.project.get.invalidate({ id: projectId });
       utils.project.getLatestAnalysis.invalidate({ projectId });
     },
     onError: (error) => {
-      toast.error(error.message || "Erro ao analisar projeto");
+      console.error("Erro na análise:", error);
+      
+      let errorTitle = "❌ Erro ao analisar projeto";
+      let errorDescription = "";
+      
+      if (error.message.includes("Área do terreno")) {
+        errorTitle = "⚠️ Dados incompletos";
+        errorDescription = "Por favor, preencha a área do terreno antes de analisar.";
+      } else if (error.message.includes("Tempo limite")) {
+        errorTitle = "⏱️ Tempo esgotado";
+        errorDescription = "A análise demorou muito. Tente novamente em alguns instantes.";
+      } else if (error.message.includes("conexão")) {
+        errorTitle = "🌐 Erro de conexão";
+        errorDescription = "Verifique sua internet e tente novamente.";
+      } else {
+        errorDescription = error.message || "Ocorreu um erro inesperado. Tente novamente.";
+      }
+      
+      toast.error(errorTitle, {
+        description: errorDescription,
+        duration: 5000,
+      });
     },
   });
 
@@ -112,7 +141,15 @@ export default function ProjectDetail() {
   });
 
   const handleAnalyze = () => {
-    if (confirm("Deseja iniciar uma nova análise deste terreno?")) {
+    // Validar se o projeto tem área antes de prosseguir
+    if (!project?.area || project.area <= 0) {
+      toast.error("⚠️ Dados incompletos", {
+        description: "Por favor, preencha a área do terreno antes de analisar.",
+      });
+      return;
+    }
+    
+    if (confirm("🤖 Deseja iniciar uma nova análise deste terreno com IA?\n\nIsso pode levar de 10 a 30 segundos.")) {
       analyzeMutation.mutate({ projectId });
     }
   };

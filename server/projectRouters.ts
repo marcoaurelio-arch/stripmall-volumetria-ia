@@ -172,14 +172,34 @@ export const projectRouter = router({
   analyze: protectedProcedure
     .input(z.object({ projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {
+      console.log(`[ANALYZE] Iniciando análise do projeto ${input.projectId} para usuário ${ctx.user.id}`);
+      
       const project = await db.getProjectById(input.projectId);
       
-      if (!project || project.userId !== ctx.user.id) {
+      if (!project) {
+        console.error(`[ANALYZE] Projeto ${input.projectId} não encontrado`);
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+      
+      if (project.userId !== ctx.user.id) {
+        console.error(`[ANALYZE] Usuário ${ctx.user.id} tentou acessar projeto ${input.projectId} de outro usuário`);
         throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
       }
       
+      // Validar dados obrigatórios
+      if (!project.area || project.area <= 0) {
+        console.error(`[ANALYZE] Projeto ${input.projectId} sem área válida: ${project.area}`);
+        throw new TRPCError({ 
+          code: "BAD_REQUEST", 
+          message: "Área do terreno é obrigatória e deve ser maior que zero" 
+        });
+      }
+      
+      console.log(`[ANALYZE] Projeto validado: ${project.name}, área: ${project.area}m²`);
+      
       // Atualizar status para "analyzing"
       await db.updateProject(input.projectId, { status: "analyzing" });
+      console.log(`[ANALYZE] Status atualizado para 'analyzing'`);
       
       try {
         // Preparar dados para a IA
@@ -237,6 +257,8 @@ Responda APENAS com um JSON válido no seguinte formato:
   "aiSuggestions": "sugestões e recomendações detalhadas para o projeto"
 }`;
 
+        console.log(`[ANALYZE] Chamando IA com prompt de ${prompt.length} caracteres`);
+        
         const response = await invokeLLM({
           messages: [
             {
@@ -283,10 +305,20 @@ Responda APENAS com um JSON válido no seguinte formato:
           },
         });
         
+        console.log(`[ANALYZE] Resposta recebida da IA`);
+        
         const content = response.choices[0].message.content;
+        console.log(`[ANALYZE] Conteúdo da resposta: ${typeof content === 'string' ? content.substring(0, 200) : 'objeto'}...`);
+        
         const analysisData = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
+        console.log(`[ANALYZE] Dados parseados com sucesso:`, {
+          areaMaximaConstruida: analysisData.areaMaximaConstruida,
+          numeroLojas: analysisData.numeroLojas,
+          vagasEstacionamento: analysisData.vagasEstacionamento
+        });
         
         // Salvar análise no banco
+        console.log(`[ANALYZE] Salvando análise no banco de dados`);
         await db.createAnalysis({
           projectId: input.projectId,
           ...analysisData,
@@ -294,14 +326,37 @@ Responda APENAS com um JSON válido no seguinte formato:
         
         // Atualizar status para "completed"
         await db.updateProject(input.projectId, { status: "completed" });
+        console.log(`[ANALYZE] Análise concluída com sucesso para projeto ${input.projectId}`);
         
         return { success: true, analysis: analysisData };
       } catch (error) {
+        console.error(`[ANALYZE] Erro durante análise do projeto ${input.projectId}:`, error);
+        
         // Em caso de erro, reverter status
-        await db.updateProject(input.projectId, { status: "draft" });
+        try {
+          await db.updateProject(input.projectId, { status: "draft" });
+          console.log(`[ANALYZE] Status revertido para 'draft'`);
+        } catch (revertError) {
+          console.error(`[ANALYZE] Erro ao reverter status:`, revertError);
+        }
+        
+        // Fornecer mensagem de erro mais específica
+        let errorMessage = "Erro ao analisar terreno";
+        if (error instanceof Error) {
+          if (error.message.includes("timeout")) {
+            errorMessage = "Tempo limite excedido ao processar análise. Tente novamente.";
+          } else if (error.message.includes("JSON")) {
+            errorMessage = "Erro ao processar resposta da IA. Tente novamente.";
+          } else if (error.message.includes("network")) {
+            errorMessage = "Erro de conexão. Verifique sua internet e tente novamente.";
+          } else {
+            errorMessage = `Erro: ${error.message}`;
+          }
+        }
+        
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Erro ao analisar terreno",
+          message: errorMessage,
         });
       }
     }),

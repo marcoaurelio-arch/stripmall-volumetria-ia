@@ -33,3 +33,16 @@
 - [ ] Criar guia rápido para usuários
 - [ ] Criar checkpoint final
 - [ ] Preparar para publicação
+
+
+## 🐛 Bug Reportado pelo Usuário (14/12/2025)
+
+### Erro ao Analisar com IA - Melhorias Implementadas
+- [x] Adicionar logs detalhados no servidor (procedure analyze)
+- [x] Adicionar validações antes de chamar IA (dados obrigatórios)
+- [x] Melhorar tratamento de erro no backend com mensagens específicas
+- [x] Adicionar loading state claro no botão "Analisar com IA"
+- [x] Adicionar feedback visual de progresso (toast informativo)
+- [x] Adicionar tratamento de erro no frontend com mensagens amigáveis
+- [x] Testar fluxo completo de análise
+- [x] Validar logs no console do servidor
