@@ -6,8 +6,9 @@ import { generateProjectDNA, type ProjectDNA } from "./projectDNAService";
 /**
  * Busca o DNA do projeto no banco de dados.
  * Se não existir, gera automaticamente e salva.
+ * @param forceRegenerate - Força regeneração do DNA mesmo se já existir
  */
-export async function getOrGenerateProjectDNA(projectId: number): Promise<ProjectDNA> {
+export async function getOrGenerateProjectDNA(projectId: number, forceRegenerate: boolean = false): Promise<ProjectDNA> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -22,8 +23,8 @@ export async function getOrGenerateProjectDNA(projectId: number): Promise<Projec
     throw new Error("Project not found");
   }
 
-  // Se DNA já existe, retornar
-  if (project.dnaGenerated && project.dnaBuildingShape) {
+  // Se DNA já existe e não for forçar regeneração, retornar
+  if (!forceRegenerate && project.dnaGenerated && project.dnaBuildingShape) {
     return {
       buildingShape: project.dnaBuildingShape,
       floors: Math.ceil((project.buildingHeight || 8) / 3),

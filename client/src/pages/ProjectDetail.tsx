@@ -33,8 +33,9 @@ import { LayoutTemplatesGallery } from "@/components/LayoutTemplatesGallery";
 import { CommunityTemplatesGallery } from "@/components/CommunityTemplatesGallery";
 import { CostCalculator } from "@/components/CostCalculator";
 import AnalysisHistory from "@/components/AnalysisHistory";
+import { DNACard } from "@/components/DNACard";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Download, Eye, FileSpreadsheet, FileText, History, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, Dna, Download, Eye, FileSpreadsheet, FileText, History, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -520,6 +521,10 @@ export default function ProjectDetail() {
             <TabsTrigger value="historico">
               <History className="h-4 w-4 mr-2" />
               Histórico
+            </TabsTrigger>
+            <TabsTrigger value="dna">
+              <Dna className="h-4 w-4 mr-2" />
+              DNA do Projeto
             </TabsTrigger>
           </TabsList>
 
@@ -1154,6 +1159,11 @@ export default function ProjectDetail() {
           {/* Histórico de Versões */}
           <TabsContent value="historico" className="space-y-6">
             <AnalysisHistory projectId={project.id} />
+          </TabsContent>
+
+          {/* DNA do Projeto */}
+          <TabsContent value="dna" className="space-y-6">
+            <DNACard projectId={project.id} />
           </TabsContent>
         </Tabs>
       </main>

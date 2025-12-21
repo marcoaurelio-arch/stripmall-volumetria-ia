@@ -95,3 +95,24 @@
 - [x] Criar componente VersionComparison para comparar versões (integrado no AnalysisHistory)
 - [x] Adicionar aba "Histórico" na página do projeto
 - [x] Testar fluxo completo de versionamento
+
+
+## 🔍 Varredura do Sistema e Consistência
+- [x] Sistema inicializado corretamente (servidor rodando, sem erros TypeScript)
+- [ ] Verificar se análise com IA está funcionando
+- [ ] Verificar se exportação Excel está funcionando
+- [ ] Verificar se versionamento está funcionando
+- [ ] Verificar se templates pré-configurados estão funcionando
+- [x] Investigar geração de estudos conceituais (USA DNA)
+- [x] Investigar geração de plantas baixas (USA DNA)
+- [x] Investigar geração de cortes arquitetônicos (USA DNA)
+- [x] Identificar divergências entre estudos do mesmo projeto
+- [x] DNA do projeto já existe e é compartilhado
+- [x] Problema: DNA não é atualizado quando projeto muda
+- [x] Solução: Adicionar endpoint de regeneração manual
+- [x] Adicionar botão manual "Regenerar DNA" na interface
+- [x] Criar aba "DNA do Projeto" na página do projeto
+- [x] Mostrar todas as características visuais do DNA
+- [x] Testar DNA router (3/3 testes passaram)
+- [x] Criar cronograma/passo a passo realista (CRONOGRAMA-ESTUDOS.md)
+- [x] Testar fluxo completo de criação de estudos
