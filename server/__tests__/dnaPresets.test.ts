@@ -33,6 +33,8 @@ describe('DNA Presets', () => {
       expect(preset.name).toBeDefined();
       expect(preset.description).toBeDefined();
       expect(preset.category).toBeDefined();
+      expect(preset.thumbnail).toBeDefined();
+      expect(preset.thumbnail).toMatch(/^\/preset-thumbnails\//);
 
       // Validar DNA
       expect(preset.dna.style).toBeDefined();
@@ -112,6 +114,15 @@ describe('DNA Presets', () => {
     DNA_PRESETS.forEach((preset) => {
       expect(preset.name.length).toBeGreaterThan(5);
       expect(preset.description.length).toBeGreaterThan(20);
+    });
+  });
+
+  it('should have thumbnail images for all presets', () => {
+    DNA_PRESETS.forEach((preset) => {
+      expect(preset.thumbnail).toBeDefined();
+      expect(preset.thumbnail).toMatch(/^\/(preset-thumbnails)\//);
+      // Validar que thumbnail tem extensão de imagem
+      expect(preset.thumbnail).toMatch(/\.(png|jpg|jpeg|webp)$/);
     });
   });
 });

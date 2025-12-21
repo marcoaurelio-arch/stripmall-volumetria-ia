@@ -21,6 +21,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Moderno Minimalista",
     description: "Linhas limpas, volumes puros, paleta neutra. Ideal para projetos contemporâneos sofisticados.",
     category: "moderno",
+    thumbnail: "/preset-thumbnails/moderno-minimalista.png",
     dna: {
       style: "Minimalista contemporâneo comercial",
       features: [
@@ -48,6 +49,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Tropical Brasileiro",
     description: "Cores vibrantes, vegetação exuberante, cobogós. Celebra a arquitetura brasileira.",
     category: "tropical",
+    thumbnail: "/preset-thumbnails/tropical-brasileiro.jpg",
     dna: {
       style: "Tropical brasileiro contemporâneo",
       features: [
@@ -75,6 +77,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Industrial Urbano",
     description: "Estética industrial, materiais brutos, estrutura exposta. Urbano e autêntico.",
     category: "industrial",
+    thumbnail: "/preset-thumbnails/industrial-urbano.jpg",
     dna: {
       style: "Industrial urbano contemporâneo",
       features: [
@@ -102,6 +105,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Contemporâneo Sofisticado",
     description: "Elegância atemporal, materiais nobres, iluminação cênica. Alto padrão.",
     category: "moderno",
+    thumbnail: "/preset-thumbnails/contemporaneo-sofisticado.jpg",
     dna: {
       style: "Contemporâneo sofisticado de alto padrão",
       features: [
@@ -129,6 +133,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Sustentável Bioclimático",
     description: "Eficiência energética, ventilação natural, telhado verde. Arquitetura responsável.",
     category: "sustentavel",
+    thumbnail: "/preset-thumbnails/sustentavel-bioclimatico.jpg",
     dna: {
       style: "Sustentável bioclimático",
       features: [
@@ -156,6 +161,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Comercial Clássico",
     description: "Arquitetura tradicional, simetria, elementos decorativos. Elegância atemporal.",
     category: "classico",
+    thumbnail: "/preset-thumbnails/comercial-classico.png",
     dna: {
       style: "Comercial clássico tradicional",
       features: [
@@ -183,6 +189,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Tech Futurista",
     description: "Formas orgânicas, tecnologia integrada, iluminação LED. Visão do futuro.",
     category: "moderno",
+    thumbnail: "/preset-thumbnails/tech-futurista.jpg",
     dna: {
       style: "Tech futurista de alta tecnologia",
       features: [
@@ -210,6 +217,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Rústico Acolhedor",
     description: "Madeira natural, pedra, atmosfera calorosa. Conforto e aconchego.",
     category: "classico",
+    thumbnail: "/preset-thumbnails/rustico-acolhedor.jpg",
     dna: {
       style: "Rústico acolhedor contemporâneo",
       features: [

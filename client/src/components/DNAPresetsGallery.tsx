@@ -113,22 +113,28 @@ export function DNAPresetsGallery({ projectId, onPresetApplied }: DNAPresetsGall
         {/* Grid de presets */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPresets.map((preset) => (
-            <Card key={preset.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-base">{preset.name}</CardTitle>
-                    <Badge
-                      variant="secondary"
-                      className={`mt-2 ${CATEGORY_COLORS[preset.category as keyof typeof CATEGORY_COLORS]}`}
-                    >
-                      {CATEGORY_LABELS[preset.category as keyof typeof CATEGORY_LABELS]}
-                    </Badge>
-                  </div>
+            <Card key={preset.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+              {/* Thumbnail */}
+              {preset.thumbnail && (
+                <div className="relative w-full h-48 overflow-hidden bg-muted">
+                  <img
+                    src={preset.thumbnail}
+                    alt={preset.name}
+                    className="w-full h-full object-cover transition-transform hover:scale-105"
+                  />
+                  <Badge
+                    variant="secondary"
+                    className={`absolute top-2 right-2 ${CATEGORY_COLORS[preset.category as keyof typeof CATEGORY_COLORS]}`}
+                  >
+                    {CATEGORY_LABELS[preset.category as keyof typeof CATEGORY_LABELS]}
+                  </Badge>
                 </div>
+              )}
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">{preset.name}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{preset.description}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{preset.description}</p>
                 <Button
                   className="w-full"
                   size="sm"

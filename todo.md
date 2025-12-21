@@ -134,3 +134,17 @@
 - [x] Criar componente DNAPresetsGallery
 - [x] Adicionar galeria na aba DNA do Projeto
 - [x] Testar aplicação de diferentes presets (8/8 testes passaram)
+
+
+## 🖼️ Imagens de Referência para Estilos
+- [x] Buscar imagens para "Moderno Minimalista"
+- [x] Buscar imagens para "Tropical Brasileiro"
+- [x] Buscar imagens para "Industrial Urbano"
+- [x] Buscar imagens para "Contemporâneo Sofisticado"
+- [x] Buscar imagens para "Sustentável Bioclimático"
+- [x] Buscar imagens para "Comercial Clássico"
+- [x] Buscar imagens para "Tech Futurista"
+- [x] Buscar imagens para "Rústico Acolhedor"
+- [x] Adicionar URLs das imagens aos presets
+- [x] Atualizar DNAPresetsGallery para exibir thumbnails
+- [x] Testar visualização das imagens na galeria (9/9 testes passaram)
