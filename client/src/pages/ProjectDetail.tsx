@@ -34,6 +34,7 @@ import { CommunityTemplatesGallery } from "@/components/CommunityTemplatesGaller
 import { CostCalculator } from "@/components/CostCalculator";
 import AnalysisHistory from "@/components/AnalysisHistory";
 import { DNACard } from "@/components/DNACard";
+import { DNAPresetsGallery } from "@/components/DNAPresetsGallery";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Dna, Download, Eye, FileSpreadsheet, FileText, History, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -1164,6 +1165,14 @@ export default function ProjectDetail() {
           {/* DNA do Projeto */}
           <TabsContent value="dna" className="space-y-6">
             <DNACard projectId={project.id} />
+            <DNAPresetsGallery 
+              projectId={project.id} 
+              onPresetApplied={() => {
+                // Recarregar dados do projeto após aplicar preset
+                utils.project.get.invalidate({ id: project.id });
+                utils.dna.get.invalidate({ projectId: project.id });
+              }}
+            />
           </TabsContent>
         </Tabs>
       </main>

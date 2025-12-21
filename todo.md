@@ -116,3 +116,21 @@
 - [x] Testar DNA router (3/3 testes passaram)
 - [x] Criar cronograma/passo a passo realista (CRONOGRAMA-ESTUDOS.md)
 - [x] Testar fluxo completo de criação de estudos
+
+
+## 🎨 Galeria de DNAs Pré-configurados
+- [x] Definir 8 estilos arquitetônicos distintos
+- [x] Criar DNA "Moderno Minimalista"
+- [x] Criar DNA "Tropical Brasileiro"
+- [x] Criar DNA "Industrial Urbano"
+- [x] Criar DNA "Contemporâneo Sofisticado"
+- [x] Criar DNA "Sustentável Bioclimático"
+- [x] Criar DNA "Comercial Clássico"
+- [x] Criar DNA "Tech Futurista"
+- [x] Criar DNA "Rústico Acolhedor"
+- [x] Criar biblioteca de DNAs pré-configurados (dnaPresets.ts)
+- [x] Criar endpoint applyPreset no dnaRouter
+- [x] Criar endpoint listPresets no dnaRouter
+- [x] Criar componente DNAPresetsGallery
+- [x] Adicionar galeria na aba DNA do Projeto
+- [x] Testar aplicação de diferentes presets (8/8 testes passaram)
