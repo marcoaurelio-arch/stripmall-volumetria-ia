@@ -5,8 +5,8 @@ import * as db from "./db";
 import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
 import { DNA_PRESETS, getPresetById, applyPresetToDNA } from "./services/dnaPresets";
 import { getDb } from "./db";
-import { projects } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { projects, dnaHistory } from "../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 
 export const dnaRouter = router({
   /**
@@ -127,12 +127,143 @@ export const dnaRouter = router({
         })
         .where(eq(projects.id, input.projectId));
 
-      console.log(`[DNA] Preset "${preset.name}" applied successfully`);
+      // Salvar no histórico
+      await database.insert(dnaHistory).values({
+        projectId: input.projectId,
+        presetId: preset.id,
+        presetName: preset.name,
+        dnaBuildingShape: newDNA.buildingShape,
+        dnaStyle: newDNA.style,
+        dnaFeatures: JSON.stringify(newDNA.features),
+        dnaPrimaryColor: newDNA.primaryColor,
+        dnaAccentColor: newDNA.accentColor,
+        dnaMaterials: JSON.stringify(newDNA.materials),
+        dnaLandscaping: newDNA.landscaping,
+        dnaLayout: newDNA.layout,
+        dnaContext: newDNA.context,
+        changeType: "preset_applied",
+        appliedBy: ctx.user.id,
+      });
+
+      console.log(`[DNA] Preset "${preset.name}" applied successfully and saved to history`);
 
       return {
         success: true,
         dna: newDNA,
         message: `Estilo "${preset.name}" aplicado com sucesso! Todos os próximos estudos usarão esta identidade visual.`,
+      };
+    }),
+
+  /**
+   * Listar histórico de estilos aplicados ao projeto
+   */
+  listHistory: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const database = await getDb();
+      if (!database) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      }
+
+      const history = await database
+        .select()
+        .from(dnaHistory)
+        .where(eq(dnaHistory.projectId, input.projectId))
+        .orderBy(desc(dnaHistory.appliedAt));
+
+      return history;
+    }),
+
+  /**
+   * Reverter para um estilo anterior do histórico
+   */
+  revertToHistory: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        historyId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const project = await db.getProjectById(input.projectId);
+
+      if (!project || project.userId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+      }
+
+      const database = await getDb();
+      if (!database) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      }
+
+      // Buscar entrada do histórico
+      const historyEntry = await database
+        .select()
+        .from(dnaHistory)
+        .where(eq(dnaHistory.id, input.historyId))
+        .limit(1);
+
+      if (historyEntry.length === 0 || historyEntry[0].projectId !== input.projectId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Entrada de histórico não encontrada" });
+      }
+
+      const entry = historyEntry[0];
+
+      console.log(`[DNA] Reverting project ${input.projectId} to history entry ${input.historyId}`);
+
+      // Restaurar DNA do histórico
+      await database
+        .update(projects)
+        .set({
+          dnaGenerated: 1,
+          dnaBuildingShape: entry.dnaBuildingShape,
+          dnaStyle: entry.dnaStyle,
+          dnaFeatures: entry.dnaFeatures,
+          dnaPrimaryColor: entry.dnaPrimaryColor,
+          dnaAccentColor: entry.dnaAccentColor,
+          dnaMaterials: entry.dnaMaterials,
+          dnaLandscaping: entry.dnaLandscaping,
+          dnaLayout: entry.dnaLayout,
+          dnaContext: entry.dnaContext,
+        })
+        .where(eq(projects.id, input.projectId));
+
+      // Criar nova entrada no histórico para a reversão
+      await database.insert(dnaHistory).values({
+        projectId: input.projectId,
+        presetId: entry.presetId,
+        presetName: entry.presetName ? `${entry.presetName} (Revertido)` : "Estilo Revertido",
+        dnaBuildingShape: entry.dnaBuildingShape,
+        dnaStyle: entry.dnaStyle,
+        dnaFeatures: entry.dnaFeatures,
+        dnaPrimaryColor: entry.dnaPrimaryColor,
+        dnaAccentColor: entry.dnaAccentColor,
+        dnaMaterials: entry.dnaMaterials,
+        dnaLandscaping: entry.dnaLandscaping,
+        dnaLayout: entry.dnaLayout,
+        dnaContext: entry.dnaContext,
+        changeType: "preset_applied",
+        notes: `Revertido para versão de ${entry.appliedAt.toLocaleString('pt-BR')}`,
+        appliedBy: ctx.user.id,
+      });
+
+      console.log(`[DNA] Successfully reverted to history entry ${input.historyId}`);
+
+      return {
+        success: true,
+        message: entry.presetName
+          ? `Revertido para estilo "${entry.presetName}" com sucesso!`
+          : "Revertido para estilo anterior com sucesso!",
       };
     }),
 });

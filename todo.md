@@ -148,3 +148,25 @@
 - [x] Adicionar URLs das imagens aos presets
 - [x] Atualizar DNAPresetsGallery para exibir thumbnails
 - [x] Testar visualização das imagens na galeria (9/9 testes passaram)
+
+
+## 🕐 Histórico de Estilos Aplicados
+- [x] Criar tabela dnaHistory no schema
+- [x] Migrar schema para o banco de dados
+- [x] Modificar applyPreset para salvar no histórico
+- [x] Criar endpoint listHistory no dnaRouter
+- [x] Criar endpoint revertToHistory no dnaRouter
+- [x] Criar componente DNAHistoryTimeline
+- [x] Adicionar histórico na aba DNA do Projeto
+- [x] Testar aplicação e reversão de estilos (7/7 testes passaram)
+
+
+## 🕐 Histórico de Estilos Aplicados
+- [x] Criar tabela dnaHistory no schema
+- [x] Migrar schema para o banco de dados
+- [x] Modificar applyPreset para salvar no histórico
+- [x] Criar endpoint listHistory no dnaRouter
+- [x] Criar endpoint revertToHistory no dnaRouter
+- [x] Criar componente DNAHistoryTimeline
+- [x] Adicionar histórico na aba DNA do Projeto
+- [x] Testar aplicação e reversão de estilos (7/7 testes passaram)

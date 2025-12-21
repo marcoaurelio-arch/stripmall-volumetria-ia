@@ -35,6 +35,7 @@ import { CostCalculator } from "@/components/CostCalculator";
 import AnalysisHistory from "@/components/AnalysisHistory";
 import { DNACard } from "@/components/DNACard";
 import { DNAPresetsGallery } from "@/components/DNAPresetsGallery";
+import DNAHistoryTimeline from "@/components/DNAHistoryTimeline";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Building2, Calculator, Dna, Download, Eye, FileSpreadsheet, FileText, History, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -1173,6 +1174,7 @@ export default function ProjectDetail() {
                 utils.dna.get.invalidate({ projectId: project.id });
               }}
             />
+            <DNAHistoryTimeline projectId={project.id} />
           </TabsContent>
         </Tabs>
       </main>

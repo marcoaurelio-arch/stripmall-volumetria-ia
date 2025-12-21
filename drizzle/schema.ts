@@ -604,3 +604,40 @@ export const analysisVersions = mysqlTable("analysisVersions", {
 
 export type AnalysisVersion = typeof analysisVersions.$inferSelect;
 export type InsertAnalysisVersion = typeof analysisVersions.$inferInsert;
+
+/**
+ * Histórico de estilos (DNAs) aplicados ao projeto
+ * Permite visualizar evolução e reverter para versões anteriores
+ */
+export const dnaHistory = mysqlTable("dnaHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  
+  // Identificação do preset aplicado (se aplicável)
+  presetId: varchar("presetId", { length: 100 }), // ID do preset (ex: "moderno-minimalista")
+  presetName: varchar("presetName", { length: 255 }), // Nome do preset para exibição
+  
+  // Snapshot completo do DNA no momento da aplicação
+  dnaBuildingShape: text("dnaBuildingShape"),
+  dnaStyle: text("dnaStyle"),
+  dnaFeatures: text("dnaFeatures"), // JSON array
+  dnaPrimaryColor: varchar("dnaPrimaryColor", { length: 7 }),
+  dnaAccentColor: varchar("dnaAccentColor", { length: 7 }),
+  dnaMaterials: text("dnaMaterials"), // JSON array
+  dnaLandscaping: text("dnaLandscaping"),
+  dnaLayout: text("dnaLayout"),
+  dnaContext: text("dnaContext"),
+  
+  // Tipo de mudança
+  changeType: mysqlEnum("changeType", ["preset_applied", "manual_regeneration", "initial_generation"]).notNull(),
+  
+  // Notas do usuário
+  notes: text("notes"),
+  
+  // Metadados
+  appliedBy: int("appliedBy").notNull(), // userId
+  appliedAt: timestamp("appliedAt").defaultNow().notNull(),
+});
+
+export type DNAHistory = typeof dnaHistory.$inferSelect;
+export type InsertDNAHistory = typeof dnaHistory.$inferInsert;

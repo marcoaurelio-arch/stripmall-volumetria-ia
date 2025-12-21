@@ -1,0 +1,20 @@
+CREATE TABLE `dnaHistory` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`projectId` int NOT NULL,
+	`presetId` varchar(100),
+	`presetName` varchar(255),
+	`dnaBuildingShape` text,
+	`dnaStyle` text,
+	`dnaFeatures` text,
+	`dnaPrimaryColor` varchar(7),
+	`dnaAccentColor` varchar(7),
+	`dnaMaterials` text,
+	`dnaLandscaping` text,
+	`dnaLayout` text,
+	`dnaContext` text,
+	`changeType` enum('preset_applied','manual_regeneration','initial_generation') NOT NULL,
+	`notes` text,
+	`appliedBy` int NOT NULL,
+	`appliedAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `dnaHistory_id` PRIMARY KEY(`id`)
+);
