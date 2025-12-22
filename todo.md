@@ -170,3 +170,24 @@
 - [x] Criar componente DNAHistoryTimeline
 - [x] Adicionar histórico na aba DNA do Projeto
 - [x] Testar aplicação e reversão de estilos (7/7 testes passaram)
+
+
+## 🔧 Correção de Divergências nos Estudos
+- [x] Investigar prompts de geração de estudo conceitual
+- [x] Investigar prompts de geração de plantas baixas
+- [x] Investigar prompts de geração de cortes
+- [x] Verificar se DNA está sendo usado corretamente em todos
+- [x] Problema identificado: DNA pode ter informações vagas ou genéricas
+- [x] Reforçar características do DNA com especificações OBRIGATÓRIAS
+- [x] Adicionar cores HEX exatas (#F5F5F5 e #2C3E50)
+- [x] Especificar materiais com detalhes técnicos
+- [x] Detalhar paisagismo com espécies nativas brasileiras
+- [x] Definir layout obrigatório com dimensões exatas
+- [x] Contextualizar para clima tropical/subtropical brasileiro
+- [x] Adicionar validação de consistência (dnaConsistencyValidator.ts)
+- [x] Integrar validação no endpoint regenerate
+- [x] Adicionar logs de validação (erros e avisos)
+- [x] Testar validador de consistência (10/10 testes passaram)
+- [x] Validar cores HEX, materiais, features obrigatórias
+- [x] Validar paisagismo, layout e contexto climático
+- [x] Confirmar que DNA reforçado tem especificações obrigatórias

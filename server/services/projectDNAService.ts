@@ -64,13 +64,16 @@ export function generateProjectDNA(projectData: ProjectData): ProjectDNA {
   let features: string[] = [];
   
   if (buildingType === "strip_mall") {
-    style = "Minimalista contemporâneo comercial";
+    style = "Strip Mall Comercial Brasileiro Contemporâneo";
     features = [
-      "Linhas horizontais marcadas",
-      "Volumes puros e limpos",
-      "Fachada contínua com ritmo",
-      "Transparência nas vitrines",
-      "Marquise de proteção"
+      "OBRIGATÓRIO: Calçada coberta contínua de 3-4m ao longo de TODAS as lojas",
+      "OBRIGATÓRIO: Vitrines em vidro temperado incolor ocupando 70-80% da fachada frontal",
+      "OBRIGATÓRIO: Faixa horizontal para letreiros/sinalização acima das vitrines (h=0.8-1.2m)",
+      "OBRIGATÓRIO: Pilares/colunas estruturais visíveis a cada 6-8m definindo ritmo",
+      "OBRIGATÓRIO: Laje plana com platibanda (parapeito) de 0.8-1.2m ocultando telhado",
+      "Linhas horizontais predominantes enfatizando comprimento do edifício",
+      "Volumes retangulares puros sem ornamentos desnecessários",
+      "Iluminação embutida na marquise/calçada coberta"
     ];
   } else if (buildingType === "office") {
     style = "Corporativo moderno";
@@ -89,24 +92,25 @@ export function generateProjectDNA(projectData: ProjectData): ProjectDNA {
     ];
   }
   
-  // Paleta de cores padrão para strip mall
-  const primaryColor = "#FFFFFF"; // Branco
-  const accentColor = "#404040"; // Cinza escuro
+  // Paleta de cores ESPECÍFICA para strip mall (cores hex EXATAS)
+  const primaryColor = "#F5F5F5"; // Cinza muito claro (quase branco) - COR PRINCIPAL DO EDIFÍCIO
+  const accentColor = "#2C3E50"; // Cinza azulado escuro - COR DOS DETALHES/PILARES
   const materials = [
-    "Concreto branco texturizado",
-    "Vidro temperado incolor",
-    "Alumínio cinza escuro",
-    "Revestimento cerâmico branco"
+    "ESTRUTURA: Concreto armado aparente pintado em #F5F5F5 (cinza muito claro)",
+    "FACHADA FRONTAL: Vidro temperado incolor 8mm (70-80% da área) + caixilhos de alumínio #2C3E50",
+    "PILARES/COLUNAS: Concreto aparente pintado em #2C3E50 (cinza azulado escuro) a cada 6-8m",
+    "CALÇADA COBERTA: Piso em porcelanato cinza antiderrapante + forro em gesso branco",
+    "PLATIBANDA/PARAPEITO: Concreto pintado em #F5F5F5 com altura de 0.8-1.2m"
   ];
   
-  // Paisagismo padrão
-  const landscaping = "Árvores de médio porte (6-8m) no pátio central e estacionamento frontal, canteiros com vegetação baixa, iluminação integrada";
+  // Paisagismo ESPECÍFICO para strip mall
+  const landscaping = "OBRIGATÓRIO: Árvores nativas brasileiras de médio porte (Ipê, Resedá, Jacarandá) com altura 6-8m plantadas no estacionamento a cada 3-4 vagas para sombreamento. Canteiros lineares com forragem baixa (grama-amendoim, lambari) ao longo da calçada coberta. Iluminação de piso LED embutida nos canteiros. SEM palmeiras ou plantas tropicais exóticas.";
   
-  // Layout padrão para strip mall
-  const layout = "Pátio central aberto para iluminação e ventilação natural, estacionamento frontal com vagas perpendiculares, operações âncoras nas extremidades, lojas menores no miolo";
+  // Layout OBRIGATÓRIO para strip mall
+  const layout = "CONFIGURAÇÃO OBRIGATÓRIA: Edifício em formato linear ou L com TODAS as lojas voltadas para o estacionamento frontal. Calçada coberta contínua de 3-4m de largura ao longo de 100% das fachadas das lojas. Estacionamento com vagas perpendiculares (90°) em grid organizado. Loja âncora (supermercado/farmácia) posicionada em UMA das extremidades. Lojas menores (50-150m²) distribuídas ao longo do edifício. Circulação de veículos em mão única ou dupla com largura mínima de 5-6m.";
   
-  // Contexto urbano
-  const context = "Inserido em contexto urbano consolidado, edifícios vizinhos de 2-4 pavimentos, calçadão frontal de 3-5m, arborização urbana existente";
+  // Contexto urbano ESPECÍFICO brasileiro
+  const context = "CONTEXTO: Bairro urbano brasileiro consolidado com edifícios comerciais e residenciais de 2-4 pavimentos no entorno. Via de acesso principal asfaltada com 2-3 faixas. Calçada pública de 2-3m com piso tátil e arborização urbana existente (Sibipiruna, Oiti). Iluminação pública com postes a cada 30-40m. Clima tropical/subtropical brasileiro com sol intenso - EXIGE sombreamento no estacionamento e proteção solar na fachada (calçada coberta).";
   
   return {
     buildingShape,

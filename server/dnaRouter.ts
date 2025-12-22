@@ -4,6 +4,7 @@ import { protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
 import { DNA_PRESETS, getPresetById, applyPresetToDNA } from "./services/dnaPresets";
+import { validateDNAConsistency, formatValidationReport } from "./services/dnaConsistencyValidator";
 import { getDb } from "./db";
 import { projects, dnaHistory } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
@@ -46,6 +47,17 @@ export const dnaRouter = router({
       
       // Forçar regeneração do DNA
       const dna = await getOrGenerateProjectDNA(input.projectId, true);
+      
+      // Validar consistência do DNA gerado
+      const validation = validateDNAConsistency(dna);
+      console.log(`[DNA] Validation result:`, validation);
+      
+      if (!validation.isValid) {
+        console.warn(`[DNA] DNA validation failed:`, validation.errors);
+      }
+      if (validation.warnings.length > 0) {
+        console.warn(`[DNA] DNA validation warnings:`, validation.warnings);
+      }
       
       console.log(`[DNA] DNA regenerated successfully:`, {
         buildingShape: dna.buildingShape,
