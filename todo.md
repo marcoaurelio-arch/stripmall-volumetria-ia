@@ -191,3 +191,29 @@
 - [x] Validar cores HEX, materiais, features obrigatórias
 - [x] Validar paisagismo, layout e contexto climático
 - [x] Confirmar que DNA reforçado tem especificações obrigatórias
+
+
+## 📋 Relatório de Consistência PDF
+- [x] Criar serviço de análise de consistência dos estudos (studyConsistencyAnalyzer.ts)
+- [x] Analisar se cores do DNA foram seguidas nos prompts
+- [x] Analisar se materiais do DNA estão presentes nos prompts
+- [x] Analisar se features obrigatórias aparecem nos prompts
+- [x] Calcular score de consistência (0-100%) por estudo
+- [x] Gerar resumo e recomendações automáticas
+- [x] Criar gerador de relatório PDF (consistencyPDFGenerator.ts)
+- [x] Incluir resumo do DNA no relatório
+- [x] Incluir análise de cada estudo (conceitual, planta, corte)
+- [x] Incluir score de consistência (0-100%)
+- [x] Incluir pontos fortes e pontos de atenção
+- [x] Incluir recomendações automáticas
+- [x] Design profissional com cores e ícones
+- [x] Criar endpoint verifyConsistency no projectRouters
+- [x] Buscar DNA e estudos visuais do projeto
+- [x] Gerar relatório de consistência
+- [x] Gerar PDF e fazer upload para S3
+- [x] Retornar URL do relatório e score geral
+- [x] Adicionar botão "Verificar Consistência" na página do projeto
+- [x] Adicionar mutation verifyConsistency no frontend
+- [x] Toast com score e resumo após geração
+- [x] Abrir PDF em nova aba automaticamente
+- [x] Testar geração de relatório PDF (10/10 testes passaram)

@@ -11,7 +11,10 @@ import { calcularAnaliseFinanceiraAvancada } from "./services/advancedFinancialS
 import { generateProfessionalPDF } from "./services/professionalPdfService";
 import { generateScenarioSuggestions } from "./services/projectTemplateService";
 import { generateProjectExcel } from "./excelService";
-import { analysisVersions, analyses } from "../drizzle/schema";
+import { analysisVersions, analyses, generatedImages } from "../drizzle/schema";
+import { generateConsistencyReport, StudyMetadata } from "./services/studyConsistencyAnalyzer";
+import { generateConsistencyPDF } from "./services/consistencyPDFGenerator";
+import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
 import { drizzle } from "drizzle-orm/mysql2";
 import { eq, desc } from "drizzle-orm";
 
@@ -931,6 +934,101 @@ Responda APENAS com um JSON válido no seguinte formato:
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Erro ao gerar arquivo Excel",
+        });
+      }
+    }),
+
+  // Verificar consistência dos estudos com o DNA
+  verifyConsistency: protectedProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      console.log('[VERIFY_CONSISTENCY] Iniciando verificação para projeto', input.projectId);
+
+      try {
+        // Buscar projeto
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        }
+
+        if (project.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso negado" });
+        }
+
+        // Buscar DNA do projeto
+        const dna = await getOrGenerateProjectDNA(input.projectId);
+        if (!dna) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "DNA do projeto não encontrado. Execute uma análise primeiro.",
+          });
+        }
+
+        console.log('[VERIFY_CONSISTENCY] DNA encontrado:', dna.style);
+
+        // Buscar estudos visuais do projeto (imagens geradas)
+        const dbInstance = drizzle(process.env.DATABASE_URL!);
+        const studies = await dbInstance
+          .select()
+          .from(generatedImages)
+          .where(eq(generatedImages.projectId, input.projectId))
+          .orderBy(desc(generatedImages.createdAt));
+
+        console.log('[VERIFY_CONSISTENCY] Estudos encontrados:', studies.length);
+
+        if (studies.length === 0) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: "Nenhum estudo visual encontrado. Gere estudos primeiro.",
+          });
+        }
+
+        // Converter estudos para formato de análise
+        const studyMetadata: StudyMetadata[] = studies.map(study => ({
+          type: study.type as 'conceptual' | 'floorplan' | 'section' | 'facade',
+          imageUrl: study.imageUrl || undefined,
+          generatedAt: study.createdAt || undefined,
+          prompt: study.prompt || undefined,
+        }));
+
+        // Gerar relatório de consistência
+        const report = generateConsistencyReport(
+          project.name,
+          dna,
+          studyMetadata
+        );
+
+        console.log('[VERIFY_CONSISTENCY] Relatório gerado. Score geral:', report.overallScore);
+
+        // Gerar PDF
+        const pdfBuffer = await generateConsistencyPDF(report);
+
+        // Upload do PDF para S3
+        const timestamp = Date.now();
+        const fileName = `consistency-report-${input.projectId}-${timestamp}.pdf`;
+        const { url } = await storagePut(
+          `projects/${input.projectId}/reports/${fileName}`,
+          pdfBuffer,
+          'application/pdf'
+        );
+
+        console.log('[VERIFY_CONSISTENCY] PDF gerado e enviado para S3:', url);
+
+        return {
+          success: true,
+          reportUrl: url,
+          overallScore: report.overallScore,
+          summary: report.summary,
+          studyCount: studies.length,
+        };
+      } catch (error) {
+        console.error('[VERIFY_CONSISTENCY] Erro:', error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao verificar consistência",
         });
       }
     }),

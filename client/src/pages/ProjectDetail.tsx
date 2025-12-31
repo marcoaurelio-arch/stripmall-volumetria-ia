@@ -37,7 +37,7 @@ import { DNACard } from "@/components/DNACard";
 import { DNAPresetsGallery } from "@/components/DNAPresetsGallery";
 import DNAHistoryTimeline from "@/components/DNAHistoryTimeline";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calculator, Dna, Download, Eye, FileSpreadsheet, FileText, History, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Building2, Calculator, CheckCircle2, Dna, Download, Eye, FileSpreadsheet, FileText, History, Loader2, MapPin, Paperclip, Sparkles, Scale, ThermometerSun, TrendingUp, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useParams } from "wouter";
 import { Streamdown } from "streamdown";
@@ -141,6 +141,23 @@ export default function ProjectDetail() {
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao gerar relatório PDF");
+    },
+  });
+
+  const verifyConsistencyMutation = trpc.project.verifyConsistency.useMutation({
+    onSuccess: (data) => {
+      toast.success(
+        `Relatório de consistência gerado! Score: ${data.overallScore}%`,
+        {
+          description: data.summary,
+          duration: 5000,
+        }
+      );
+      // Abrir PDF em nova aba
+      window.open(data.reportUrl, '_blank');
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao verificar consistência");
     },
   });
 
@@ -464,6 +481,25 @@ export default function ProjectDetail() {
                 <>
                   <Sparkles className="h-4 w-4 mr-2" />
                   PDF Profissional
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={() => verifyConsistencyMutation.mutate({ projectId })}
+              disabled={verifyConsistencyMutation.isPending}
+              variant="secondary"
+              size="lg"
+              title="Verificar consistência dos estudos com o DNA do projeto"
+            >
+              {verifyConsistencyMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Verificando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Verificar Consistência
                 </>
               )}
             </Button>
