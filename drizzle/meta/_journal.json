@@ -232,6 +232,13 @@
       "when": 1766341322259,
       "tag": "0032_deep_triton",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1767284160160,
+      "tag": "0033_smart_kabuki",
+      "breakpoints": true
     }
   ]
 }

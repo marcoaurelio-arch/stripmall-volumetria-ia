@@ -14,6 +14,7 @@ import InspirationGallery from "./pages/InspirationGallery";
 import Benchmarking from "./pages/Benchmarking";
 import AdminInspirationProjects from "./pages/AdminInspirationProjects";
 import GalleryStats from "./pages/GalleryStats";
+import Gallery from "./pages/Gallery";
 
 function Router() {
   return (
@@ -22,7 +23,8 @@ function Router() {
       <Route path={"/projetos"} component={Projects} />
       <Route path={"/projeto/:id"} component={ProjectDetail} />
       <Route path={"/novo-projeto"} component={NewProject} />
-      <Route path="/galeria" component={InspirationGallery} />
+      <Route path="/galeria" component={Gallery} />
+      <Route path="/galeria-exemplo" component={Gallery} />
       <Route path="/benchmarking" component={Benchmarking} />
       <Route path={"/galeria-inspiracao"} component={InspirationGallery} />
       <Route path={"/galeria-inspiracao/estatisticas"} component={GalleryStats} />

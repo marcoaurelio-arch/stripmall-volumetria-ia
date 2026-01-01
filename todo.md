@@ -217,3 +217,15 @@
 - [x] Toast com score e resumo após geração
 - [x] Abrir PDF em nova aba automaticamente
 - [x] Testar geração de relatório PDF (10/10 testes passaram)
+
+
+## 🎨 Galeria de Inspiração
+- [x] Criar tabela exampleProjects no schema
+- [x] Migrar schema para o banco de dados
+- [x] Criar 6 projetos exemplo com diferentes estilos (91-96% score)
+- [x] Criar página "Galeria de Inspiração" no frontend (Gallery.tsx)
+- [x] Adicionar cards de projeto com thumbnail e score
+- [x] Implementar modal de detalhes do projeto exemplo
+- [x] Adicionar botão "Usar como Base" para duplicar projeto
+- [x] Adicionar rota /galeria no App.tsx
+- [x] Testar navegação e duplicação de projetos (12/12 testes passaram)

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, tinyint, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -641,3 +641,61 @@ export const dnaHistory = mysqlTable("dnaHistory", {
 
 export type DNAHistory = typeof dnaHistory.$inferSelect;
 export type InsertDNAHistory = typeof dnaHistory.$inferInsert;
+
+/**
+ * Example Projects Table
+ * Projetos exemplo de alta consistência para galeria de inspiração
+ */
+export const exampleProjects = mysqlTable("exampleProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Informações básicas
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // "Conveniência", "Varejo", "Gastronomia", etc.
+  
+  // Dados do terreno
+  landArea: decimal("landArea", { precision: 10, scale: 2 }).notNull(),
+  occupancyRate: decimal("occupancyRate", { precision: 5, scale: 2 }).notNull(),
+  utilizationCoefficient: decimal("utilizationCoefficient", { precision: 5, scale: 2 }).notNull(),
+  frontSetback: decimal("frontSetback", { precision: 5, scale: 2 }).notNull(),
+  sideSetback: decimal("sideSetback", { precision: 5, scale: 2 }).notNull(),
+  backSetback: decimal("backSetback", { precision: 5, scale: 2 }).notNull(),
+  
+  // DNA do projeto
+  dnaBuildingShape: text("dnaBuildingShape").notNull(),
+  dnaFloors: int("dnaFloors").notNull(),
+  dnaRoofType: text("dnaRoofType").notNull(),
+  dnaStyle: text("dnaStyle").notNull(),
+  dnaFeatures: text("dnaFeatures").notNull(), // JSON array
+  dnaPrimaryColor: varchar("dnaPrimaryColor", { length: 7 }).notNull(),
+  dnaAccentColor: varchar("dnaAccentColor", { length: 7 }).notNull(),
+  dnaMaterials: text("dnaMaterials").notNull(), // JSON array
+  dnaLandscaping: text("dnaLandscaping").notNull(),
+  dnaLayout: text("dnaLayout").notNull(),
+  dnaContext: text("dnaContext").notNull(),
+  
+  // Análise volumétrica
+  builtArea: decimal("builtArea", { precision: 10, scale: 2 }).notNull(),
+  numberOfStores: int("numberOfStores").notNull(),
+  parkingSpaces: int("parkingSpaces").notNull(),
+  
+  // Imagens de exemplo
+  conceptualImageUrl: text("conceptualImageUrl"),
+  floorplanImageUrl: text("floorplanImageUrl"),
+  sectionImageUrl: text("sectionImageUrl"),
+  thumbnailUrl: text("thumbnailUrl").notNull(),
+  
+  // Score de consistência
+  consistencyScore: int("consistencyScore").notNull(), // 0-100
+  
+  // Metadados
+  featured: tinyint("featured").default(0).notNull(), // 1 = destaque na galeria
+  viewCount: int("viewCount").default(0).notNull(),
+  duplicateCount: int("duplicateCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ExampleProject = typeof exampleProjects.$inferSelect;
+export type InsertExampleProject = typeof exampleProjects.$inferInsert;
