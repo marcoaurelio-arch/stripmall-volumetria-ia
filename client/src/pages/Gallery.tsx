@@ -198,19 +198,71 @@ export default function Gallery() {
               </DialogHeader>
 
               <div className="space-y-6">
-                {/* Thumbnail */}
-                <div className="relative h-64 bg-slate-200 rounded-lg overflow-hidden">
-                  {selectedProject.thumbnailUrl ? (
-                    <img
-                      src={selectedProject.thumbnailUrl}
-                      alt={selectedProject.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Sparkles className="w-16 h-16 text-slate-400" />
-                    </div>
-                  )}
+                {/* Galeria de Imagens */}
+                <div>
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <span className="w-1 h-5 bg-green-600 rounded"></span>
+                    Imagens do Projeto
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Estudo Conceitual */}
+                    {selectedProject.conceptualImageUrl && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-slate-700">Estudo Conceitual 3D</div>
+                        <div className="relative h-48 bg-slate-200 rounded-lg overflow-hidden">
+                          <img
+                            src={selectedProject.conceptualImageUrl}
+                            alt="Estudo Conceitual"
+                            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => selectedProject.conceptualImageUrl && window.open(selectedProject.conceptualImageUrl, '_blank')}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Planta Baixa */}
+                    {selectedProject.floorplanImageUrl && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-slate-700">Planta Baixa Técnica</div>
+                        <div className="relative h-48 bg-slate-200 rounded-lg overflow-hidden">
+                          <img
+                            src={selectedProject.floorplanImageUrl}
+                            alt="Planta Baixa"
+                            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => selectedProject.floorplanImageUrl && window.open(selectedProject.floorplanImageUrl, '_blank')}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Corte Longitudinal */}
+                    {selectedProject.sectionImageUrl && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-slate-700">Corte Longitudinal</div>
+                        <div className="relative h-48 bg-slate-200 rounded-lg overflow-hidden">
+                          <img
+                            src={selectedProject.sectionImageUrl}
+                            alt="Corte Longitudinal"
+                            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => selectedProject.sectionImageUrl && window.open(selectedProject.sectionImageUrl, '_blank')}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Placeholder para corte transversal (se houver) */}
+                    {!selectedProject.conceptualImageUrl && !selectedProject.floorplanImageUrl && !selectedProject.sectionImageUrl && (
+                      <div className="col-span-2 flex items-center justify-center h-48 bg-slate-100 rounded-lg">
+                        <div className="text-center text-slate-500">
+                          <Sparkles className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                          <p>Imagens em geração</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2">
+                    🔍 Clique nas imagens para visualizar em tamanho completo
+                  </p>
                 </div>
 
                 {/* Dados do Terreno */}

@@ -229,3 +229,17 @@
 - [x] Adicionar botão "Usar como Base" para duplicar projeto
 - [x] Adicionar rota /galeria no App.tsx
 - [x] Testar navegação e duplicação de projetos (12/12 testes passaram)
+
+
+## 📸 Gerar Imagens para Projetos Exemplo da Galeria
+
+- [x] Buscar IDs dos 6 projetos exemplo no banco de dados
+- [x] Gerar estudos conceituais 3D para cada projeto (24/24 imagens geradas)
+- [x] Completar geração das 14 imagens restantes
+- [x] Gerar plantas baixas técnicas para cada projeto
+- [x] Gerar cortes longitudinais para cada projeto
+- [x] Gerar cortes transversais para cada projeto
+- [x] Atualizar URLs das imagens no banco de dados
+- [x] Adicionar galeria de imagens no modal de detalhes
+- [x] Verificar qualidade das imagens geradas
+- [x] Testar visualização na galeria
