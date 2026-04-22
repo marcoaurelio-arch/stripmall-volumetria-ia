@@ -86,6 +86,24 @@ export default function DashboardLayout({
           >
             Sign in
           </Button>
+          {/* Dev login bypass — only shown when DEV_USER_ID is set in .env */}
+          {import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_ENABLED === "true" && (
+            <div className="mt-4 pt-4 border-t border-dashed border-yellow-400/50">
+              <p className="text-xs text-yellow-600 text-center mb-2 font-mono">
+                ⚠️ Dev mode — OAuth bypassed
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-yellow-400 text-yellow-700 hover:bg-yellow-50"
+                onClick={() => {
+                  window.location.href = "/api/dev-login";
+                }}
+              >
+                Dev Login (no OAuth)
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );

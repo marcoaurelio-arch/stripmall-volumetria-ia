@@ -243,3 +243,11 @@
 - [x] Adicionar galeria de imagens no modal de detalhes
 - [x] Verificar qualidade das imagens geradas
 - [x] Testar visualização na galeria
+
+
+## 🔐 Dev Auth Bypass (Desenvolvimento Local)
+- [x] Implementar rota /api/dev-login no servidor
+- [x] Injetar usuário dev no context.ts quando DEV_USER_ID definido
+- [x] Adicionar botão "Dev Login" no frontend (apenas em development)
+- [x] Atualizar .env.local.download com DEV_USER_ID
+- [x] Documentar fluxo no README

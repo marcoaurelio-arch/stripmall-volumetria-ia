@@ -21,7 +21,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Moderno Minimalista",
     description: "Linhas limpas, volumes puros, paleta neutra. Ideal para projetos contemporâneos sofisticados.",
     category: "moderno",
-    thumbnail: "/preset-thumbnails/moderno-minimalista.png",
+    thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310519663058171309/YCZurReZUKjkaZUQmyA52u/moderno-minimalista_09688291.png",
     dna: {
       style: "Minimalista contemporâneo comercial",
       features: [
@@ -161,7 +161,7 @@ export const DNA_PRESETS: DNAPreset[] = [
     name: "Comercial Clássico",
     description: "Arquitetura tradicional, simetria, elementos decorativos. Elegância atemporal.",
     category: "classico",
-    thumbnail: "/preset-thumbnails/comercial-classico.png",
+    thumbnail: "https://d2xsxph8kpxj0f.cloudfront.net/310519663058171309/YCZurReZUKjkaZUQmyA52u/comercial-classico_309e6fea.png",
     dna: {
       style: "Comercial clássico tradicional",
       features: [
