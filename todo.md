@@ -251,3 +251,9 @@
 - [x] Adicionar botão "Dev Login" no frontend (apenas em development)
 - [x] Atualizar .env.local.download com DEV_USER_ID
 - [x] Documentar fluxo no README
+
+## 🐛 Bug: Erro na Geração de Imagens Conceituais
+- [ ] Investigar logs do servidor para identificar o erro
+- [ ] Verificar código do serviço de geração de imagens
+- [ ] Corrigir o problema
+- [ ] Testar geração de imagem conceitual end-to-end

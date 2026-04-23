@@ -117,12 +117,21 @@ ${context.briefingSection}`;
         // Buscar imagens de referência selecionadas
         const originalImages: Array<{ url: string; mimeType: string }> = [];
         
-        // Adicionar imagem de satélite do terreno
+        // Adicionar imagem de satélite do terreno (apenas se a URL for acessível)
         if (siteImageUrl) {
-          originalImages.push({
-            url: siteImageUrl,
-            mimeType: "image/jpeg"
-          });
+          try {
+            const mapCheck = await fetch(siteImageUrl, { method: 'HEAD' });
+            if (mapCheck.ok) {
+              originalImages.push({
+                url: siteImageUrl,
+                mimeType: "image/jpeg"
+              });
+            } else {
+              console.warn(`[generateConceptual] Google Maps URL returned ${mapCheck.status} — skipping satellite image`);
+            }
+          } catch (mapErr) {
+            console.warn('[generateConceptual] Could not validate Google Maps URL — skipping satellite image:', mapErr);
+          }
         }
         
         // Adicionar imagens de referência selecionadas pelo usuário
@@ -160,10 +169,11 @@ ${context.briefingSection}`;
         
         return { success: true, imageUrl };
       } catch (error) {
-        console.error("Error generating conceptual image:", error);
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.error("[generateConceptual] Error:", errMsg);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Erro ao gerar imagem conceitual",
+          message: `Erro ao gerar imagem conceitual: ${errMsg}`,
         });
       }
     }),
