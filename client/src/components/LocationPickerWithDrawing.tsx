@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import MapErrorBoundary from './MapErrorBoundary';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -185,7 +186,8 @@ export default function LocationPickerWithDrawing({
 
   // Renderizar polígono no mapa
   useEffect(() => {
-    if (mapRef.current && polygonPath.length > 0) {
+    const map = mapRef.current;
+    if (map && polygonPath.length > 0) {
       // Remover polígono anterior
       if (polygon) {
         polygon.setMap(null);
@@ -200,7 +202,7 @@ export default function LocationPickerWithDrawing({
         strokeWeight: 3,
         fillColor: '#3b82f6',
         fillOpacity: 0.25,
-        map: mapRef.current,
+        map,
         editable: false,
         draggable: false,
       });
@@ -209,7 +211,7 @@ export default function LocationPickerWithDrawing({
       polygonPath.forEach((point, index) => {
         new googleMaps.Marker({
           position: point,
-          map: mapRef.current,
+          map,
           label: {
             text: `${index + 1}`,
             color: 'white',
@@ -245,7 +247,7 @@ export default function LocationPickerWithDrawing({
         // Adicionar label de distância
         new googleMaps.Marker({
           position: { lat: midLat, lng: midLng },
-          map: mapRef.current,
+          map,
           label: {
             text: `${distance.toFixed(1)}m`,
             color: '#1e40af',
@@ -270,7 +272,7 @@ export default function LocationPickerWithDrawing({
       
       new googleMaps.Marker({
         position: { lat: northLat, lng: eastLng },
-        map: mapRef.current,
+        map,
         label: {
           text: '↑ N',
           color: '#dc2626',
@@ -289,7 +291,7 @@ export default function LocationPickerWithDrawing({
         newPolygon.setMap(null);
       };
     }
-  }, [polygonPath, mapRef.current]);
+  }, [polygonPath]);
 
   if (!GOOGLE_MAPS_API_KEY) {
     return (
@@ -389,13 +391,13 @@ export default function LocationPickerWithDrawing({
       </Card>
 
       {/* Mapa */}
+      <MapErrorBoundary fallbackMessage="Erro ao carregar o mapa interativo">
       <Card className="overflow-hidden">
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={['geometry', 'drawing']}>
           <div style={{ height: '500px', width: '100%' }}>
             <Map
               defaultCenter={mapCenter}
               defaultZoom={DEFAULT_ZOOM}
-              center={mapCenter}
               gestureHandling="greedy"
               disableDefaultUI={false}
               onClick={handleMapClick}
@@ -415,6 +417,7 @@ export default function LocationPickerWithDrawing({
           </div>
         </APIProvider>
       </Card>
+      </MapErrorBoundary>
 
       {/* Coordenadas selecionadas */}
       {selectedPosition && !isDrawingMode && (

@@ -257,3 +257,11 @@
 - [ ] Verificar código do serviço de geração de imagens
 - [ ] Corrigir o problema
 - [ ] Testar geração de imagem conceitual end-to-end
+
+## 🐛 Bug Crítico: Google Maps Loop Infinito (25/04/2026)
+- [x] Localizar componente Google Maps com re-renderização infinita
+- [x] Corrigir referências instáveis: removido prop `center` conflitante em LocationPicker e LocationPickerWithDrawing
+- [x] Corrigir dependência instável: removido `mapRef.current` da lista de deps do useEffect
+- [x] Adicionar MapErrorBoundary em todos os componentes de mapa
+- [ ] Testar no site publicado stripmallia-yczurrez.manus.space
+- [ ] Salvar checkpoint e republicar
