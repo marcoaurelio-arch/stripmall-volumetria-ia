@@ -265,3 +265,12 @@
 - [x] Adicionar MapErrorBoundary em todos os componentes de mapa
 - [ ] Testar no site publicado stripmallia-yczurrez.manus.space
 - [ ] Salvar checkpoint e republicar
+
+## 🐛 Bug: Google Maps RefererNotAllowedMapError (30/04/2026)
+- [x] Verificar domínios em uso e identificar a melhor solução
+- [x] Criar SafeMapWrapper que detecta RefererNotAllowedMapError via window.onerror e console.error
+- [x] Aplicar SafeMapWrapper em todos os 4 componentes de mapa
+- [x] TypeScript sem erros, HMR aplicado com sucesso
+- [ ] Usuário: adicionar domínios no Google Cloud Console (solução definitiva)
+- [ ] Testar no site publicado
+- [ ] Salvar checkpoint e republicar

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import MapErrorBoundary from './MapErrorBoundary';
+import SafeMapWrapper from './SafeMapWrapper';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -114,6 +115,7 @@ export default function LocationPicker({ onLocationSelect, initialLat, initialLn
       </Card>
 
       {/* Mapa */}
+      <SafeMapWrapper height="400px" fallbackMessage="Seletor de localização indisponível">
       <MapErrorBoundary fallbackMessage="Erro ao carregar o mapa">
       <Card className="overflow-hidden">
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
@@ -138,6 +140,7 @@ export default function LocationPicker({ onLocationSelect, initialLat, initialLn
         </APIProvider>
       </Card>
       </MapErrorBoundary>
+      </SafeMapWrapper>
 
       {/* Coordenadas selecionadas */}
       {selectedPosition && (

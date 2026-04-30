@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Loader2, MapPin, TrendingUp, Users, DollarSign, Building2, Star, Navigation, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import SafeMapWrapper from './SafeMapWrapper';
 
 interface MarketAnalysisPanelProps {
   projectId: number;
@@ -152,6 +153,7 @@ export default function MarketAnalysisPanel({ projectId, latitude, longitude }: 
                 <MapPin className="h-5 w-5" />
                 Mapa de Concorrência
               </h3>
+              <SafeMapWrapper height="400px" fallbackMessage="Mapa de concorrência indisponível">
               <div className="h-[400px] rounded-lg overflow-hidden">
                 <APIProvider apiKey={googleMapsApiKey}>
                   <Map
@@ -185,6 +187,7 @@ export default function MarketAnalysisPanel({ projectId, latitude, longitude }: 
                   </Map>
                 </APIProvider>
               </div>
+              </SafeMapWrapper>
             </Card>
           )}
 

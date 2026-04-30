@@ -1,6 +1,7 @@
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { Card } from './ui/card';
 import { MapPin } from 'lucide-react';
+import SafeMapWrapper from './SafeMapWrapper';
 
 interface LocationViewerProps {
   latitude: string;
@@ -37,6 +38,7 @@ export default function LocationViewer({ latitude, longitude, address }: Locatio
   return (
     <div className="space-y-3">
       {/* Mapa */}
+      <SafeMapWrapper height="300px" fallbackMessage="Mapa do terreno indisponível">
       <Card className="overflow-hidden">
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
           <div style={{ height: '300px', width: '100%' }}>
@@ -56,6 +58,7 @@ export default function LocationViewer({ latitude, longitude, address }: Locatio
           </div>
         </APIProvider>
       </Card>
+      </SafeMapWrapper>
 
       {/* Informações */}
       <Card className="p-3 bg-card/50">
