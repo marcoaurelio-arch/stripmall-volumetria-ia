@@ -1,152 +1,259 @@
-import { useState, useEffect, ReactNode } from 'react';
-import { Card } from './ui/card';
-import { MapPin, AlertTriangle, ExternalLink } from 'lucide-react';
+import { useState, useEffect, useRef, ReactNode, useCallback } from 'react';
+import { AlertTriangle, ExternalLink, Copy, CheckCheck, MapPin, RefreshCw } from 'lucide-react';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 interface Props {
   children: ReactNode;
+  /** Altura mínima do fallback (default: 400px) */
   height?: string;
+  /** Mensagem customizada para o título do aviso */
   fallbackMessage?: string;
+}
+
+type MapsErrorType = 'referer' | 'invalid-key' | 'api-not-activated' | 'quota' | 'unknown';
+
+interface MapsError {
+  type: MapsErrorType;
+  raw: string;
+}
+
+const AUTHORIZED_DOMAINS = [
+  'https://stripmallia-yczurrez.manus.space/*',
+  'https://*.manusvm.computer/*',
+  'https://*.manus.computer/*',
+  'http://localhost:3000/*',
+  'http://localhost:3002/*',
+];
+
+function classifyError(msg: string): MapsErrorType {
+  if (msg.includes('RefererNotAllowed') || msg.includes('referer')) return 'referer';
+  if (msg.includes('InvalidKey')) return 'invalid-key';
+  if (msg.includes('ApiNotActivated')) return 'api-not-activated';
+  if (msg.includes('OverQuota') || msg.includes('quota')) return 'quota';
+  return 'unknown';
+}
+
+function isMapsError(msg: string, src?: string): boolean {
+  const mapsSource = (src || '').includes('maps.googleapis.com');
+  const mapsKeywords = [
+    'RefererNotAllowedMapError',
+    'InvalidKeyMapError',
+    'ApiNotActivatedMapError',
+    'OverQuotaMapError',
+    'MapsServerError',
+    'Google Maps JavaScript API error',
+  ];
+  return mapsSource || mapsKeywords.some((kw) => msg.includes(kw));
 }
 
 /**
  * Wrapper seguro para componentes Google Maps.
- * Detecta RefererNotAllowedMapError (erro de domínio não autorizado) via window.onerror
- * e exibe um fallback amigável com instruções para resolver.
  *
- * Diferente do MapErrorBoundary (que captura crashes React),
- * este componente captura erros de console/window do Google Maps SDK.
+ * Detecta erros de domínio não autorizado (RefererNotAllowedMapError),
+ * API key inválida, API não ativada e quota excedida via múltiplos mecanismos:
+ * - window.onerror (erros JavaScript do SDK)
+ * - console.error (mensagens de erro do Google Maps)
+ * - MutationObserver (banner de erro injetado no DOM pelo Google Maps)
+ *
+ * Exibe um aviso claro e acionável em vez de deixar a página travar.
  */
 export default function SafeMapWrapper({ children, height = '400px', fallbackMessage }: Props) {
-  const [mapsError, setMapsError] = useState<string | null>(null);
+  const [mapsError, setMapsError] = useState<MapsError | null>(null);
+  const [copied, setCopied] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const detectedRef = useRef(false);
 
-  useEffect(() => {
-    // Detecta erros do Google Maps via window.onerror
-    const originalOnError = window.onerror;
-
-    const handleError = (
-      message: string | Event,
-      source?: string,
-      _lineno?: number,
-      _colno?: number,
-      _error?: Error
-    ) => {
-      const msg = typeof message === 'string' ? message : String(message);
-      const src = source || '';
-
-      // Detecta erros específicos do Google Maps
-      if (
-        src.includes('maps.googleapis.com') ||
-        msg.includes('RefererNotAllowedMapError') ||
-        msg.includes('InvalidKeyMapError') ||
-        msg.includes('MapsServerError') ||
-        msg.includes('ApiNotActivatedMapError')
-      ) {
-        setMapsError(msg);
-        return true; // Suprime o erro do console
-      }
-
-      // Chama o handler original para outros erros
-      if (typeof originalOnError === 'function') {
-        return originalOnError(message, source, _lineno, _colno, _error);
-      }
-      return false;
-    };
-
-    window.onerror = handleError;
-
-    // Também detecta via console.error (Google Maps usa isso)
-    const originalConsoleError = console.error;
-    console.error = (...args: unknown[]) => {
-      const msg = args.join(' ');
-      if (
-        msg.includes('RefererNotAllowedMapError') ||
-        msg.includes('InvalidKeyMapError') ||
-        msg.includes('ApiNotActivatedMapError') ||
-        (msg.includes('Google Maps') && msg.includes('error'))
-      ) {
-        setMapsError(msg);
-        return; // Suprime do console
-      }
-      originalConsoleError(...args);
-    };
-
-    return () => {
-      window.onerror = originalOnError;
-      console.error = originalConsoleError;
-    };
+  const reportError = useCallback((raw: string) => {
+    if (detectedRef.current) return;
+    detectedRef.current = true;
+    setMapsError({ type: classifyError(raw), raw });
   }, []);
 
+  const handleRetry = () => {
+    detectedRef.current = false;
+    setMapsError(null);
+  };
+
+  const copyDomains = async () => {
+    await navigator.clipboard.writeText(AUTHORIZED_DOMAINS.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  useEffect(() => {
+    // 1. Intercepta window.onerror
+    const prevOnError = window.onerror;
+    window.onerror = (message, source, lineno, colno, error) => {
+      const msg = typeof message === 'string' ? message : String(message);
+      if (isMapsError(msg, source)) {
+        reportError(msg);
+        return true; // suprime o erro do console
+      }
+      return typeof prevOnError === 'function'
+        ? prevOnError(message, source, lineno, colno, error)
+        : false;
+    };
+
+    // 2. Intercepta console.error
+    const prevConsoleError = console.error;
+    console.error = (...args: unknown[]) => {
+      const msg = args.map(String).join(' ');
+      if (isMapsError(msg)) {
+        reportError(msg);
+        return; // suprime do console
+      }
+      prevConsoleError(...args);
+    };
+
+    // 3. MutationObserver — Google Maps injeta um div com classe "gm-err-container"
+    //    quando a API key não está autorizada para o domínio
+    const observer = new MutationObserver(() => {
+      const errContainer = document.querySelector('.gm-err-container');
+      const errMessage = document.querySelector('.gm-err-message');
+      if (errContainer || errMessage) {
+        const text = errMessage?.textContent || 'RefererNotAllowedMapError';
+        reportError(text);
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.onerror = prevOnError;
+      console.error = prevConsoleError;
+      observer.disconnect();
+    };
+  }, [reportError]);
+
   if (mapsError) {
-    const isRefererError =
-      mapsError.includes('RefererNotAllowed') || mapsError.includes('referer');
-    const isKeyError = mapsError.includes('InvalidKey') || mapsError.includes('ApiNotActivated');
+    const { type } = mapsError;
+
+    const titles: Record<MapsErrorType, string> = {
+      referer: 'Domínio não autorizado na API key',
+      'invalid-key': 'API key inválida ou ausente',
+      'api-not-activated': 'Maps JavaScript API não está ativada',
+      quota: 'Limite de requisições atingido',
+      unknown: 'Erro ao carregar o Google Maps',
+    };
+
+    const badges: Record<MapsErrorType, { label: string; className: string }> = {
+      referer: { label: 'RefererNotAllowedMapError', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+      'invalid-key': { label: 'InvalidKeyMapError', className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+      'api-not-activated': { label: 'ApiNotActivatedMapError', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+      quota: { label: 'OverQuotaMapError', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
+      unknown: { label: 'MapsError', className: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' },
+    };
 
     return (
-      <Card
-        className="border-amber-500/30 bg-amber-500/5"
-        style={{ minHeight: height, display: 'flex', alignItems: 'center' }}
+      <div
+        ref={containerRef}
+        className="w-full rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-orange-500/5 flex items-center justify-center"
+        style={{ minHeight: height }}
       >
-        <div className="p-6 w-full">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-amber-600 dark:text-amber-400">
-                {fallbackMessage || 'Mapa indisponível'}
-              </h3>
-
-              {isRefererError && (
-                <>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    A API key do Google Maps não está autorizada para este domínio. Para resolver,
-                    adicione os domínios abaixo nas restrições da API key no Google Cloud Console:
-                  </p>
-                  <div className="mt-3 p-3 bg-muted rounded-md font-mono text-xs space-y-1">
-                    <div>https://stripmallia-yczurrez.manus.space/*</div>
-                    <div>https://*.manusvm.computer/*</div>
-                    <div>https://*.manus.computer/*</div>
-                    <div>http://localhost:3000/*</div>
-                    <div>http://localhost:3002/*</div>
-                  </div>
-                </>
-              )}
-
-              {isKeyError && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  A API key do Google Maps é inválida ou a API Maps JavaScript não está habilitada
-                  no Google Cloud Console.
-                </p>
-              )}
-
-              {!isRefererError && !isKeyError && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Ocorreu um erro ao carregar o Google Maps. Verifique a configuração da API key.
-                </p>
-              )}
-
-              <div className="flex items-center gap-3 mt-4">
-                <Button
+        <div className="p-6 w-full max-w-lg mx-auto">
+          {/* Header */}
+          <div className="flex items-start gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-amber-500/10 shrink-0">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <h3 className="font-semibold text-foreground text-sm">
+                  {fallbackMessage || titles[type]}
+                </h3>
+                <Badge
                   variant="outline"
-                  size="sm"
-                  onClick={() => setMapsError(null)}
-                  className="gap-2"
+                  className={`text-[10px] font-mono px-1.5 py-0 border-0 ${badges[type].className}`}
                 >
-                  Tentar novamente
-                </Button>
-                <a
-                  href="https://console.cloud.google.com/apis/credentials"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary underline flex items-center gap-1"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  Abrir Google Cloud Console
-                </a>
+                  {badges[type].label}
+                </Badge>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {type === 'referer' && (
+                  <>O domínio <code className="bg-muted px-1 rounded text-[10px]">{window.location.hostname}</code> não está na lista de domínios autorizados da API key.</>
+                )}
+                {type === 'invalid-key' && 'Verifique se a variável VITE_GOOGLE_MAPS_API_KEY está configurada corretamente.'}
+                {type === 'api-not-activated' && 'Ative a Maps JavaScript API no Google Cloud Console para este projeto.'}
+                {type === 'quota' && 'O limite de requisições da API foi atingido. Verifique as cotas no Google Cloud Console.'}
+                {type === 'unknown' && 'Verifique a configuração da API key no Google Cloud Console.'}
+              </p>
             </div>
           </div>
+
+          {/* Domínios a autorizar (apenas para erro de referer) */}
+          {type === 'referer' && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Adicione estes domínios na API key:
+                </span>
+                <button
+                  onClick={copyDomains}
+                  className="flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  {copied ? (
+                    <><CheckCheck className="h-3 w-3" /> Copiado!</>
+                  ) : (
+                    <><Copy className="h-3 w-3" /> Copiar todos</>
+                  )}
+                </button>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/50 divide-y divide-border overflow-hidden">
+                {AUTHORIZED_DOMAINS.map((domain) => (
+                  <div
+                    key={domain}
+                    className="px-3 py-1.5 font-mono text-[11px] text-muted-foreground hover:bg-muted transition-colors flex items-center justify-between group"
+                  >
+                    <span>{domain}</span>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(domain)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Copiar"
+                    >
+                      <Copy className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Ações */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRetry}
+              className="gap-1.5 h-7 text-xs"
+            >
+              <RefreshCw className="h-3 w-3" />
+              Tentar novamente
+            </Button>
+            <a
+              href={
+                type === 'referer'
+                  ? 'https://console.cloud.google.com/apis/credentials'
+                  : type === 'api-not-activated'
+                  ? 'https://console.cloud.google.com/apis/library/maps-backend.googleapis.com'
+                  : 'https://console.cloud.google.com/apis/dashboard'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <ExternalLink className="h-3 w-3" />
+              {type === 'referer' ? 'Abrir Credenciais' : 'Abrir Cloud Console'}
+            </a>
+          </div>
+
+          {/* Placeholder do mapa */}
+          <div className="mt-4 rounded-lg border border-dashed border-border/50 bg-muted/20 flex items-center justify-center py-4 gap-2 text-muted-foreground/40">
+            <MapPin className="h-4 w-4" />
+            <span className="text-xs">Mapa indisponível</span>
+          </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
