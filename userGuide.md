@@ -4,11 +4,11 @@
 
 **Propósito:** Criar e analisar estudos de massa e volumetria para projetos de strip malls com inteligência artificial.
 
-**Acesso:** Login obrigatório via Manus OAuth.
+**Acesso:** Login obrigatório via autenticação da plataforma.
 
 ---
 
-## Powered by Manus
+## Plataforma
 
 Esta aplicação utiliza tecnologias de ponta para entregar análises precisas e rápidas:
 
@@ -20,7 +20,7 @@ Esta aplicação utiliza tecnologias de ponta para entregar análises precisas e
 
 **Inteligência Artificial:** Integração com GPT-4 para análises volumétricas avançadas e sugestões de layout otimizadas.
 
-**Autenticação:** Manus OAuth para login seguro e gerenciamento de usuários.
+**Autenticação:** OAuth para login seguro e gerenciamento de usuários.
 
 **Deployment:** Infraestrutura auto-escalável com CDN global para acesso rápido de qualquer lugar.
 
@@ -56,4 +56,4 @@ Acesse o painel de gerenciamento através do ícone no cabeçalho da interface. 
 
 ## Próximos Passos
 
-Converse com Manus AI a qualquer momento para solicitar alterações ou adicionar funcionalidades. Para usar os mapas interativos, obtenha uma chave de API gratuita do Google Maps em console.cloud.google.com e adicione em Settings → Secrets. Experimente criar seu primeiro projeto de strip mall com localização geográfica e veja como a IA otimiza automaticamente o layout e a distribuição de espaços para maximizar o potencial do terreno.
+Para evoluir a aplicação, registre novas demandas técnicas ou funcionais no fluxo interno do projeto. Para usar os mapas interativos, obtenha uma chave de API gratuita do Google Maps em console.cloud.google.com e adicione em Settings → Secrets. Experimente criar seu primeiro projeto de strip mall com localização geográfica e veja como a IA otimiza automaticamente o layout e a distribuição de espaços para maximizar o potencial do terreno.

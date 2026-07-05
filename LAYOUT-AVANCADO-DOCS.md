@@ -183,7 +183,7 @@ Gera **documento PDF comparativo** com todos os layouts salvos, incluindo visual
 
 **`server/services/layoutPdfExportService.ts`**
 
-Gera markdown estruturado que é convertido para PDF usando `manus-md-to-pdf`.
+Gera markdown estruturado que é convertido para PDF usando o conversor CLI configurado no ambiente.
 
 #### Estrutura do Markdown
 
@@ -262,7 +262,7 @@ O layout "Nome" apresenta o melhor score geral (X/100) e é recomendado para est
 1. **Buscar layouts** do projeto no banco de dados
 2. **Gerar markdown** com todas as informações
 3. **Salvar markdown** temporário em `/tmp`
-4. **Converter para PDF** usando `manus-md-to-pdf`
+4. **Converter para PDF** usando o conversor CLI configurado
 5. **Ler PDF** e converter para base64
 6. **Enviar para frontend** como base64
 7. **Download automático** no navegador

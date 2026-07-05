@@ -451,4 +451,4 @@ Editar `server/costCalculationService.ts` e atualizar array `CUB_DATA_BY_STATE` 
 
 **Última atualização:** 16 de novembro de 2025  
 **Versão do sistema:** d0161cec  
-**Desenvolvido por:** Manus AI
+**Desenvolvido por:** Equipe Nexa Malls

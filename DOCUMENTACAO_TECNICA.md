@@ -11,8 +11,8 @@ Aplicação web desenvolvida para realizar estudos de massa e volumetria de terr
 - **Frontend**: React 19 + TypeScript + Tailwind CSS 4
 - **Backend**: Node.js + Express 4 + tRPC 11
 - **Banco de Dados**: MySQL/TiDB (via Drizzle ORM)
-- **Autenticação**: Manus OAuth
-- **IA**: Integração com LLM via API Manus
+- **Autenticação**: OAuth da plataforma
+- **IA**: Integração com LLM via API configurável da plataforma
 
 ### Estrutura de Pastas
 
@@ -154,7 +154,7 @@ A página de detalhes do projeto (`ProjectDetail.tsx`) apresenta:
 
 ## Fluxo de Uso
 
-1. **Usuário faz login** via Manus OAuth
+1. **Usuário faz login** via OAuth da plataforma
 2. **Cria novo projeto** preenchendo formulário com dados do terreno
 3. **Acessa detalhes** do projeto criado
 4. **Clica em "Analisar com IA"** para gerar estudo volumétrico
@@ -192,7 +192,7 @@ A IA analisa a área disponível e sugere:
 
 ## Segurança
 
-- **Autenticação**: OAuth via Manus (JWT em cookies HTTP-only)
+- **Autenticação**: OAuth da plataforma (JWT em cookies HTTP-only)
 - **Autorização**: Procedures protegidas com `protectedProcedure`
 - **Validação**: Inputs validados via Zod no tRPC
 - **Isolamento**: Usuários só acessam seus próprios projetos
@@ -234,14 +234,14 @@ Editar função `analyzeProject` em `server/projectRouters.ts`, ajustando:
 
 ### Deploy
 
-A aplicação está configurada para deploy automático via Manus:
-1. Criar checkpoint via `webdev_save_checkpoint`
-2. Clicar em "Publish" na UI de gerenciamento
-3. Aplicação será publicada em `*.manus.space`
+A aplicação está preparada para deploy via ambiente gerenciado da plataforma:
+1. Criar checkpoint da versão desejada
+2. Publicar pela interface de gerenciamento do ambiente
+3. Validar domínio, variáveis de ambiente e integrações ativas antes da liberação
 
 ## Suporte
 
 Para dúvidas ou problemas técnicos, consulte:
 - Documentação do template: `README.md`
 - Guia do usuário: `userGuide.md`
-- Suporte Manus: https://help.manus.im
+- Materiais internos de operação e infraestrutura do projeto

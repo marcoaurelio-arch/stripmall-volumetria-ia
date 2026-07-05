@@ -649,4 +649,4 @@ pnpm tsc --noEmit
 
 **Última atualização:** 16 de novembro de 2025  
 **Versão do sistema:** 4b510372 + simulação solar backend  
-**Desenvolvido por:** Manus AI
+**Desenvolvido por:** Equipe Nexa Malls

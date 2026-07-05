@@ -131,7 +131,7 @@ Sistema profissional de análise volumétrica e viabilidade para strip malls com
 ### Dependências Principais
 - **Backend**: Express, tRPC, Drizzle ORM, MySQL, JWT
 - **Frontend**: React 19, TailwindCSS 4, shadcn/ui, Recharts, Matter.js, Pannellum
-- **IA**: Integração com Manus Forge API (LLM + Image Generation)
+- **IA**: Integração com API generativa configurada no ambiente (LLM + Image Generation)
 - **Mapas**: Google Maps API, Google Places API
 - **Dados**: IBGE API
 
@@ -139,7 +139,7 @@ Sistema profissional de análise volumétrica e viabilidade para strip malls com
 - ✅ Google Places API (busca de concorrentes)
 - ✅ Google Maps API (visualização de mapas)
 - ✅ IBGE API (dados demográficos)
-- ✅ Manus Forge API (IA generativa)
+- ✅ API generativa configurada no ambiente
 - ✅ Tabelas CUB/SINAPI (custos de construção)
 - ✅ AWS S3 (armazenamento de arquivos)
 
@@ -314,7 +314,7 @@ O sistema está **pronto para produção** e pode gerar valor imediato para dese
 
 ---
 
-**Desenvolvido com:** React 19, TypeScript, TailwindCSS 4, tRPC 11, Drizzle ORM, Express 4, Matter.js, Pannellum, Recharts, shadcn/ui, Manus Forge API
+**Desenvolvido com:** React 19, TypeScript, TailwindCSS 4, tRPC 11, Drizzle ORM, Express 4, Matter.js, Pannellum, Recharts, shadcn/ui e API generativa configurável
 
 **Versão:** 1.0.0  
 **Data:** Janeiro 2025  

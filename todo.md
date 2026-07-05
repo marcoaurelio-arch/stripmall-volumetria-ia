@@ -3,7 +3,7 @@
 ## 🎯 Melhorias Finais para Publicação (14/12/2025)
 
 ### 1. Configurar Google Maps API
-- [x] Verificar se VITE_GOOGLE_MAPS_API_KEY está configurada - OK: AIzaSyDEuryIJbpuYSdupSpQjW8T3en8e_yunPA
+- [x] Verificar se `VITE_GOOGLE_MAPS_API_KEY` está configurada
 - [x] Testar desenho de polígonos na página de novo projeto - Funcionalidade presente
 - [x] Validar cálculo automático de área do polígono - Sistema integrado
 - [x] Documentar processo de configuração - Guia GOOGLE_MAPS_SETUP.md já existe
@@ -249,7 +249,7 @@
 - [x] Implementar rota /api/dev-login no servidor
 - [x] Injetar usuário dev no context.ts quando DEV_USER_ID definido
 - [x] Adicionar botão "Dev Login" no frontend (apenas em development)
-- [x] Atualizar .env.local.download com DEV_USER_ID
+- [x] Atualizar arquivo local de ambiente com `DEV_USER_ID`
 - [x] Documentar fluxo no README
 
 ## 🐛 Bug: Erro na Geração de Imagens Conceituais
@@ -263,7 +263,7 @@
 - [x] Corrigir referências instáveis: removido prop `center` conflitante em LocationPicker e LocationPickerWithDrawing
 - [x] Corrigir dependência instável: removido `mapRef.current` da lista de deps do useEffect
 - [x] Adicionar MapErrorBoundary em todos os componentes de mapa
-- [ ] Testar no site publicado stripmallia-yczurrez.manus.space
+- [ ] Testar no ambiente publicado da aplicação
 - [ ] Salvar checkpoint e republicar
 
 ## 🐛 Bug: Google Maps RefererNotAllowedMapError (30/04/2026)

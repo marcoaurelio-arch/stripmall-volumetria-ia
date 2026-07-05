@@ -390,7 +390,7 @@ export function generateIFC(project: any, analysis: any) {
 ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION(('ViewDefinition [CoordinationView]'),'2;1');
-FILE_NAME('${project.name}.ifc','${new Date().toISOString()}',('Manus AI'),('Strip Mall Volumetria IA'),'IFC2X3','','');
+FILE_NAME('${project.name}.ifc','${new Date().toISOString()}',('Nexa Malls IA'),('Strip Mall Volumetria IA'),'IFC2X3','','');
 FILE_SCHEMA(('IFC2X3'));
 ENDSEC;
 
@@ -398,8 +398,8 @@ DATA;
 #1=IFCPROJECT('${project.id}',#2,'${project.name}','Strip Mall Project',$,$,$,$,#3);
 #2=IFCOWNERHISTORY(#4,#5,$,.ADDED.,$,$,$,${Date.now()});
 #3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#6,$);
-#4=IFCPERSON($,'Manus','AI',$,$,$,$,$);
-#5=IFCORGANIZATION($,'Manus AI',$,$,$);
+#4=IFCPERSON($,'Nexa','Malls IA',$,$,$,$,$);
+#5=IFCORGANIZATION($,'Nexa Malls IA',$,$,$);
 #6=IFCAXIS2PLACEMENT3D(#7,$,$);
 #7=IFCCARTESIANPOINT((0.,0.,0.));
 

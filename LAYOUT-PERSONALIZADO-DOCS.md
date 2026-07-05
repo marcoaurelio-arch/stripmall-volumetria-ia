@@ -503,4 +503,4 @@ O algoritmo de validação:
 
 **Versão:** 1.0  
 **Data:** 23/01/2025  
-**Autor:** Sistema Manus AI
+**Autor:** Sistema Nexa Malls IA
