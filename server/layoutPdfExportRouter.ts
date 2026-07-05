@@ -6,12 +6,9 @@ import { getDb } from "./db";
 import { savedLayouts } from "../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { generateLayoutComparisonMarkdown } from "./services/layoutPdfExportService";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { convertMarkdownToPdf } from "./services/pdfConverter";
 import * as fs from "fs/promises";
 import * as path from "path";
-
-const execAsync = promisify(exec);
 
 export const layoutPdfExportRouter = router({
   /**
@@ -94,8 +91,8 @@ export const layoutPdfExportRouter = router({
       await fs.writeFile(mdPath, markdown, "utf-8");
 
       try {
-        // Converter para PDF usando manus-md-to-pdf
-        await execAsync(`manus-md-to-pdf ${mdPath} ${pdfPath}`);
+        // Converter para PDF usando o conversor configurado no ambiente
+        await convertMarkdownToPdf(mdPath, pdfPath);
 
         // Ler PDF
         const pdfBuffer = await fs.readFile(pdfPath);

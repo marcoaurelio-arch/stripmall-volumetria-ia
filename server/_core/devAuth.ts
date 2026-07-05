@@ -2,7 +2,7 @@
  * Dev Auth Bypass — LOCAL DEVELOPMENT ONLY
  *
  * Provides a /api/dev-login endpoint that issues a valid session cookie
- * without going through Manus OAuth. Only active when DEV_USER_ID is set
+ * without going through the full OAuth flow. Only active when DEV_USER_ID is set
  * in the environment AND NODE_ENV is "development".
  *
  * NEVER ship this to production — the guard below enforces that.
@@ -26,7 +26,7 @@ export function registerDevAuthRoutes(app: Express) {
       res.status(403).json({
         error: "Dev auth bypass is not enabled.",
         fix: "Add DEV_USER_ID=<your-openId> to your .env file and restart the server.",
-        docs: "See .env.local.download for the full setup.",
+        docs: "See the local environment setup guide for the full configuration.",
       });
     });
     return;

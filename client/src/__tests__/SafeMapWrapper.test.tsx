@@ -51,8 +51,8 @@ describe('SafeMapWrapper', () => {
     });
 
     // Should show the list of authorized domains
-    expect(screen.getByText(/stripmallia-yczurrez\.manus\.space/)).toBeInTheDocument();
-    expect(screen.getByText(/localhost:3000/)).toBeInTheDocument();
+    expect(screen.getByText('http://localhost:3000/*')).toBeInTheDocument();
+    expect(screen.getByText('http://localhost:3002/*')).toBeInTheDocument();
 
     // Should show the error badge
     expect(screen.getByText('RefererNotAllowedMapError')).toBeInTheDocument();
@@ -160,7 +160,7 @@ describe('SafeMapWrapper', () => {
     await user.click(screen.getByText(/Copiar todos/i));
 
     expect(clipboardSpy).toHaveBeenCalledWith(
-      expect.stringContaining('stripmallia-yczurrez.manus.space')
+      expect.stringContaining('http://localhost:3000/*')
     );
 
     // Should show "Copiado!" feedback

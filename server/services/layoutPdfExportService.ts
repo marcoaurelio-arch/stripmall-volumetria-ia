@@ -28,7 +28,7 @@ interface ExportInput {
 
 /**
  * Gera conteúdo Markdown para comparação de layouts
- * Este markdown pode ser convertido para PDF usando manus-md-to-pdf
+ * Este markdown pode ser convertido para PDF usando o conversor CLI configurado no ambiente
  */
 export function generateLayoutComparisonMarkdown(input: ExportInput): string {
   const { projectName, layouts, terrain, setbacks } = input;

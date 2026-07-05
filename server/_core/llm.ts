@@ -210,13 +210,19 @@ const normalizeToolChoice = (
 };
 
 const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
+  ENV.aiApiBaseUrl && ENV.aiApiBaseUrl.trim().length > 0
+    ? `${ENV.aiApiBaseUrl.replace(/\/$/, "")}/v1/chat/completions`
+    : "";
 
 const assertApiKey = () => {
   if (!ENV.forgeApiKey) {
     throw new Error("OPENAI_API_KEY is not configured");
+  }
+};
+
+const assertApiUrl = () => {
+  if (!resolveApiUrl()) {
+    throw new Error("AI_API_BASE_URL is not configured");
   }
 };
 
@@ -267,6 +273,8 @@ const normalizeResponseFormat = ({
 
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   assertApiKey();
+  assertApiUrl();
+  const apiUrl = resolveApiUrl();
 
   const {
     messages,
@@ -312,7 +320,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
-  const response = await fetch(resolveApiUrl(), {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
       "content-type": "application/json",

@@ -3,14 +3,13 @@ import { drizzle } from 'drizzle-orm/mysql2';
 import { analysisVersions } from '../../drizzle/schema';
 import { desc, eq } from 'drizzle-orm';
 
-describe('Version Router', () => {
+const describeIfDatabase = process.env.DATABASE_URL ? describe : describe.skip;
+
+describeIfDatabase('Version Router', () => {
   let db: ReturnType<typeof drizzle>;
 
   beforeAll(() => {
-    if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL not set');
-    }
-    db = drizzle(process.env.DATABASE_URL);
+    db = drizzle(process.env.DATABASE_URL!);
   });
 
   it('should have analysisVersions table accessible', async () => {

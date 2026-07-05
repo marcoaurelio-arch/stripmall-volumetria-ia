@@ -4,14 +4,13 @@ import { projects } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { getOrGenerateProjectDNA } from '../services/projectDNAHelper';
 
-describe('DNA Router', () => {
+const describeIfDatabase = process.env.DATABASE_URL ? describe : describe.skip;
+
+describeIfDatabase('DNA Router', () => {
   let db: ReturnType<typeof drizzle>;
 
   beforeAll(() => {
-    if (!process.env.DATABASE_URL) {
-      throw new Error('DATABASE_URL not set');
-    }
-    db = drizzle(process.env.DATABASE_URL);
+    db = drizzle(process.env.DATABASE_URL!);
   });
 
   it('should generate DNA for a project', async () => {

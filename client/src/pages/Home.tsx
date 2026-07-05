@@ -212,7 +212,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t bg-background/95 backdrop-blur">
         <div className="container py-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 {APP_TITLE}. Powered by Manus AI.</p>
+          <p>© 2025 {APP_TITLE}. Nexa Malls.</p>
         </div>
       </footer>
     </div>

@@ -76,7 +76,7 @@ export function generateIFC(options: BIMExportOptions): string {
   const ifcContent = `ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION(('ViewDefinition [CoordinationView]'),'2;1');
-FILE_NAME('${options.projectName}.ifc','${timestamp}',(''),(''),'','Manus Strip Mall Volumetria IA','');
+FILE_NAME('${options.projectName}.ifc','${timestamp}',(''),(''),'','Nexa Strip Mall Volumetria IA','');
 FILE_SCHEMA(('IFC4'));
 ENDSEC;
 

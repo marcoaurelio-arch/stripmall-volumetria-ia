@@ -146,7 +146,7 @@ console.log("✅ Projeto de teste criado com sucesso!");
 console.log(`\n📊 Resumo:`);
 console.log(`   Project ID: ${projectId}`);
 console.log(`   Nome: ${testProject.name}`);
-console.log(`   URL: https://3000-i5zw31ezow77eo36j4aqg-3f6fedad.manusvm.computer/projeto/${projectId}`);
+console.log(`   URL: [ambiente publicado]/projeto/${projectId}`);
 console.log(`\n🎯 Próximo passo: Acesse o projeto e gere as imagens através da interface\n`);
 
 await connection.end();

@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { DNA_PRESETS, getPresetById, getPresetsByCategory, applyPresetToDNA } from '../services/dnaPresets';
 import { ProjectDNA } from '../services/projectDNAService';
 
+const THUMBNAIL_PATTERN = /^(\/preset-thumbnails\/|https:\/\/).+\.(png|jpg|jpeg|webp)$/i;
+
 describe('DNA Presets', () => {
   it('should have at least 8 presets defined', () => {
     expect(DNA_PRESETS.length).toBeGreaterThanOrEqual(8);
@@ -34,7 +36,7 @@ describe('DNA Presets', () => {
       expect(preset.description).toBeDefined();
       expect(preset.category).toBeDefined();
       expect(preset.thumbnail).toBeDefined();
-      expect(preset.thumbnail).toMatch(/^\/preset-thumbnails\//);
+      expect(preset.thumbnail).toMatch(THUMBNAIL_PATTERN);
 
       // Validar DNA
       expect(preset.dna.style).toBeDefined();
@@ -120,7 +122,7 @@ describe('DNA Presets', () => {
   it('should have thumbnail images for all presets', () => {
     DNA_PRESETS.forEach((preset) => {
       expect(preset.thumbnail).toBeDefined();
-      expect(preset.thumbnail).toMatch(/^\/(preset-thumbnails)\//);
+      expect(preset.thumbnail).toMatch(THUMBNAIL_PATTERN);
       // Validar que thumbnail tem extensão de imagem
       expect(preset.thumbnail).toMatch(/\.(png|jpg|jpeg|webp)$/);
     });

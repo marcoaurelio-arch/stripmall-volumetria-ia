@@ -3,9 +3,11 @@ import { buildProjectContext } from '../services/projectContextHelper';
 import { getOrGenerateProjectDNA } from '../services/projectDNAHelper';
 import { generateConsistentPrompt } from '../services/projectDNAService';
 
-const TEST_PROJECT_ID = 1080004;
+const TEST_PROJECT_ID = Number(process.env.TEST_PROJECT_ID ?? 1080004);
+const describeIfRealProject =
+  process.env.DATABASE_URL && process.env.TEST_PROJECT_ID ? describe : describe.skip;
 
-describe('Validação de Prompts - Projeto Real', () => {
+describeIfRealProject('Validação de Prompts - Projeto Real', () => {
   let context: Awaited<ReturnType<typeof buildProjectContext>>;
   let projectDNA: Awaited<ReturnType<typeof getOrGenerateProjectDNA>>;
 

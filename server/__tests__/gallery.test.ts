@@ -1,14 +1,20 @@
 /**
  * Testes para galeria de projetos exemplo
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { drizzle } from 'drizzle-orm/mysql2';
 import { exampleProjects } from '../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 
-const db = drizzle(process.env.DATABASE_URL!);
+const describeIfDatabase = process.env.DATABASE_URL ? describe : describe.skip;
 
-describe('Gallery - Projetos Exemplo', () => {
+describeIfDatabase('Gallery - Projetos Exemplo', () => {
+  let db: ReturnType<typeof drizzle>;
+
+  beforeAll(() => {
+    db = drizzle(process.env.DATABASE_URL!);
+  });
+
   it('deve ter pelo menos 6 projetos exemplo no banco', async () => {
     const examples = await db.select().from(exampleProjects);
     expect(examples.length).toBeGreaterThanOrEqual(6);

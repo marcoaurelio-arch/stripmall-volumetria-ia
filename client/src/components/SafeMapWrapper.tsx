@@ -18,13 +18,14 @@ interface MapsError {
   raw: string;
 }
 
-const AUTHORIZED_DOMAINS = [
-  'https://stripmallia-yczurrez.manus.space/*',
-  'https://*.manusvm.computer/*',
-  'https://*.manus.computer/*',
+const STATIC_AUTHORIZED_DOMAINS = [
   'http://localhost:3000/*',
   'http://localhost:3002/*',
 ];
+
+function buildAuthorizedDomains(currentOrigin: string): string[] {
+  return Array.from(new Set([`${currentOrigin}/*`, ...STATIC_AUTHORIZED_DOMAINS]));
+}
 
 function classifyError(msg: string): MapsErrorType {
   if (msg.includes('RefererNotAllowed') || msg.includes('referer')) return 'referer';
@@ -63,6 +64,7 @@ export default function SafeMapWrapper({ children, height = '400px', fallbackMes
   const [copied, setCopied] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const detectedRef = useRef(false);
+  const authorizedDomains = buildAuthorizedDomains(window.location.origin);
 
   const reportError = useCallback((raw: string) => {
     if (detectedRef.current) return;
@@ -76,7 +78,7 @@ export default function SafeMapWrapper({ children, height = '400px', fallbackMes
   };
 
   const copyDomains = async () => {
-    await navigator.clipboard.writeText(AUTHORIZED_DOMAINS.join('\n'));
+    await navigator.clipboard.writeText(authorizedDomains.join('\n'));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -200,7 +202,7 @@ export default function SafeMapWrapper({ children, height = '400px', fallbackMes
                 </button>
               </div>
               <div className="rounded-lg border border-border bg-muted/50 divide-y divide-border overflow-hidden">
-                {AUTHORIZED_DOMAINS.map((domain) => (
+                {authorizedDomains.map((domain) => (
                   <div
                     key={domain}
                     className="px-3 py-1.5 font-mono text-[11px] text-muted-foreground hover:bg-muted transition-colors flex items-center justify-between group"

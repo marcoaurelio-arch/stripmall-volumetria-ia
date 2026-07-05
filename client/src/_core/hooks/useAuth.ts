@@ -3,6 +3,8 @@ import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
 
+const AUTH_STORAGE_KEY = "auth-runtime-user-info";
+
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
   redirectPath?: string;
@@ -43,7 +45,7 @@ export function useAuth(options?: UseAuthOptions) {
 
   const state = useMemo(() => {
     localStorage.setItem(
-      "manus-runtime-user-info",
+      AUTH_STORAGE_KEY,
       JSON.stringify(meQuery.data)
     );
     return {
