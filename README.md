@@ -55,6 +55,18 @@ Exemplos de categorias de configuração:
 
 ## Estado Atual
 
+### Análise determinística (incremento 2026-10)
+
+A criação do estudo (`project.analyze`) passou a calcular, antes de chamar a IA, os limites
+do terreno em `server/services/massingEngine.ts`: envelope após recuos, projeção máxima
+(menor entre taxa de ocupação e envelope), área construída máxima (coeficiente), vagas e faixa
+de lojas. Esses limites entram no prompt como teto e, depois da resposta, `reconcileWithAI`
+substitui qualquer número da IA fora dos limites pelo valor calculado e registra a divergência
+num bloco "Verificação determinística" anexado às sugestões. Taxa de ocupação e coeficiente
+passaram a ser obrigatórios (o sistema não assume mais 70 % / 2,0); recuos e dimensões
+ausentes viram premissas explícitas no estudo. Testes em `server/__tests__/massingEngine.test.ts`
+cobrem os três exemplos práticos do repositório.
+
 O repositório passou por uma rodada extensa de curadoria técnica e institucional para reduzir acoplamentos legados, limpar artefatos sensíveis e estabilizar a baseline local de testes.
 
 ## Testes

@@ -15,6 +15,7 @@ import { analysisVersions, analyses, generatedImages } from "../drizzle/schema";
 import { generateConsistencyReport, StudyMetadata } from "./services/studyConsistencyAnalyzer";
 import { generateConsistencyPDF } from "./services/consistencyPDFGenerator";
 import { getOrGenerateProjectDNA } from "./services/projectDNAHelper";
+import { computeMassingLimits, formatVerificationBlock, MassingInputError, reconcileWithAI } from "./services/massingEngine";
 import { drizzle } from "drizzle-orm/mysql2";
 import { eq, desc } from "drizzle-orm";
 
@@ -203,6 +204,27 @@ export const projectRouter = router({
       }
       
       console.log(`[ANALYZE] Projeto validado: ${project.name}, área: ${project.area}m²`);
+
+      // Limites determinísticos: a IA descreve, o cálculo manda nos números
+      let limits;
+      try {
+        limits = computeMassingLimits({
+          area: project.area,
+          width: project.width,
+          length: project.length,
+          taxaOcupacao: project.taxaOcupacao,
+          coeficienteAproveitamento: project.coeficienteAproveitamento,
+          recuoFrontal: project.recuoFrontal,
+          recuoLateral: project.recuoLateral,
+          recuoFundos: project.recuoFundos,
+        });
+      } catch (e) {
+        if (e instanceof MassingInputError) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: e.message });
+        }
+        throw e;
+      }
+      console.log(`[ANALYZE] Limites calculados: envelope ${limits.envelope.area}m², projeção máx ${limits.maxFootprint}m², AC máx ${limits.maxGrossFloorArea}m²`);
       
       // Atualizar status para "analyzing"
       await db.updateProject(input.projectId, { status: "analyzing" });
@@ -235,19 +257,27 @@ Dados do Terreno:
 ${terrainData.width ? `- Largura: ${terrainData.width} m` : ""}
 ${terrainData.length ? `- Comprimento: ${terrainData.length} m` : ""}
 
-Parâmetros Urbanísticos:
-${terrainData.taxaOcupacao ? `- Taxa de Ocupação: ${terrainData.taxaOcupacao}%` : "- Taxa de Ocupação: Não especificada (use 70% como padrão)"}
-${terrainData.coeficienteAproveitamento ? `- Coeficiente de Aproveitamento: ${terrainData.coeficienteAproveitamento / 100}` : "- Coeficiente de Aproveitamento: Não especificado (use 2.0 como padrão)"}
-${terrainData.recuoFrontal ? `- Recuo Frontal: ${terrainData.recuoFrontal} m` : "- Recuo Frontal: 5m (padrão)"}
-${terrainData.recuoLateral ? `- Recuo Lateral: ${terrainData.recuoLateral} m` : "- Recuo Lateral: 3m (padrão)"}
-${terrainData.recuoFundos ? `- Recuo de Fundos: ${terrainData.recuoFundos} m` : "- Recuo de Fundos: 3m (padrão)"}${briefingSection}
+Parâmetros Urbanísticos (informados pelo usuário):
+- Taxa de Ocupação: ${terrainData.taxaOcupacao}%
+- Coeficiente de Aproveitamento: ${(terrainData.coeficienteAproveitamento ?? 0) / 100}
+- Recuo Frontal: ${terrainData.recuoFrontal ?? 0} m
+- Recuo Lateral: ${terrainData.recuoLateral ?? 0} m
+- Recuo de Fundos: ${terrainData.recuoFundos ?? 0} m${briefingSection}
+
+LIMITES JÁ CALCULADOS PELO SISTEMA (não ultrapasse; se propuser menos, justifique):
+- Envelope edificável após recuos: ${limits.envelope.width} m × ${limits.envelope.length} m = ${limits.envelope.area} m²
+- Projeção máxima no térreo (menor entre TO e envelope): ${limits.maxFootprint} m²
+- Área construída máxima (CA): ${limits.maxGrossFloorArea} m²
+- Vagas mínimas: 1 a cada ${limits.parking.m2PerSpace} m² construídos
+- Faixa plausível de lojas (50–150 m² cada): ${limits.stores.min} a ${limits.stores.max}
+${limits.premises.length ? `- Premissas assumidas por falta de dado: ${limits.premises.join("; ")}` : ""}
 
 Forneça uma análise completa incluindo:
-1. Área máxima construída permitida
-2. Área ocupada no térreo
-3. Número recomendado de lojas (considere lojas de 50-150m² cada)
-4. Número de vagas de estacionamento (1 vaga para cada 25m² de área construída)
-5. Dimensões recomendadas da volumetria (largura, comprimento, altura)
+1. Área construída proposta (≤ ${limits.maxGrossFloorArea} m²)
+2. Área ocupada no térreo (≤ ${limits.maxFootprint} m²)
+3. Número recomendado de lojas e distribuição por porte
+4. Número de vagas de estacionamento (≥ 1 a cada ${limits.parking.m2PerSpace} m² construídos)
+5. Dimensões recomendadas da volumetria dentro do envelope (largura ≤ ${limits.envelope.width} m, comprimento ≤ ${limits.envelope.length} m, altura)
 6. Sugestões de layout e distribuição
 7. Recomendações de projeto
 
@@ -314,12 +344,23 @@ Responda APENAS com um JSON válido no seguinte formato:
         
         console.log(`[ANALYZE] Conteúdo da resposta: ${typeof content === 'string' ? content.substring(0, 200) : 'objeto'}...`);
         
-        const analysisData = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
+        const aiData = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
         console.log(`[ANALYZE] Dados parseados com sucesso:`, {
-          areaMaximaConstruida: analysisData.areaMaximaConstruida,
-          numeroLojas: analysisData.numeroLojas,
-          vagasEstacionamento: analysisData.vagasEstacionamento
+          areaMaximaConstruida: aiData.areaMaximaConstruida,
+          numeroLojas: aiData.numeroLojas,
+          vagasEstacionamento: aiData.vagasEstacionamento
         });
+
+        // Os números gravados são os reconciliados com os limites; o texto é da IA
+        const reconciled = reconcileWithAI(limits, aiData);
+        if (reconciled.discrepancies.length) {
+          console.warn(`[ANALYZE] ${reconciled.discrepancies.length} valor(es) da IA fora dos limites, substituídos pelo cálculo:`, reconciled.discrepancies);
+        }
+        const analysisData = {
+          ...reconciled.numbers,
+          layoutDescription: typeof aiData.layoutDescription === "string" ? aiData.layoutDescription : "",
+          aiSuggestions: `${typeof aiData.aiSuggestions === "string" ? aiData.aiSuggestions : ""}\n${formatVerificationBlock(limits, reconciled)}`,
+        };
         
         // Salvar análise no banco
         console.log(`[ANALYZE] Salvando análise no banco de dados`);
